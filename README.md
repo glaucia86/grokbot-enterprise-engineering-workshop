@@ -22,3 +22,30 @@ The starter and solution refs, checkpoints and release tags will be created when
 ## Attribution
 
 Inspired by Lauren Tan's [All Code Is Slop (Except Mine)](https://www.youtube.com/watch?v=O_zcc6Xl12g) and [pstack](https://github.com/cursor/plugins/tree/main/pstack). This workshop is an independent adaptation of those principles to GrokBot. See the specification index for source and license guidance.
+
+## Run the VS-00 lab
+
+The scaffold serves a workshop landing page and a database-backed readiness endpoint. See [the slice handoffs](doc-specs/handoffs/) for capability and test results.
+
+Use Node.js 24.22.3, npm 11.19.1 and Docker Compose v2. Install a Chromium browser for Playwright, and copy `.env.example` to `.env` (`cp .env.example .env` in Bash or `Copy-Item .env.example .env` in PowerShell). The database and application bind to loopback.
+
+```bash
+npm ci
+npx playwright install chromium
+npm run lab:up
+npm run dev
+```
+
+While the dev server is running, open `http://127.0.0.1:3000`. From another terminal run:
+
+```bash
+npm run lab:doctor
+npm run check:static
+npm run test:e2e
+```
+
+A healthy lab returns HTTP 200 with `{"status":"ready"}`. Missing or unreachable PostgreSQL returns HTTP 503. Set `WORKSHOP_BASE_URL` for a different local app port, or `WORKSHOP_CHROMIUM_PATH` to use a compatible installed Chromium executable. For a prebuilt run, use `npm run build` followed by `npm run start`.
+
+Stop the application with Ctrl+C and run `npm run lab:down` for the owned Compose lab. This stops the containers and retains the volume and local verification evidence. If another checkout is using the project name or ports, isolate the Compose project and configure separate ports before starting it.
+
+For authoring setup and revision-linked checks, see [slice execution](doc-specs/LOOP-ENGINEERING.md). The optional authoring skill bootstrap uses Python with HTTPS access to the pinned sources.
