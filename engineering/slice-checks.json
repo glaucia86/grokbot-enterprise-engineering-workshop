@@ -80,5 +80,93 @@
       ],
       "timeoutSeconds": 50
     }
+  ],
+  "VS-01": [
+    {
+      "id": "static",
+      "criteria": [
+        "EG-02"
+      ],
+      "argv": [
+        "node",
+        "node_modules/eslint/bin/eslint.js",
+        "."
+      ],
+      "timeoutSeconds": 45
+    },
+    {
+      "id": "typecheck",
+      "criteria": [
+        "EG-02"
+      ],
+      "argv": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit"
+      ],
+      "timeoutSeconds": 45
+    },
+    {
+      "id": "unit",
+      "criteria": [
+        "AC-08",
+        "EG-02"
+      ],
+      "argv": [
+        "node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "tests/unit"
+      ],
+      "timeoutSeconds": 40
+    },
+    {
+      "id": "http-postgres",
+      "criteria": [
+        "FR-01",
+        "FR-02",
+        "FR-03",
+        "FR-05",
+        "FR-06",
+        "AC-04",
+        "AC-05",
+        "AC-08"
+      ],
+      "argv": [
+        "node",
+        "--env-file-if-exists=.env",
+        "--test",
+        "tests/integration/procurement.test.mjs"
+      ],
+      "timeoutSeconds": 75
+    },
+    {
+      "id": "vs-00-http-smoke",
+      "criteria": [
+        "FR-10"
+      ],
+      "argv": [
+        "node",
+        "--test",
+        "tests/smoke/health.test.mjs"
+      ],
+      "timeoutSeconds": 20
+    },
+    {
+      "id": "browser",
+      "criteria": [
+        "FR-01",
+        "FR-02",
+        "FR-03",
+        "FR-05",
+        "FR-06"
+      ],
+      "argv": [
+        "node",
+        "node_modules/@playwright/test/cli.js",
+        "test"
+      ],
+      "timeoutSeconds": 60
+    }
   ]
 }

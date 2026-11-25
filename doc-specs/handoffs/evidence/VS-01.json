@@ -1,0 +1,219 @@
+{
+  "schemaVersion": 1,
+  "slice": "VS-01",
+  "runId": "verified",
+  "attempt": 0,
+  "candidateSha": "3b89e68e34ae648421ebb238e3c3180fe9b349f5",
+  "worktreeDirty": false,
+  "environment": "isolated-lab",
+  "toolVersions": {
+    "python": "3.12.14",
+    "git": "git version 2.56.1",
+    "node": "24.22.3",
+    "npm": "11.19.1",
+    "next": "16.4.6",
+    "postgresql": "18.7",
+    "drizzleOrm": "0.45.4",
+    "drizzleKit": "0.31.11",
+    "vitest": "5.1.2",
+    "playwright": "1.62.1",
+    "chromium": "158.0.8127.0"
+  },
+  "status": "pass",
+  "humanReview": "pending",
+  "checks": [
+    {
+      "id": "static",
+      "criteria": [
+        "EG-02"
+      ],
+      "command": [
+        "node",
+        "node_modules/eslint/bin/eslint.js",
+        "."
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "startedAt": "2026-11-25T22:24:20.637576+00:00",
+      "finishedAt": "2026-11-25T22:24:22.808009+00:00",
+      "durationSeconds": 2.17,
+      "artifactPaths": [
+        "artifacts/verification/VS-01/verified/attempt-0/static.log"
+      ]
+    },
+    {
+      "id": "typecheck",
+      "criteria": [
+        "EG-02"
+      ],
+      "command": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "startedAt": "2026-11-25T22:24:22.808338+00:00",
+      "finishedAt": "2026-11-25T22:24:25.130865+00:00",
+      "durationSeconds": 2.323,
+      "artifactPaths": [
+        "artifacts/verification/VS-01/verified/attempt-0/typecheck.log"
+      ]
+    },
+    {
+      "id": "unit",
+      "criteria": [
+        "AC-08",
+        "EG-02"
+      ],
+      "command": [
+        "node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "tests/unit"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "startedAt": "2026-11-25T22:24:25.131028+00:00",
+      "finishedAt": "2026-11-25T22:24:27.203408+00:00",
+      "durationSeconds": 2.072,
+      "artifactPaths": [
+        "artifacts/verification/VS-01/verified/attempt-0/unit.log"
+      ]
+    },
+    {
+      "id": "http-postgres",
+      "criteria": [
+        "FR-01",
+        "FR-02",
+        "FR-03",
+        "FR-05",
+        "FR-06",
+        "AC-04",
+        "AC-05",
+        "AC-08"
+      ],
+      "command": [
+        "node",
+        "--env-file-if-exists=.env",
+        "--test",
+        "tests/integration/procurement.test.mjs"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "startedAt": "2026-11-25T22:24:27.203558+00:00",
+      "finishedAt": "2026-11-25T22:24:27.622304+00:00",
+      "durationSeconds": 0.419,
+      "artifactPaths": [
+        "artifacts/verification/VS-01/verified/attempt-0/http-postgres.log"
+      ]
+    },
+    {
+      "id": "vs-00-http-smoke",
+      "criteria": [
+        "FR-10"
+      ],
+      "command": [
+        "node",
+        "--test",
+        "tests/smoke/health.test.mjs"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "startedAt": "2026-11-25T22:24:27.622452+00:00",
+      "finishedAt": "2026-11-25T22:24:27.786765+00:00",
+      "durationSeconds": 0.164,
+      "artifactPaths": [
+        "artifacts/verification/VS-01/verified/attempt-0/vs-00-http-smoke.log"
+      ]
+    },
+    {
+      "id": "browser",
+      "criteria": [
+        "FR-01",
+        "FR-02",
+        "FR-03",
+        "FR-05",
+        "FR-06"
+      ],
+      "command": [
+        "node",
+        "node_modules/@playwright/test/cli.js",
+        "test"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "startedAt": "2026-11-25T22:24:27.786915+00:00",
+      "finishedAt": "2026-11-25T22:24:29.863319+00:00",
+      "durationSeconds": 2.076,
+      "artifactPaths": [
+        "artifacts/verification/VS-01/verified/attempt-0/browser.log"
+      ]
+    }
+  ],
+  "verifiedTreeSha": "70effec86f990222424649d968c75d34b2412788",
+  "remoteBaseSha": "a8abb5be442deaa613da8512e7d689509354ad3d",
+  "testCounts": {
+    "unit": 10,
+    "httpPostgres": 5,
+    "httpSmoke": 1,
+    "browser": 2
+  },
+  "runtimeObservations": {
+    "vs00Baseline": {
+      "status": "pass",
+      "exitCode": 0
+    },
+    "vs01BeforeImplementation": {
+      "status": "fail",
+      "exitCode": 1,
+      "expected": 200,
+      "observed": 404,
+      "route": "POST /api/lab/session"
+    },
+    "lockedInstall": {
+      "status": "pass",
+      "command": "npm ci",
+      "exitCode": 0
+    },
+    "productionBuild": {
+      "status": "pass",
+      "command": "npm run build",
+      "exitCode": 0
+    },
+    "migrationAndSeedRerun": {
+      "status": "pass",
+      "command": "npm run lab:init (twice)",
+      "version": "18.7",
+      "tenants": 2,
+      "memberships": 7,
+      "migrations": 1
+    },
+    "disabledLabProfile": {
+      "status": "pass",
+      "httpStatus": 404,
+      "issuedSession": false
+    },
+    "cleanup": {
+      "status": "pass",
+      "observation": "Owned app and database processes stopped. Verification manifest remained present."
+    },
+    "dockerCompose": {
+      "status": "blocked",
+      "reason": "Docker and Podman were unavailable in Work."
+    },
+    "windows": {
+      "status": "not-run"
+    },
+    "independentCi": {
+      "status": "not-run",
+      "plannedSlice": "VS-06"
+    }
+  },
+  "limitations": [
+    "The candidate SHA is the exact local code commit used in a clean detached checkout.",
+    "Raw artifact paths refer to that checkout. This JSON is a sanitized copy of the verification evidence.",
+    "This slice exercises authoring-baseline key conflicts, scoped reads and creation audit. Equivalent replay, approval decisions and explicit rollback cases are owned by VS-02.",
+    "The runtime used standalone PostgreSQL and a local Chromium executable."
+  ]
+}
