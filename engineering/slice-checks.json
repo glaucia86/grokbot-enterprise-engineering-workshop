@@ -1,0 +1,7 @@
+{
+  "PREP": [
+    {"id": "skills-integrity", "argv": ["{python}", "engineering/bootstrap-skills.py", "--verify"], "timeoutSeconds": 30},
+    {"id": "specification-links", "argv": ["{python}", "engineering/verify-specifications.py"], "timeoutSeconds": 15},
+    {"id": "engineering-test", "argv": ["{python}", "-B", "-m", "unittest", "discover", "-s", "engineering/tests"], "timeoutSeconds": 30}
+  ]
+}

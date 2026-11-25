@@ -1,6 +1,8 @@
 # Technical architecture and contracts
 
-**ID:** PH-ARCH-001 | **Version:** 0.1 | **Status:** proposed
+**ID:** PH-ARCH-001 | **Version:** 0.2 | **Status:** proposed
+
+The [domain model](DOMAIN-MODEL.md) defines the vocabulary and invariants. API and persistence terms below use that vocabulary.
 
 ## 1. Architecture decision
 
@@ -50,7 +52,7 @@ Pin actual compatible versions during the scaffold/spike and commit lockfile and
 | User | id, display_name |
 | Membership | tenant_id, user_id, role; unique (tenant_id, user_id); role enum REQUESTER / APPROVER / AUDITOR |
 | PurchaseRequest | id, tenant_id, requester_id, title, justification, amount_minor, currency, status, idempotency_key, request_hash, created_at, updated_at; positive safe-integer amount; USD only; non-null key/hash |
-| AuditEvent | id, tenant_id, request_id, actor_id, event_type, occurred_at; composite reference to request tenant/id; event enum CREATED / APPROVED / REJECTED |
+| AuditEvent | id, tenant_id, request_id, actor_id, event_type, occurred_at, optional decision reason; composite reference to request tenant/id; event enum CREATED / APPROVED / REJECTED |
 
 Use globally unique request IDs and a composite unique `(tenant_id, id)` target for tenant-consistent foreign keys. Requester and audit actor must reference tenant memberships. Use database checks for positive amount and allowed states (and safe-integer range if persisted as bigint). The participant starter deliberately lacks the uniqueness protection needed for AC-01; the reference solution introduces it. Instructor-only ADR documents the recommended design. Do not put the answer in the starter's participant-facing spec.
 
@@ -69,6 +71,10 @@ All routes require a server-resolved session. Ignore or reject extraneous tenant
 | GET `/api/purchase-requests/:id/audit` | Request ID | 200 authorized audit history (approver/auditor only in lab) | 401/403/404 |
 
 The API uses stable error codes, e.g. `INVALID_INPUT`, `FORBIDDEN`, `NOT_FOUND`, `IDEMPOTENCY_CONFLICT`, `INVALID_TRANSITION`. Same-tenant different-actor key conflict must be generic, with no ID, payload or actor details. Replay does not repeat state transitions; the returned representation may reflect a later valid decision. The approval/rejection use case must use a conditional pending-state transition and atomically write its audit event; no self-approval. Unexpected errors map to 500 without sensitive details.
+
+For denied decisions, return 403 for role or self-decision and 404 for an absent or foreign request when assessed inside an eligible role. Trim a rejection reason and require nonblank text. Validation failures return 400 and never start a business mutation. A conditional transition that loses to a committed terminal decision returns `INVALID_TRANSITION` and leaves audit history unchanged.
+
+At the HTTP seam, verify response status, scoped representation and stable error code. At the persistence seam, verify rollback and committed row/event counts using a disposable PostgreSQL instance. Evidence may include sanitized timing, status, correlation IDs and counts. Exclude cookies, connection strings, request bodies and actor identifiers from retained error logs. The [verification strategy](04-verification-strategy.md) owns check IDs and evidence requirements.
 
 ## 5. Threat and operational boundaries
 
