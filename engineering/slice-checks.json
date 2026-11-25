@@ -1,7 +1,84 @@
 {
   "PREP": [
-    {"id": "skills-integrity", "argv": ["{python}", "engineering/bootstrap-skills.py", "--verify"], "timeoutSeconds": 30},
-    {"id": "specification-links", "argv": ["{python}", "engineering/verify-specifications.py"], "timeoutSeconds": 15},
-    {"id": "engineering-test", "argv": ["{python}", "-B", "-m", "unittest", "discover", "-s", "engineering/tests"], "timeoutSeconds": 30}
+    {
+      "id": "skills-integrity",
+      "argv": [
+        "{python}",
+        "engineering/bootstrap-skills.py",
+        "--verify"
+      ],
+      "timeoutSeconds": 30
+    },
+    {
+      "id": "specification-links",
+      "argv": [
+        "{python}",
+        "engineering/verify-specifications.py"
+      ],
+      "timeoutSeconds": 15
+    },
+    {
+      "id": "engineering-test",
+      "argv": [
+        "{python}",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "engineering/tests"
+      ],
+      "timeoutSeconds": 30
+    }
+  ],
+  "VS-00": [
+    {
+      "id": "static",
+      "criteria": [
+        "FR-10"
+      ],
+      "argv": [
+        "node",
+        "node_modules/eslint/bin/eslint.js",
+        "."
+      ],
+      "timeoutSeconds": 45
+    },
+    {
+      "id": "typecheck",
+      "criteria": [
+        "FR-10"
+      ],
+      "argv": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit"
+      ],
+      "timeoutSeconds": 45
+    },
+    {
+      "id": "http-postgres",
+      "criteria": [
+        "FR-10"
+      ],
+      "argv": [
+        "node",
+        "--test",
+        "tests/smoke/health.test.mjs"
+      ],
+      "timeoutSeconds": 20
+    },
+    {
+      "id": "browser",
+      "criteria": [
+        "FR-10"
+      ],
+      "argv": [
+        "node",
+        "node_modules/@playwright/test/cli.js",
+        "test"
+      ],
+      "timeoutSeconds": 50
+    }
   ]
 }
