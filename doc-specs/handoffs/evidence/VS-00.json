@@ -1,0 +1,164 @@
+{
+  "schemaVersion": 1,
+  "slice": "VS-00",
+  "runId": "capability",
+  "attempt": 0,
+  "candidateSha": "cd8b286c858d593f8aca67073274f4ea06d864a2",
+  "worktreeDirty": false,
+  "environment": "isolated-lab",
+  "toolVersions": {
+    "python": "3.12.14",
+    "git": "git version 2.56.1",
+    "node": "24.22.3",
+    "npm": "11.19.1",
+    "next": "16.4.6",
+    "postgresql": "18.7",
+    "playwright": "1.62.1",
+    "chromium": "158.0.8127.0",
+    "codexCli": "0.172.0-alpha.2"
+  },
+  "status": "pass",
+  "humanReview": "pending",
+  "checks": [
+    {
+      "id": "static",
+      "criteria": [
+        "FR-10"
+      ],
+      "command": [
+        "node",
+        "node_modules/eslint/bin/eslint.js",
+        "."
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "startedAt": "2026-11-25T21:51:54.953723+00:00",
+      "finishedAt": "2026-11-25T21:51:56.423751+00:00",
+      "durationSeconds": 1.47,
+      "artifactPaths": [
+        "artifacts/verification/VS-00/capability/attempt-0/static.log"
+      ]
+    },
+    {
+      "id": "typecheck",
+      "criteria": [
+        "FR-10"
+      ],
+      "command": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "startedAt": "2026-11-25T21:51:56.423997+00:00",
+      "finishedAt": "2026-11-25T21:51:57.794521+00:00",
+      "durationSeconds": 1.371,
+      "artifactPaths": [
+        "artifacts/verification/VS-00/capability/attempt-0/typecheck.log"
+      ]
+    },
+    {
+      "id": "http-postgres",
+      "criteria": [
+        "FR-10"
+      ],
+      "command": [
+        "node",
+        "--test",
+        "tests/smoke/health.test.mjs"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "startedAt": "2026-11-25T21:51:57.794683+00:00",
+      "finishedAt": "2026-11-25T21:51:57.959159+00:00",
+      "durationSeconds": 0.164,
+      "artifactPaths": [
+        "artifacts/verification/VS-00/capability/attempt-0/http-postgres.log"
+      ]
+    },
+    {
+      "id": "browser",
+      "criteria": [
+        "FR-10"
+      ],
+      "command": [
+        "node",
+        "node_modules/@playwright/test/cli.js",
+        "test"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "startedAt": "2026-11-25T21:51:57.959306+00:00",
+      "finishedAt": "2026-11-25T21:51:59.933835+00:00",
+      "durationSeconds": 1.975,
+      "artifactPaths": [
+        "artifacts/verification/VS-00/capability/attempt-0/browser.log"
+      ]
+    }
+  ],
+  "githubCandidateSha": "b5801bcd8b674a69c85dfa56e4c94572273e8520",
+  "verifiedTreeSha": "29fd758274d6fcd556c9dfc17ae0084e205c055c",
+  "runtimeObservations": {
+    "baselineWithoutScaffold": {
+      "status": "fail",
+      "exitCode": 1,
+      "observation": "ECONNREFUSED on the documented HTTP smoke seam"
+    },
+    "lockedInstall": {
+      "status": "pass",
+      "command": "npm ci",
+      "exitCode": 0
+    },
+    "productionBuild": {
+      "status": "pass",
+      "command": "npm run build",
+      "exitCode": 0
+    },
+    "database": {
+      "database": "procurement_hub_lab",
+      "version": "18.7"
+    },
+    "readinessWithDatabase": {
+      "status": 200,
+      "body": {
+        "status": "ready"
+      }
+    },
+    "readinessAfterDatabaseStop": {
+      "status": 503,
+      "body": {
+        "status": "unavailable"
+      }
+    },
+    "cleanup": {
+      "status": "pass",
+      "observation": "Owned app and PostgreSQL processes stopped. Verification manifest remained present."
+    },
+    "dockerCompose": {
+      "status": "blocked",
+      "reason": "No Docker or Podman executable in the Work environment."
+    },
+    "codexSkillDiscovery": {
+      "status": "blocked",
+      "reason": "CLI session startup requires filesystem writes unavailable in this environment."
+    },
+    "grokBotExecution": {
+      "status": "blocked",
+      "reason": "GrokBot workspace integration is unavailable. Terminal commands serve as the verified agent-independent path."
+    },
+    "windows": {
+      "status": "not-run"
+    },
+    "independentCi": {
+      "status": "not-run",
+      "plannedSlice": "VS-06"
+    }
+  },
+  "limitations": [
+    "The reported candidate SHA is the local commit. Its complete Git tree matches the GitHub implementation commit.",
+    "Raw artifact paths refer to the local run. This JSON is the sanitized repository evidence snapshot.",
+    "PostgreSQL and Chromium ran locally without Docker. The Work browser download from the Playwright CDN returned HTTP 403, so Chromium was supplied separately.",
+    "The smoke checks cover initialization and reachability. Product acceptance criteria are implemented in subsequent slices."
+  ]
+}
