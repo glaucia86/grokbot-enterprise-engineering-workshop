@@ -1,0 +1,24 @@
+# Local configuration and credentials
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Dependencies and generated output
+node_modules/
+.next/
+out/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Local verification output; publish sanitized evidence deliberately.
+artifacts/verification/
+playwright-report/
+test-results/
+playwright/.auth/
+
+# Local logs and OS metadata
+*.log
+.DS_Store
+Thumbs.db
