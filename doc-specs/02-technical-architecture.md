@@ -74,6 +74,14 @@ The API uses stable error codes, e.g. `INVALID_INPUT`, `FORBIDDEN`, `NOT_FOUND`,
 
 For denied decisions, return 403 for role or self-decision and 404 for an absent or foreign request when assessed inside an eligible role. Trim a rejection reason and require nonblank text. Validation failures return 400 and never start a business mutation. A conditional transition that loses to a committed terminal decision returns `INVALID_TRANSITION` and leaves audit history unchanged.
 
+### VS-01 lab contract
+
+In the opt-in loopback profile, `POST /api/lab/session` accepts a seeded identity alias and issues an opaque, HTTP-only session cookie. The server stores the token hash and expiry and reads the current membership on every protected request. Switching identity revokes the prior token. The identity route returns 404 with the profile disabled. Other protected routes return 401 without an active lab session.
+
+Submission accepts a title up to 120 characters, a justification up to 2,000 characters, positive safe-integer USD minor units and a 1–128 character key matching `[A-Za-z0-9_-]+`. List filtering supports the documented status values and returns 400 for an unknown filter. Requester reads are ownership-scoped. Approvers and auditors can view the tenant's purchases and creation audit events.
+
+The VS-01 authoring revision reserves each key within its tenant and treats repeats as a generic 409. The equivalent replay response and decision workflow are scoped to VS-02.
+
 At the HTTP seam, verify response status, scoped representation and stable error code. At the persistence seam, verify rollback and committed row/event counts using a disposable PostgreSQL instance. Evidence may include sanitized timing, status, correlation IDs and counts. Exclude cookies, connection strings, request bodies and actor identifiers from retained error logs. The [verification strategy](04-verification-strategy.md) owns check IDs and evidence requirements.
 
 ## 5. Threat and operational boundaries
