@@ -1,10 +1,10 @@
 # Procurement Hub — workshop specification pack
 
-**Status:** v0.1 · proposed baseline · 2026-11-25  
+**Status:** v0.2 · proposed specification pack · 2026-11-25
 **Event:** Packt Advanced GrokBot Workshop · December 11, 2026 · 60 minutes  
 **Session:** GrokBot for Enterprise Engineering Workflows: From Issue to Verified Pull Request
 
-This pack defines the proposed product, architecture, demo issue, verification contracts and implementation sequence. It contains specifications, not executable application code. The application, branches, CI settings, GrokBot integration and verification evidence have not yet been created or validated.
+This pack defines the product, architecture, demo issue, verification contracts and implementation sequence. Check the relevant handoff for the current implementation and verification status.
 
 ## Read in order
 
@@ -18,6 +18,10 @@ This is the private authoring specification pack. It includes instructor-only ma
 | [04 — Verification strategy](04-verification-strategy.md) | Evidence, harness, deterministic checks, CI and limits |
 | [05 — Vertical slices and repository plan](05-vertical-slices.md) | Build sequence, checkpoints, release criteria, demo contingency |
 | [06 — Engineering guardrails](06-engineering-guardrails.md) | Agent permissions, planned enforceable controls, evidence and stop conditions |
+| [Domain model](DOMAIN-MODEL.md) | Shared terms, state transitions and invariants |
+| [Implementation tickets](TICKETS.md) | Outcomes, dependencies and requirements traceability |
+| [Slice execution and review](LOOP-ENGINEERING.md) | Loop, executable checks, approvals and handoffs |
+| [Skill inventory](SKILLS.md) | Pinned sources, install and audit notes |
 | [ADR-0001](adr/0001-idempotency-reference-solution.md) | Instructor/reference solution decision; keep out of the starter branch |
 
 ## Core workshop promise
