@@ -17,6 +17,7 @@ This is the private authoring specification pack. It includes instructor-only ma
 | [03 — Demo issue](03-demo-issue-42.md) | Participant-facing bug specification; ready to turn into a GitHub issue |
 | [04 — Verification strategy](04-verification-strategy.md) | Evidence, harness, deterministic checks, CI and limits |
 | [05 — Vertical slices and repository plan](05-vertical-slices.md) | Build sequence, checkpoints, release criteria, demo contingency |
+| [06 — Engineering guardrails](06-engineering-guardrails.md) | Agent permissions, planned enforceable controls, evidence and stop conditions |
 | [ADR-0001](adr/0001-idempotency-reference-solution.md) | Instructor/reference solution decision; keep out of the starter branch |
 
 ## Core workshop promise
