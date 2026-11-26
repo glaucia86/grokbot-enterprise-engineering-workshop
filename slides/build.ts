@@ -16,17 +16,45 @@ const assets = {
   "assets/architecture.svg": "slides/assets/architecture.svg",
   "assets/concurrency.svg": "slides/assets/concurrency.svg",
   "assets/verification-loop.svg": "slides/assets/verification-loop.svg",
-  "assets/grok.svg": "slides/assets/grok.svg",
-  "assets/engineering-lead.svg": "slides/assets/engineering-lead.svg",
-  "assets/fde-typescript.svg": "slides/assets/fde-typescript.svg",
-  "assets/qa-bot.svg": "slides/assets/qa-bot.svg",
-  "assets/devops.svg": "slides/assets/devops.svg",
+  "assets/bloub-default-cycle.gif": "slides/assets/bloub-default-cycle.gif",
+  "assets/bloub-cycle-still.webp": "slides/assets/bloub-cycle-still.webp",
   "assets/bloub-license.txt": "slides/assets/bloub-license.txt",
   "assets/credits.txt": "slides/assets/credits.txt",
 };
 
+const avatars = new Map(Object.entries({
+  "engineering-lead": "bloub-squircle-attentif-rouge-anime.svg",
+  "harness-engineer": "bloub-cercle-attentif-encre-anime.svg",
+  "typescript-fde": "bloub-hexagone-attentif-bleu-anime.svg",
+  "qa-engineer": "bloub-goutte-attentif-rose-anime.svg",
+  "devops-engineer": "bloub-triangle-attentif-violet-anime.svg",
+}));
+
+async function renderAvatars(html: string) {
+  const sources = new Map(await Promise.all([...avatars].map(async ([role, file]) =>
+    [role, await Bun.file(join(root, "slides/assets", file)).text()] as const,
+  )));
+  let instance = 0;
+  return html.replace(/<!-- avatar:([\w-]+) -->/g, (_marker, role: string) => {
+    const svg = sources.get(role);
+    const mask = svg?.match(/<mask id="([\w-]+)"/)?.[1];
+    const eyes = svg?.match(/<path\b[^>]* class="oeil0"[^>]*\/>\s*<path\b[^>]* class="oeil1"[^>]*\/>/)?.[0];
+    const poses = [...(svg?.matchAll(/@keyframes oeil[01]\{0%\{transform:(matrix\([^)]+\))/g) ?? [])];
+    if (!svg || !mask || !eyes || poses.length !== 2) throw new Error("Invalid avatar export for " + role);
+
+    // Use each export's first pose so only the isolated eye group responds to the pointer.
+    const gaze = eyes.replace(/class="oeil([01])"/g, (_class, index: string) =>
+      `transform="${poses[Number(index)][1]}"`,
+    );
+    return svg.replace(/<svg[^>]*>/, '<svg class="avatar" width="120" height="120" viewBox="-125 -125 250 250" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">')
+      .replace(/<style>.*?<\/style>/s, "")
+      .replaceAll(mask, "avatar-mask-" + ++instance)
+      .replace(eyes, '<g class="avatar-gaze">' + gaze + '</g>');
+  });
+}
+
 async function renderDeck() {
-  const source = await Bun.file(join(root, "slides/index.html")).text();
+  const source = await renderAvatars(await Bun.file(join(root, "slides/index.html")).text());
   const marker = /<!-- speaker:([\w-]+) -->/g;
   if (!presenter) return source.replace(marker, "");
 

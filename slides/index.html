@@ -19,12 +19,12 @@
           <p class="series">GrokBot for Enterprise Engineering Workflows</p>
           <h1>From Issue to <em>Verified Pull Request</em></h1>
           <p class="byline">Glaucia Lemos</p>
-        </div><div class="cast" aria-label="Workshop bot team"><figure class="face grok"><img src="./assets/grok.svg" alt="" width="120" height="120"><figcaption>Grok<small>Workshop host</small></figcaption></figure><figure class="face engineering-lead"><img src="./assets/engineering-lead.svg" alt="" width="120" height="120"><figcaption>Engineering Lead<small>Architecture</small></figcaption></figure><figure class="face fde-typescript"><img src="./assets/fde-typescript.svg" alt="" width="120" height="120"><figcaption>TypeScript FDE<small>Implementation</small></figcaption></figure><figure class="face qa-bot"><img src="./assets/qa-bot.svg" alt="" width="120" height="120"><figcaption>QA Engineer<small>Verification</small></figcaption></figure><figure class="face devops"><img src="./assets/devops.svg" alt="" width="120" height="120"><figcaption>DevOps Engineer<small>Delivery</small></figcaption></figure></div></div>
+        </div><div class="cast" aria-label="Workshop bot team"><figure class="face engineering-lead"><!-- avatar:engineering-lead --><figcaption>Engineering Lead</figcaption></figure><figure class="face harness-engineer"><!-- avatar:harness-engineer --><figcaption>Harness Engineer</figcaption></figure><figure class="face typescript-fde"><!-- avatar:typescript-fde --><figcaption>TypeScript FDE</figcaption></figure><figure class="face qa-engineer"><!-- avatar:qa-engineer --><figcaption>QA Engineer</figcaption></figure><figure class="face devops-engineer"><!-- avatar:devops-engineer --><figcaption>DevOps Engineer</figcaption></figure></div></div>
       </div>
       <!-- speaker:start -->
     </section>
 
-    <section id="trust" class="frame statement dark" >
+    <section id="trust" class="frame statement" >
       <div class="stage">
         <p class="kicker">The reviewer’s question</p><h2 >What would you need to see before approving a pull request written by an agent?</h2>
         <p class="lead thesis">The challenge is engineering environments where agents can reliably prove that their work is correct.</p>
@@ -52,7 +52,7 @@
 
     <section id="procurement-hub" class="frame chapter dark" >
       <div class="stage">
-        <div class="chapter-main"><div><p class="kicker">Pillar 01 / 04</p><h2>Enterprise Codebase Foundations &amp; Enforceable Architecture</h2><p class="lead">Make the safe path explicit and executable.</p></div><figure class="face engineering-lead"><img src="./assets/engineering-lead.svg" alt="" width="120" height="120"><figcaption>Engineering Lead<small>Architecture</small></figcaption></figure></div><p class="chapter-note">Procurement Hub · A synthetic multi-tenant application with purchase approvals and audit history.</p>
+        <div class="chapter-main"><div><p class="kicker">Pillar 01 / 04</p><h2>Enterprise Codebase Foundations &amp; Enforceable Architecture</h2><p class="lead">Make the safe path explicit and executable.</p></div><figure class="face engineering-lead"><!-- avatar:engineering-lead --><figcaption>Engineering Lead</figcaption></figure></div><p class="chapter-note">Procurement Hub · A synthetic multi-tenant application with purchase approvals and audit history.</p>
       </div>
       <!-- speaker:procurement-hub -->
     </section>
@@ -79,7 +79,7 @@
 
     <section id="boot-lab" class="frame chapter dark" >
       <div class="stage">
-        <div class="chapter-main"><div><p class="kicker">Pillar 02 / 04</p><h2>Harness Engineering &amp; Reusable Verification Skills</h2><p class="lead">Give the agent a repeatable way to exercise the application.</p></div><figure class="face grok"><img src="./assets/grok.svg" alt="" width="120" height="120"><figcaption>Grok<small>Workshop host</small></figcaption></figure></div><ol class="handoff"><li>Issue + criteria</li><li>Feature map + skill</li><li>Launch + doctor</li><li>Drive + collect + clean up</li></ol>
+        <div class="chapter-main"><div><p class="kicker">Pillar 02 / 04</p><h2>Harness Engineering &amp; Reusable Verification Skills</h2><p class="lead">Give the agent a repeatable way to exercise the application.</p></div><figure class="face harness-engineer"><!-- avatar:harness-engineer --><figcaption>Harness Engineer</figcaption></figure></div><ol class="handoff"><li>Issue + criteria</li><li>Feature map + skill</li><li>Launch + doctor</li><li>Drive + collect + clean up</li></ol>
       </div>
       <!-- speaker:boot-lab -->
     </section>
@@ -95,49 +95,53 @@
 
     <section id="runtime" class="frame chapter dark" >
       <div class="stage">
-        <div class="chapter-main"><div><p class="kicker">Pillar 03 / 04</p><h2>Runtime Verification &amp; Self-Correcting Agent Loops</h2><p class="lead">Find the first failed observation and use it to guide the next decision.</p></div><figure class="face fde-typescript"><img src="./assets/fde-typescript.svg" alt="" width="120" height="120"><figcaption>TypeScript FDE<small>Implementation</small></figcaption></figure></div><p class="chapter-note">PH-42 · Concurrent submissions with the same idempotency key</p>
+        <div class="chapter-main"><div><p class="kicker">Pillar 03 / 04</p><h2>Runtime Verification &amp; Self-Correcting Agent Loops</h2><p class="lead">Find the first failed observation and use it to guide the next decision.</p></div><figure class="face typescript-fde"><!-- avatar:typescript-fde --><figcaption>TypeScript FDE</figcaption></figure></div><p class="chapter-note">PH-42 · Concurrent submissions with the same idempotency key</p>
       </div>
       <!-- speaker:runtime -->
     </section>
 
-    <section id="reproduce" class="frame evidence dark" data-auto-animate data-auto-animate-id="ph42" >
+    <section id="reproduce" class="frame evidence snapshot" >
       <div class="stage">
-        <p class="kicker">Live demo · 20 min</p><h2 data-id="proof-title">Read the synthetic PH-42 snapshot</h2>
+        <p class="kicker source">Synthetic historical snapshot · 20 min</p><h2>Read the PH-42 failure recorded in PostgreSQL</h2>
         <pre class="command"><code>bun run verify:ph42-fixture</code></pre>
         <dl class="metrics">
-          <div data-id="responses"><dt>201 + 201</dt><dd>Simulated HTTP responses</dd></div>
-          <div data-id="requests"><dt>2 requests</dt><dd>Two different IDs</dd></div>
-          <div data-id="events"><dt>2 CREATED</dt><dd>Persisted audit events</dd></div>
+          <div><dt>201 + 201</dt><dd>Simulated HTTP responses</dd></div>
+          <div><dt>2</dt><dd>Requests with different IDs</dd></div>
+          <div><dt>2</dt><dd>Persisted CREATED events</dd></div>
         </dl>
-        <p class="chapter-note">Source: synthetic historical snapshot in PostgreSQL · expected exit 1</p>
+        <p class="evidence-note">Read-only fixture check · expected exit 1</p>
       </div>
       <!-- speaker:reproduce -->
     </section>
 
-    <section id="agent-loop" class="frame loop" data-auto-animate data-auto-animate-id="ph42" >
+    <section id="agent-loop" class="frame loop" >
       <div class="stage">
         <p class="kicker">Live demo · 24 min</p><h2 >Let the first failed check drive the next action</h2>
-        <figure class="diagram wide-diagram"><img src="./assets/verification-loop.svg" alt="Issue and reproduction, root cause and scoped change, then deterministic and runtime checks. A failing check routes back to investigation or escalates when its budget is exhausted.">
-          <ol class="diagram-mobile"><li>Understand the issue and reproduce it</li><li>Investigate the cause and scope the change</li><li>Verify the running app and collect evidence</li><li>On failure, investigate again or escalate</li></ol>
-          <figcaption>Keep failure evidence. Allow two correction attempts after the initial run, within the timebox.</figcaption></figure>
-        <p class="callout fragment">State the hypothesis, verify the real behavior and stop on scope or access blockers.</p>
-        <div class="loop-observation" aria-label="Synthetic snapshot recap">
-          <span>Synthetic snapshot</span><span data-id="responses">201 + 201</span><span data-id="requests">2 requests</span><span data-id="events">2 CREATED</span>
+        <div class="loop-layout">
+          <figure class="diagram wide-diagram"><img src="./assets/verification-loop.svg" alt="Issue and reproduction, root cause and scoped change, then deterministic and runtime checks. A failing check routes back to investigation or escalates when its budget is exhausted.">
+            <ol class="diagram-mobile"><li>Understand the issue and reproduce it</li><li>Investigate the cause and scope the change</li><li>Verify the running app and collect evidence</li><li>On failure, investigate again or escalate</li></ol>
+            <figcaption>Keep failure evidence. Allow two correction attempts after the initial run, within the timebox.</figcaption></figure>
+          <figure class="expression">
+            <img src="./assets/bloub-cycle-still.webp" data-animation="./assets/bloub-default-cycle.gif" alt="" width="140" height="140">
+            <figcaption>Illustrative avatar expressions</figcaption>
+            <button type="button" hidden>Play avatar animation</button>
+          </figure>
         </div>
+        <p class="callout fragment">State the hypothesis, verify the real behavior and stop on scope or access blockers.</p>
       </div>
       <!-- speaker:agent-loop -->
     </section>
 
-    <section id="verify-live" class="frame evidence dark" data-auto-animate data-auto-animate-id="ph42" >
+    <section id="verify-live" class="frame evidence runtime" >
       <div class="stage">
-        <p class="kicker">Live demo · 34 min · Pyramid / verification</p><h2 data-id="proof-title">One logical purchase. One record.</h2>
+        <p class="kicker source">Live HTTP API + PostgreSQL · 34 min</p><h2>One logical purchase. One record.</h2>
         <pre class="command"><code>bun run verify:concurrency</code></pre>
         <dl class="metrics">
-          <div data-id="responses"><dt>200 + 201</dt><dd>Live HTTP responses</dd></div>
-          <div data-id="requests"><dt>1 request</dt><dd>Shared response ID</dd></div>
-          <div data-id="events"><dt>1 CREATED</dt><dd>Persisted audit event</dd></div>
+          <div><dt>200 + 201</dt><dd>Live HTTP responses</dd></div>
+          <div><dt>1</dt><dd>Request with a shared response ID</dd></div>
+          <div><dt>1</dt><dd>Persisted CREATED event</dd></div>
         </dl>
-        <div class="verification-role"><figure class="face qa-bot"><img src="./assets/qa-bot.svg" alt="" width="120" height="120"><figcaption>QA Engineer</figcaption></figure> <span>Source: running HTTP API + PostgreSQL · expected exit 0</span>
+        <div class="verification-role"><figure class="face qa-engineer"><!-- avatar:qa-engineer --><figcaption>QA Engineer</figcaption></figure> <span>Expected exit 0</span>
           <div class="mini-pyramid" role="img" aria-label="Pyramid layer three: Verification"><i></i><i></i><i class="active"></i><i></i><i></i></div>
         </div>
       </div>
@@ -156,7 +160,7 @@
 
     <section id="run-harness" class="frame chapter dark" >
       <div class="stage">
-        <div class="chapter-main"><div><p class="kicker">Pillar 04 / 04</p><h2>Evidence-Based Software Delivery &amp; Enterprise Governance</h2><p class="lead">Make the claim traceable to the exact candidate.</p></div><figure class="face devops"><img src="./assets/devops.svg" alt="" width="120" height="120"><figcaption>DevOps Engineer<small>Delivery</small></figcaption></figure></div><ol class="handoff"><li>Acceptance criterion</li><li>Command + observation</li><li>Artifact + candidate SHA</li><li>Independent CI</li></ol>
+        <div class="chapter-main"><div><p class="kicker">Pillar 04 / 04</p><h2>Evidence-Based Software Delivery &amp; Enterprise Governance</h2><p class="lead">Make the claim traceable to the exact candidate.</p></div><figure class="face devops-engineer"><!-- avatar:devops-engineer --><figcaption>DevOps Engineer</figcaption></figure></div><ol class="handoff"><li>Acceptance criterion</li><li>Command + observation</li><li>Artifact + candidate SHA</li><li>Independent CI</li></ol>
       </div>
       <!-- speaker:run-harness -->
     </section>
@@ -165,7 +169,7 @@
       <div class="stage">
         <p class="kicker">Live demo · 47 min · Pyramid / human review</p><h2 >Would you approve this exact revision?</h2>
         <ol class="steps"><li><strong>Start with PH-42</strong><span>Trace a criterion to the check that observes it.</span></li><li><strong>Match the PR head</strong><span>Check the candidate SHA in the independent Actions run.</span></li><li><strong>Open the evidence</strong><span>Read the counts, failures, limitations and the checks still pending.</span></li></ol>
-        <div class="review-note"><p class="callout">The reviewer owns the merge decision.</p>
+        <div class="review-note"><div class="presenter"><img src="./assets/glaucia-lemos.jpg" alt="" width="64" height="64"><div><strong>Glaucia Lemos</strong><span>Human Reviewer · Owns the merge decision</span></div></div>
           <div class="mini-pyramid" role="img" aria-label="Pyramid layer five: Human review"><i></i><i></i><i></i><i></i><i class="active"></i></div>
         </div>
       </div>
@@ -187,7 +191,7 @@
         <div class="cover-layout"><div>
         <p class="kicker">Q&A</p><h2 >Don't just build better agents. <em>Engineer better environments for agents.</em></h2>
         <div class="presenter"><img src="./assets/glaucia-lemos.jpg" alt="Glaucia Lemos" width="64" height="64"><div><strong>Glaucia Lemos</strong><span>Human Reviewer <b>·</b> <a href="https://github.com/glaucia86">GitHub</a> <b>·</b> <a href="https://www.linkedin.com/in/glaucialemos/">LinkedIn</a></span></div></div>
-        <p class="footnote"><a href="#/start">Back to the first slide</a></p></div><div class="cast" aria-label="Workshop bot team"><figure class="face grok"><img src="./assets/grok.svg" alt="" width="120" height="120"><figcaption>Grok<small>Workshop host</small></figcaption></figure><figure class="face engineering-lead"><img src="./assets/engineering-lead.svg" alt="" width="120" height="120"><figcaption>Engineering Lead<small>Architecture</small></figcaption></figure><figure class="face fde-typescript"><img src="./assets/fde-typescript.svg" alt="" width="120" height="120"><figcaption>TypeScript FDE<small>Implementation</small></figcaption></figure><figure class="face qa-bot"><img src="./assets/qa-bot.svg" alt="" width="120" height="120"><figcaption>QA Engineer<small>Verification</small></figcaption></figure><figure class="face devops"><img src="./assets/devops.svg" alt="" width="120" height="120"><figcaption>DevOps Engineer<small>Delivery</small></figcaption></figure></div></div>
+        <p class="footnote"><a href="#/start">Back to the first slide</a></p></div><div class="cast" aria-label="Workshop bot team"><figure class="face engineering-lead"><!-- avatar:engineering-lead --><figcaption>Engineering Lead</figcaption></figure><figure class="face harness-engineer"><!-- avatar:harness-engineer --><figcaption>Harness Engineer</figcaption></figure><figure class="face typescript-fde"><!-- avatar:typescript-fde --><figcaption>TypeScript FDE</figcaption></figure><figure class="face qa-engineer"><!-- avatar:qa-engineer --><figcaption>QA Engineer</figcaption></figure><figure class="face devops-engineer"><!-- avatar:devops-engineer --><figcaption>DevOps Engineer</figcaption></figure></div></div>
       </div>
       <!-- speaker:questions -->
     </section>

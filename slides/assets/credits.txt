@@ -1,8 +1,7 @@
-Workshop mascot exports provided by Glaucia Lemos for the previous Packt workshop.
-Source revision: https://github.com/glaucia86/grok-bot-engineering-workshop/tree/43cf68d02a88216d97a94ee13c05bec1b946c1f4/docs/speaker/slides/assets/avatars
-Visual reference: https://x.ai/news/designing-grok-bot
-Animation reference: Bloub by Jérémy Perret, 2026. See bloub-license.txt for the code license.
-The mascots are workshop artwork and do not represent official xAI assets or endorsement.
+Glaucia Lemos supplied the five Bloub SVG exports and the illustrative avatar cycle GIF for this workshop.
+Bloub by Jérémy Perret, 2026: https://bloub.vercel.app/
+The deck uses the exports' resting eye poses and adds pointer tracking. The static cycle preview comes from the first frame of the supplied GIF.
+See bloub-license.txt for the Bloub code license.
 
 The Poteto Pyramid is an adaptation of Lauren Tan's presentation.
 https://ai.engineer/code/2026/talks/lauren-tan

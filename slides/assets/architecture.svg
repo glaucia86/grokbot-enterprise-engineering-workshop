@@ -1,24 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1140 272">
-  <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#446824"/></marker></defs>
-  <g stroke="#446824" stroke-width="3" marker-end="url(#arrow)">
+  <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#234bd9"/></marker></defs>
+  <g stroke="#234bd9" stroke-width="3" marker-end="url(#arrow)">
     <path d="M247 135 L302 135"/>
     <path d="M531 135 L586 135"/>
     <path d="M815 135 L870 135"/>
   </g>
-  <g font-family="Arial, sans-serif" fill="#10131e">
-    <rect x="22" y="83" width="225" height="104" rx="10" fill="#eceee3" stroke="#68745e" stroke-width="2"/>
+  <g font-family="Arial, sans-serif" fill="#101831">
+    <rect x="22" y="83" width="225" height="104" rx="10" fill="#ebeffb" stroke="#6679a7" stroke-width="2"/>
     <text x="134.5" y="132" text-anchor="middle" font-weight="700" font-size="26">Browser</text>
     <text x="134.5" y="157" text-anchor="middle" font-size="20">Submit purchase</text>
-    <rect x="306" y="83" width="225" height="104" rx="10" fill="#eceee3" stroke="#68745e" stroke-width="2"/>
+    <rect x="306" y="83" width="225" height="104" rx="10" fill="#ebeffb" stroke="#6679a7" stroke-width="2"/>
     <text x="418.5" y="132" text-anchor="middle" font-weight="700" font-size="26">Next.js</text>
     <text x="418.5" y="157" text-anchor="middle" font-size="20">Actor + tenant</text>
-    <rect x="590" y="83" width="225" height="104" rx="10" fill="#eceee3" stroke="#68745e" stroke-width="2"/>
+    <rect x="590" y="83" width="225" height="104" rx="10" fill="#ebeffb" stroke="#6679a7" stroke-width="2"/>
     <text x="702.5" y="132" text-anchor="middle" font-weight="700" font-size="26">Procurement</text>
     <text x="702.5" y="157" text-anchor="middle" font-size="20">Role + ownership</text>
-    <rect x="874" y="83" width="244" height="104" rx="10" fill="#d3fb72" stroke="#68745e" stroke-width="2"/>
+    <rect x="874" y="83" width="244" height="104" rx="10" fill="#bacbff" stroke="#6679a7" stroke-width="2"/>
     <text x="996" y="132" text-anchor="middle" font-weight="700" font-size="26">PostgreSQL</text>
     <text x="996" y="157" text-anchor="middle" font-size="20">Request + audit</text>
-    <text x="306" y="48" fill="#414936" font-size="15" font-weight="700" letter-spacing="1">SERVER TRUST BOUNDARY</text>
-    <text x="874" y="218" fill="#414936" font-size="15" font-weight="700" letter-spacing="1">SHARED PERSISTENCE</text>
+    <text x="306" y="48" fill="#354a7e" font-size="15" font-weight="700" letter-spacing="1">SERVER TRUST BOUNDARY</text>
+    <text x="874" y="218" fill="#354a7e" font-size="15" font-weight="700" letter-spacing="1">SHARED PERSISTENCE</text>
   </g>
 </svg>
