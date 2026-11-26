@@ -12,11 +12,11 @@ From a clean checkout of the approved source, run:
 
 ```bash
 bun engineering/package-workshop.ts rehearsal
-git clone --branch workshop/starter artifacts/release/rehearsal/starter.bundle starter-rehearsal
-git clone --branch workshop/solution artifacts/release/rehearsal/solution.bundle solution-rehearsal
+git clone --branch workshop/starter artifacts/release/rehearsal/starter.bundle ../starter-rehearsal
+git clone --branch workshop/solution artifacts/release/rehearsal/solution.bundle ../solution-rehearsal
 ```
 
-Keep cloned rehearsals outside the authoring checkout or use an external destination path. Start both from their own README. Verify the starter with `bun run verify:all --run-id participant` and the solution with `bun run verify:all --slice VS-05 --run-id reference`. Run the checks with a compatible installed Chromium, and add `--postgres-bin <dir>` for standalone PostgreSQL.
+Start each clone from its own README. Verify the starter with `bun run verify:all --run-id participant` and the solution with `bun run verify:all --slice VS-05 --run-id reference`. Run the checks with a compatible installed Chromium, and add `--postgres-bin <dir>` for standalone PostgreSQL.
 
 The starter ships the synthetic red PH-42 observation and the VS-04 runtime. It ships the original lab migration and fingerprint-based replay. The reference checkout adds the protected upgrade for legacy lab data and the canonical-payload replay check. Both bundles include one independent root commit. The export manifest records the authoring revision and both bundle revisions.
 
