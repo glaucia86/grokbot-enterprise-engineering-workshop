@@ -24,7 +24,9 @@
     "verify:concurrency": "bun scripts/verify-concurrency.ts",
     "verify:ph42-fixture": "bun scripts/verify-ph42-fixture.ts",
     "verify:all": "bun engineering/verify-lab.ts",
-    "browser:install": "bun --bun playwright install chromium"
+    "browser:install": "bun --bun playwright install chromium",
+    "test:properties": "bun test tests/properties",
+    "verify:formal": "bun engineering/verify-formal.ts"
   },
   "dependencies": {
     "drizzle-orm": "0.45.4",
@@ -43,6 +45,7 @@
     "drizzle-kit": "0.31.11",
     "eslint": "9.39.5",
     "eslint-config-next": "16.4.6",
+    "fast-check": "4.11.0",
     "typescript": "5.9.3"
   }
 }

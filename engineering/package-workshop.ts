@@ -68,6 +68,9 @@ async function packageEdition(edition: Edition, output: string, revision: string
       await writeFile(destination, invokeGit(root, ["show", revision + ":" + path]));
     }
     await Bun.write(join(directory, "README.md"), invokeGit(root, ["show", revision + ":release/" + edition + ".md"]));
+    await jsonFile(join(directory, "package.json"), (document) => {
+      delete (document.scripts as Record<string, string>)["verify:formal"];
+    });
     await jsonFile(join(directory, "engineering/slice-checks.json"), (document) => {
       delete document.PREP;
       if (edition === "starter") delete document["VS-05"];

@@ -15,6 +15,7 @@ coverage/
 # Local verification output; publish sanitized evidence deliberately.
 artifacts/verification/
 artifacts/release/
+artifacts/formal/
 playwright-report/
 test-results/
 playwright/.auth/
