@@ -1,0 +1,351 @@
+{
+  "schemaVersion": 1,
+  "slice": "VS-04",
+  "status": "pass",
+  "runtime": "standalone-postgres",
+  "githubBaseSha": "7014a23e88b5ef969ce89eca0b7efbd05b27fb62",
+  "candidateSha": "f0f033e9c1e22eb4126e0c7439d9366f399c0106",
+  "verifiedTreeSha": "e0a23b099497837ae099d57a17562e0852ef602e",
+  "worktreeDirty": false,
+  "toolVersions": {
+    "python": "3.12.14",
+    "git": "git version 2.56.1",
+    "node": "v24.22.3",
+    "npm": "11.19.1",
+    "postgresql": "18.7",
+    "chromium": "158.0.8127.0"
+  },
+  "commandTemplate": "npm run verify:all -- --run-id <id> --postgres-bin <bin-dir>",
+  "pilotRun": {
+    "runId": "vs04-verified",
+    "status": "pass",
+    "exitCode": 0,
+    "startedAt": "2026-11-26T12:09:47.511453+00:00",
+    "finishedAt": "2026-11-26T12:10:09.850478+00:00",
+    "stages": [
+      {
+        "id": "launch",
+        "status": "pass",
+        "durationSeconds": 8.815
+      },
+      {
+        "id": "doctor",
+        "status": "pass",
+        "durationSeconds": 0.381
+      },
+      {
+        "id": "drive",
+        "status": "pass",
+        "durationSeconds": 12.973
+      },
+      {
+        "id": "evidence",
+        "status": "pass",
+        "durationSeconds": 0.115
+      },
+      {
+        "id": "cleanup",
+        "status": "pass",
+        "durationSeconds": 0.038
+      }
+    ],
+    "cleanup": {
+      "loopbackPortsClosed": {
+        "application": true,
+        "postgresql": true
+      },
+      "temporaryClusterRemoved": true,
+      "postgresShutdownLogged": true,
+      "manifestsAndGateLogsRetained": true
+    }
+  },
+  "expectedFailureRun": {
+    "runId": "vs04-browser-failure",
+    "status": "fail",
+    "exitCode": 1,
+    "startedAt": "2026-11-26T12:10:28.923876+00:00",
+    "finishedAt": "2026-11-26T12:10:46.812784+00:00",
+    "stages": [
+      {
+        "id": "launch",
+        "status": "pass",
+        "durationSeconds": 8.622
+      },
+      {
+        "id": "doctor",
+        "status": "pass",
+        "durationSeconds": 0.337
+      },
+      {
+        "id": "drive",
+        "status": "fail",
+        "durationSeconds": 8.762
+      },
+      {
+        "id": "evidence",
+        "status": "pass",
+        "durationSeconds": 0.115
+      },
+      {
+        "id": "cleanup",
+        "status": "pass",
+        "durationSeconds": 0.04
+      }
+    ],
+    "cleanup": {
+      "loopbackPortsClosed": {
+        "application": true,
+        "postgresql": true
+      },
+      "temporaryClusterRemoved": true,
+      "postgresShutdownLogged": true,
+      "manifestsAndGateLogsRetained": true
+    },
+    "failureReason": "Playwright was given an intentionally unavailable Chromium executable."
+  },
+  "doctor": {
+    "database": {
+      "status": "pass",
+      "mode": "database",
+      "database": {
+        "database": "procurement_hub_lab",
+        "postgresVersion": "18.7",
+        "tenants": 2,
+        "requiredIdentities": 4
+      }
+    },
+    "application": {
+      "status": "pass",
+      "mode": "application",
+      "database": {
+        "database": "procurement_hub_lab",
+        "postgresVersion": "18.7",
+        "tenants": 2,
+        "requiredIdentities": 4
+      },
+      "app": {
+        "healthStatus": 200,
+        "unauthenticatedStatus": 401
+      }
+    }
+  },
+  "checks": [
+    {
+      "id": "static",
+      "criteria": [
+        "EG-02"
+      ],
+      "command": [
+        "node",
+        "node_modules/eslint/bin/eslint.js",
+        "."
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "durationSeconds": 2.323,
+      "artifactPaths": [
+        "artifacts/verification/VS-04/vs04-verified/attempt-0/static.log"
+      ]
+    },
+    {
+      "id": "typecheck",
+      "criteria": [
+        "EG-02"
+      ],
+      "command": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "durationSeconds": 2.425,
+      "artifactPaths": [
+        "artifacts/verification/VS-04/vs04-verified/attempt-0/typecheck.log"
+      ]
+    },
+    {
+      "id": "unit",
+      "criteria": [
+        "AC-08",
+        "EG-02"
+      ],
+      "command": [
+        "node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "tests/unit"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "durationSeconds": 2.274,
+      "artifactPaths": [
+        "artifacts/verification/VS-04/vs04-verified/attempt-0/unit.log"
+      ]
+    },
+    {
+      "id": "http-postgres",
+      "criteria": [
+        "AC-02",
+        "AC-03",
+        "AC-04",
+        "AC-05",
+        "AC-06",
+        "AC-08"
+      ],
+      "command": [
+        "node",
+        "--env-file-if-exists=.env",
+        "--test",
+        "tests/integration/procurement.test.mjs"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "durationSeconds": 0.869,
+      "artifactPaths": [
+        "artifacts/verification/VS-04/vs04-verified/attempt-0/http-postgres.log"
+      ]
+    },
+    {
+      "id": "vs-00-http-smoke",
+      "criteria": [
+        "FR-10"
+      ],
+      "command": [
+        "node",
+        "--test",
+        "tests/smoke/health.test.mjs"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "durationSeconds": 0.165,
+      "artifactPaths": [
+        "artifacts/verification/VS-04/vs04-verified/attempt-0/vs-00-http-smoke.log"
+      ]
+    },
+    {
+      "id": "browser",
+      "criteria": [
+        "AC-07",
+        "FR-03",
+        "FR-04",
+        "FR-05",
+        "FR-06"
+      ],
+      "command": [
+        "node",
+        "node_modules/@playwright/test/cli.js",
+        "test"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "durationSeconds": 3.929,
+      "artifactPaths": [
+        "artifacts/verification/VS-04/vs04-verified/attempt-0/browser.log"
+      ]
+    },
+    {
+      "id": "ph42-fixture",
+      "criteria": [
+        "AC-01",
+        "AC-05"
+      ],
+      "command": [
+        "node",
+        "--env-file-if-exists=.env",
+        "--test",
+        "tests/verification/concurrency-observation.test.mjs",
+        "tests/verification/ph42-fixture.test.mjs"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "durationSeconds": 0.265,
+      "artifactPaths": [
+        "artifacts/verification/VS-04/vs04-verified/attempt-0/ph42-fixture.log"
+      ]
+    },
+    {
+      "id": "ph42-live-invariant",
+      "criteria": [
+        "AC-01",
+        "AC-05"
+      ],
+      "command": [
+        "node",
+        "--env-file-if-exists=.env",
+        "scripts/verify-concurrency.mjs"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "durationSeconds": 0.114,
+      "artifactPaths": [
+        "artifacts/verification/VS-04/vs04-verified/attempt-0/ph42-live-invariant.log"
+      ]
+    },
+    {
+      "id": "harness-contract",
+      "criteria": [
+        "FR-10",
+        "AC-09"
+      ],
+      "command": [
+        "python",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "engineering/tests"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "durationSeconds": 0.515,
+      "artifactPaths": [
+        "artifacts/verification/VS-04/vs04-verified/attempt-0/harness-contract.log"
+      ]
+    }
+  ],
+  "testCounts": {
+    "unit": 19,
+    "http-postgres": 13,
+    "vs-00-http-smoke": 1,
+    "browser": 4,
+    "ph42-fixture": 4,
+    "harness-contract": 3
+  },
+  "observations": {
+    "liveApi": {
+      "status": "pass",
+      "httpStatuses": [
+        200,
+        201
+      ],
+      "sameRequest": true,
+      "requestCount": 1,
+      "creationEventCount": 1,
+      "source": "live-loopback",
+      "exitCode": 0,
+      "command": "npm run verify:concurrency"
+    },
+    "syntheticSnapshot": {
+      "source": "synthetic-snapshot",
+      "status": "fail",
+      "httpStatuses": [
+        201,
+        201
+      ],
+      "sameRequest": false,
+      "requestCount": 2,
+      "creationEventCount": 2,
+      "exitCode": 1,
+      "command": "npm run verify:ph42-fixture"
+    }
+  },
+  "pending": {
+    "dockerCompose": "blocked",
+    "windows": "not-run",
+    "independentCI": "not-run",
+    "nativeGrokBotRegistration": "not-run",
+    "humanReview": "pending"
+  }
+}
