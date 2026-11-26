@@ -6,7 +6,7 @@
 
 Enterprise teams need repeatable agentic engineering workflows that preserve business invariants, integrate with existing CI, and provide evidence instead of relying on agent self-reports. Procurement Hub simulates a brownfield system in which one concurrency defect can create multiple purchase requests and audit events.
 
-The workshop succeeds if attendees can start from the same faulty application, reproduce a genuine violation, understand the verification harness, and independently run the checks against a reference fix. Do not represent the exercise as a production-ready procurement system.
+The workshop succeeds if attendees can inspect the same failing observation, explain the violated invariant, and independently run the checks against the live authoring lab. Do not represent the exercise as a production-ready procurement system.
 
 ## 2. Users and scope
 
@@ -80,7 +80,7 @@ State transitions: `PENDING -> APPROVED` or `PENDING -> REJECTED`. Neither termi
 | AC-08 | Invalid requests produce appropriate non-success status and no mutations | Validation and authorization tests |
 | AC-09 | Changes respect architecture and pass required independent gates; evidence is tied to exact candidate revision | Lint, types, tests, CI run, PR evidence manifest |
 
-AC-01 and its duplicate audit consequence are intentionally broken in the starter. Other applicable baseline criteria must be verified before release. The solution must satisfy all P0 criteria. P1 formal-model claims require separate evidence.
+The PH-42 snapshot represents a failing AC-01 observation and its duplicate audit consequence. Verify all applicable runtime criteria before release. The solution must satisfy all P0 criteria. P1 formal-model claims require separate evidence.
 
 ### Acceptance scenarios
 

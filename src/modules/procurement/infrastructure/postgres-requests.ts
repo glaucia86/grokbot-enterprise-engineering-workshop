@@ -1,8 +1,9 @@
 import { createHash } from "node:crypto";
-import { and, desc, eq, getTableColumns } from "drizzle-orm";
+import { and, desc, eq, getTableColumns, ne, sql } from "drizzle-orm";
 import { getLabDatabase } from "../../../server/db/lab-database";
 import { auditEvents, purchaseRequests, users } from "../../../server/db/schema";
 import type { PurchaseRequestRepository } from "../application/requests";
+import { decisionStatuses } from "../domain/procurement";
 import type { PurchaseSubmission, TenantActor } from "../domain/procurement";
 
 const requestColumns = getTableColumns(purchaseRequests);
@@ -31,13 +32,14 @@ function fingerprint({ title, justification, amountMinor, currency }: PurchaseSu
 
 export const postgresRequests: PurchaseRequestRepository = {
   create(actor, input, key) {
+    const requestHash = fingerprint(input);
     return getLabDatabase().transaction(async (transaction) => {
       const [request] = await transaction.insert(purchaseRequests).values({
         ...input,
         tenantId: actor.tenantId,
         requesterId: actor.userId,
         idempotencyKey: key,
-        requestHash: fingerprint(input),
+        requestHash,
       }).onConflictDoNothing({
         target: [purchaseRequests.tenantId, purchaseRequests.idempotencyKey],
       }).returning(publicRequest);
@@ -49,9 +51,19 @@ export const postgresRequests: PurchaseRequestRepository = {
           actorId: actor.userId,
           type: "CREATED",
         });
+        return { kind: "created", request };
       }
-      return request;
-    });
+
+      // A new statement sees the winning commit after the unique-key conflict.
+      const [replayed] = await transaction.select(publicRequest).from(purchaseRequests)
+        .where(and(
+          eq(purchaseRequests.tenantId, actor.tenantId),
+          eq(purchaseRequests.requesterId, actor.userId),
+          eq(purchaseRequests.idempotencyKey, key),
+          eq(purchaseRequests.requestHash, requestHash),
+        )).limit(1);
+      return replayed ? { kind: "replayed", request: replayed } : { kind: "conflict" };
+    }, { isolationLevel: "read committed" });
   },
 
   list(actor, status) {
@@ -61,9 +73,42 @@ export const postgresRequests: PurchaseRequestRepository = {
   },
 
   async find(actor, id) {
-    const [request] = await getLabDatabase().select(publicRequest).from(purchaseRequests)
-      .where(and(scopedTo(actor), eq(purchaseRequests.id, id))).limit(1);
-    return request;
+    const [record] = await getLabDatabase().select({
+      request: publicRequest,
+      requesterId: purchaseRequests.requesterId,
+    }).from(purchaseRequests).where(and(scopedTo(actor), eq(purchaseRequests.id, id))).limit(1);
+    return record;
+  },
+
+  decide(actor, id, input) {
+    const status = decisionStatuses[input.decision];
+    const inTenant = and(scopedTo(actor), eq(purchaseRequests.id, id));
+    return getLabDatabase().transaction(async (transaction) => {
+      const [request] = await transaction.update(purchaseRequests)
+        .set({ status, updatedAt: sql`now()` })
+        .where(and(
+          inTenant,
+          ne(purchaseRequests.requesterId, actor.userId),
+          eq(purchaseRequests.status, "PENDING"),
+        )).returning(publicRequest);
+
+      if (!request) {
+        const [record] = await transaction.select({ requesterId: purchaseRequests.requesterId })
+          .from(purchaseRequests).where(inTenant).limit(1);
+        if (!record) return { kind: "not-found" };
+        if (record.requesterId === actor.userId) return { kind: "forbidden" };
+        return { kind: "invalid-transition" };
+      }
+
+      await transaction.insert(auditEvents).values({
+        tenantId: actor.tenantId,
+        requestId: request.id,
+        actorId: actor.userId,
+        type: status,
+        reason: input.reason ?? null,
+      });
+      return { kind: "decided", request };
+    }, { isolationLevel: "read committed" });
   },
 
   audit(tenantId, requestId) {
@@ -71,6 +116,7 @@ export const postgresRequests: PurchaseRequestRepository = {
       id: auditEvents.id,
       type: auditEvents.type,
       actorName: users.displayName,
+      reason: auditEvents.reason,
       occurredAt: auditEvents.occurredAt,
     }).from(auditEvents).innerJoin(users, eq(users.id, auditEvents.actorId))
       .where(and(eq(auditEvents.tenantId, tenantId), eq(auditEvents.requestId, requestId)))

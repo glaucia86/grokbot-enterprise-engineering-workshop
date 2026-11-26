@@ -1,19 +1,22 @@
 # Issue PH-42 — Duplicate purchase requests under concurrent submissions
 
 **Suggested labels:** bug, data-integrity, workshop, priority-high  
-**Status:** draft for starter branch; GitHub issue not created. PH-42 is a logical identifier, not a reserved GitHub issue number.
+**Status:** workshop exercise with a reproducible synthetic snapshot. PH-42 is a logical identifier, not a reserved GitHub issue number.
 
 ## Why
 
 A retry of a purchase submission should not create a second purchase request or duplicate the creation audit event. Sequential retries appear to work, but concurrent requests can violate this invariant. The duplication risks parallel approval processes and unreliable financial records.
 
-## Reproduction
+## Workshop verification
 
-Use the repository's disposable lab environment and synthetic requester session. Start the application and verify readiness with the doctor script. Submit two equivalent requests concurrently with the same `Idempotency-Key` and compare the returned identifiers and persisted state. The proposed command is `npm run verify:concurrency`; actual command and reproducibility must be validated when building the starter. A healthy baseline has the same ordinary UI and approval flow as the solution.
+Start the loopback workshop profile and run the readiness check described in the [lab setup](../README.md#run-the-lab). Run these commands separately.
 
-**Expected:** one request and one CREATED audit event for the logical operation. Both successful responses refer to the same resource (one create, one replay).
+| Command | Input | Expected observation |
+| --- | --- | --- |
+| `npm run verify:ph42-fixture` | Synthetic historical snapshot read by PostgreSQL in a read-only transaction | Simulated HTTP 201/201, different request IDs, two requests and two CREATED events for one tenant and key. The check exits 1. |
+| `npm run verify:concurrency` | Two equivalent submissions through the running API using the synthetic requester | Observed HTTP 200/201, a shared request ID, one request and one CREATED event. The check exits 0. |
 
-**Observed in the designed starter defect:** overlapping attempts may create two records and two creation events. This is the intended fault to be implemented and verified, not evidence from an already executed application.
+Both commands evaluate the same invariant. Record the snapshot output and the API output with their sources when presenting or reviewing evidence.
 
 ## Acceptance criteria
 
@@ -31,6 +34,6 @@ Keep the API contract and tenant/role boundaries intact. Correct the root cause 
 
 ## Suggested workflow
 
-Reproduce → identify root cause → establish failing regression test → implement smallest robust change → rerun checks → collect evidence → submit PR for independent review. Stop and report a blocker after the configured retry budget; never claim an unexecuted verification passed.
+Inspect the synthetic observation → state the invariant → inspect the application and persistence boundary → verify the live contract → collect evidence → submit for independent review. Stop and report a blocker after the configured retry budget; never claim an unexecuted verification passed.
 
 No implementation recipe or instructor ADR belongs in the participant-facing issue.

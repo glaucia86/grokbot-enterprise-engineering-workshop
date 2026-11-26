@@ -4,6 +4,7 @@ import { z } from "zod";
 import { readLabSession } from "../../../server/auth/lab-session";
 import { requests } from "../../../server/procurement/requests";
 import { formatUsd } from "../../format-purchase";
+import { DecisionForm } from "./decision-form";
 
 export default async function RequestDetail({ params }: { params: Promise<{ id: string }> }) {
   const session = await readLabSession();
@@ -11,8 +12,9 @@ export default async function RequestDetail({ params }: { params: Promise<{ id: 
   const id = z.uuid().safeParse((await params).id);
   if (!id.success) notFound();
 
-  const purchase = await requests.find(session, id.data);
-  if (!purchase) notFound();
+  const detail = await requests.detail(session, id.data);
+  if (!detail) notFound();
+  const { purchase, canDecide } = detail;
 
   const audit = session.role === "REQUESTER" ? undefined : await requests.audit(session, id.data);
   return (
@@ -21,7 +23,7 @@ export default async function RequestDetail({ params }: { params: Promise<{ id: 
       <article className="panel">
         <header className="detail-header">
           <h1>{purchase.title}</h1>
-          <span className="status">{purchase.status}</span>
+          <span className="status" role="status">{purchase.status}</span>
         </header>
         <dl className="request-details">
           <div><dt>Tenant</dt><dd>{session.tenantName}</dd></div>
@@ -29,6 +31,13 @@ export default async function RequestDetail({ params }: { params: Promise<{ id: 
           <div><dt>Justification</dt><dd>{purchase.justification}</dd></div>
         </dl>
       </article>
+
+      {canDecide && (
+        <section className="panel" aria-labelledby="decision-heading">
+          <h2 id="decision-heading">Record decision</h2>
+          <DecisionForm requestId={purchase.id} />
+        </section>
+      )}
 
       {audit?.kind === "found" && (
         <section className="panel" aria-labelledby="audit-heading">
@@ -40,6 +49,7 @@ export default async function RequestDetail({ params }: { params: Promise<{ id: 
                 <time dateTime={event.occurredAt.toISOString()}>
                   {event.occurredAt.toISOString().slice(0, 16).replace("T", " ")} UTC
                 </time>
+                {event.reason && <p className="audit-reason">{event.reason}</p>}
               </li>
             ))}
           </ol>

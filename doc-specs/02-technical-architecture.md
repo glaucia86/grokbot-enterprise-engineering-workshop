@@ -54,7 +54,7 @@ Pin actual compatible versions during the scaffold/spike and commit lockfile and
 | PurchaseRequest | id, tenant_id, requester_id, title, justification, amount_minor, currency, status, idempotency_key, request_hash, created_at, updated_at; positive safe-integer amount; USD only; non-null key/hash |
 | AuditEvent | id, tenant_id, request_id, actor_id, event_type, occurred_at, optional decision reason; composite reference to request tenant/id; event enum CREATED / APPROVED / REJECTED |
 
-Use globally unique request IDs and a composite unique `(tenant_id, id)` target for tenant-consistent foreign keys. Requester and audit actor must reference tenant memberships. Use database checks for positive amount and allowed states (and safe-integer range if persisted as bigint). The participant starter deliberately lacks the uniqueness protection needed for AC-01; the reference solution introduces it. Instructor-only ADR documents the recommended design. Do not put the answer in the starter's participant-facing spec.
+Use globally unique request IDs and a composite unique `(tenant_id, id)` target for tenant-consistent foreign keys. Requester and audit actor must reference tenant memberships. Use database checks for positive amount and allowed states (and safe-integer range if persisted as bigint). The PH-42 fixture illustrates duplicate persisted records. The live authoring schema enforces tenant-scoped key uniqueness. The instructor-only ADR records design rationale for release review.
 
 Normalize validated input before computing a deterministic fingerprint: title and justification trimmed consistently; integer amount; fixed USD; serialize an explicitly ordered tuple with a version marker. No normalization of business-meaningful characters beyond the specified trim. Store the original normalized payload and fingerprint; do not include secrets. Treat idempotency keys as bounded opaque, case-sensitive strings (1–128 ASCII characters from a documented allowed set, e.g. alphanumeric, hyphen and underscore). Keys are scoped to the tenant and bound to the creating requester. Lab policy: no expiry or hard delete of purchase requests. Production retention and key lifecycle are out of scope.
 
@@ -74,13 +74,15 @@ The API uses stable error codes, e.g. `INVALID_INPUT`, `FORBIDDEN`, `NOT_FOUND`,
 
 For denied decisions, return 403 for role or self-decision and 404 for an absent or foreign request when assessed inside an eligible role. Trim a rejection reason and require nonblank text. Validation failures return 400 and never start a business mutation. A conditional transition that loses to a committed terminal decision returns `INVALID_TRANSITION` and leaves audit history unchanged.
 
-### VS-01 lab contract
+### Lab session, submissions and decisions
 
 In the opt-in loopback profile, `POST /api/lab/session` accepts a seeded identity alias and issues an opaque, HTTP-only session cookie. The server stores the token hash and expiry and reads the current membership on every protected request. Switching identity revokes the prior token. The identity route returns 404 with the profile disabled. Other protected routes return 401 without an active lab session.
 
-Submission accepts a title up to 120 characters, a justification up to 2,000 characters, positive safe-integer USD minor units and a 1–128 character key matching `[A-Za-z0-9_-]+`. List filtering supports the documented status values and returns 400 for an unknown filter. Requester reads are ownership-scoped. Approvers and auditors can view the tenant's purchases and creation audit events.
+Submission accepts a title up to 120 characters, a justification up to 2,000 characters, positive safe-integer USD minor units and a 1–128 character key matching `[A-Za-z0-9_-]+`. List filtering supports the documented status values and returns 400 for an unknown filter. Requester reads are ownership-scoped. Approvers and auditors can view the tenant's purchases and their audit history. Each event includes the optional reason, represented as `null` when absent.
 
-The VS-01 authoring revision reserves each key within its tenant and treats repeats as a generic 409. The equivalent replay response and decision workflow are scoped to VS-02.
+The authoring baseline reserves each key within its tenant. An equivalent retry by the original requester returns HTTP 200 and the current representation with no new creation event. A key bound to a different requester or normalized payload returns a generic 409.
+
+Decision bodies accept APPROVE with an optional reason and REJECT with a required reason. Supplied reasons contain 1–2,000 characters after trimming. A same-tenant approver can decide another actor's pending submission. The successful transition and matching terminal audit event commit in one transaction.
 
 At the HTTP seam, verify response status, scoped representation and stable error code. At the persistence seam, verify rollback and committed row/event counts using a disposable PostgreSQL instance. Evidence may include sanitized timing, status, correlation IDs and counts. Exclude cookies, connection strings, request bodies and actor identifiers from retained error logs. The [verification strategy](04-verification-strategy.md) owns check IDs and evidence requirements.
 
