@@ -1,17 +1,9 @@
 import { randomUUID } from "node:crypto";
 import { request } from "node:http";
 import postgres from "postgres";
-import { isLabEnabled, labConnectionString } from "../src/server/db/lab-config.mjs";
+import { labConnectionString } from "../src/server/db/lab-config.mjs";
 import { evaluateConcurrency } from "./concurrency-observation.mjs";
-
-function labOrigin() {
-  const url = new URL(process.env.WORKSHOP_BASE_URL ?? "http://127.0.0.1:3000");
-  if (!isLabEnabled() || url.protocol !== "http:" || !["127.0.0.1", "localhost"].includes(url.hostname)
-    || url.username || url.password || url.pathname !== "/" || url.search || url.hash) {
-    throw new Error("The verifier requires an explicitly enabled loopback workshop lab.");
-  }
-  return url.origin;
-}
+import { labOrigin } from "./lab-origin.mjs";
 
 function call(origin, path, { body, headers = {} } = {}) {
   const data = body === undefined ? undefined : JSON.stringify(body);

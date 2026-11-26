@@ -1,6 +1,6 @@
 # Verification strategy and evidence contracts
 
-**ID:** PH-VER-001 | **Version:** 0.1 | **Status:** proposed, not executed
+**ID:** PH-VER-001 | **Version:** 0.2 | **Status:** local harness implemented in VS-04
 
 ## 1. Design principle
 
@@ -32,7 +32,7 @@ The fixture contract passes by asserting the expected fixture failure and its sc
 
 ## 4. Verification skill contract
 
-Suggested location: `skills/verify-procurement/SKILL.md`; adapt registration to GrokBot only after a capability spike. Inspired by the original [create-verification-skill](https://github.com/cursor/plugins/blob/main/pstack/skills/create-verification-skill/SKILL.md).
+The [operator guide](../skills/verify-procurement/SKILL.md) and [feature map](../skills/verify-procurement/features/README.md) define the reusable procedure. Native GrokBot registration calls for a capability spike. The procedure draws on [create-verification-skill](https://github.com/cursor/plugins/blob/main/pstack/skills/create-verification-skill/SKILL.md).
 
 | Section | Required contents |
 | --- | --- |
@@ -52,25 +52,41 @@ Feature map seed:
 
 Each feature describes observable behavior, user entry path, exact drive instructions and known prerequisites/gotchas. Verify the skill itself through launch → doctor → drive → capture → cleanup, and confirm evidence survives cleanup. Maintain feature maps as the app changes.
 
-## 5. Proposed command interface
-
-These are names to implement, not commands that already work:
+## 5. Command interface
 
 ```bash
 npm ci
+npx playwright install chromium
+npm run verify:all -- --run-id workshop-rehearsal
+```
+
+The one-shot command runs launch, doctor, drive, evidence and cleanup. It keeps the lifecycle and the individual check results under `artifacts/verification/VS-04/workshop-rehearsal/`. The overall result requires a clean revision, successful required checks and successful teardown. Use a new run ID for each complete run.
+
+To work through the checks manually, copy `.env.example` to `.env` and start the database:
+
+```bash
 npm run lab:up
-npm run lab:doctor
+npm run lab:doctor -- --db-only
+```
+
+In a second terminal, start the application:
+
+```bash
 npm run dev
+```
+
+From the first terminal, check app readiness and run your selected scenarios:
+
+```bash
+npm run lab:doctor
 npm run check:static
 npm run test:unit
 npm run test:integration
 npm run verify:concurrency
 npm run test:e2e
-npm run verify:all
-npm run lab:down
 ```
 
-`lab:up` provisions only the disposable DB, migrates and seeds it; `dev` runs the app. `lab:doctor` has a documented DB-only readiness mode and an app-ready mode; all runtime checks require the latter. The implementation must document startup order (start app in a second terminal after DB setup, then app-ready doctor) and exact shell-compatible arguments. `verify:all` orchestrates required checks and fails closed if any required check fails or is skipped. `lab:down` stops owned lab resources without deleting evidence; destructive reset requires explicit opt-in and disposable DB identification. Each test run uses unique keys/isolated seed state. Exact flags and versions are deferred to implementation.
+Run `npm run verify:ph42-fixture` on its own to observe the expected exit 1. Stop the manually started app with Ctrl+C and run `npm run lab:down` to stop the database while retaining its volume.
 
 ## 6. Evidence manifest contract
 

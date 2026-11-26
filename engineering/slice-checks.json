@@ -368,5 +368,16 @@
       ],
       "timeoutSeconds": 30
     }
-  ]
+  ],
+  "VS-04": {
+    "base": "VS-03",
+    "checks": [
+      {
+        "id": "harness-contract",
+        "criteria": ["FR-10", "AC-09"],
+        "argv": ["{python}", "-B", "-m", "unittest", "discover", "-s", "engineering/tests"],
+        "timeoutSeconds": 30
+      }
+    ]
+  }
 }

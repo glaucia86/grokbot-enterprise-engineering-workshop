@@ -78,6 +78,8 @@ def main():
     args = parser.parse_args()
     definitions = json.loads((ROOT / "engineering/slice-checks.json").read_text(encoding="utf-8"))
     checks = definitions.get(args.slice)
+    if isinstance(checks, dict):
+        checks = definitions[checks["base"]] + checks["checks"]
     if not checks or not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,63}", args.run_id):
         parser.error("expected a configured slice and a run ID containing lowercase letters, digits or hyphens")
     run = ROOT / "artifacts/verification" / args.slice / args.run_id

@@ -14,7 +14,7 @@
     "start": "next start --hostname 127.0.0.1",
     "check:static": "eslint . && tsc --noEmit",
     "lab:up": "docker compose up --wait --wait-timeout 60 db && npm run lab:init",
-    "lab:doctor": "node --test tests/smoke/health.test.mjs",
+    "lab:doctor": "node --env-file-if-exists=.env scripts/lab-doctor.mjs",
     "test:e2e": "playwright test",
     "lab:down": "docker compose down",
     "lab:init": "node --env-file-if-exists=.env scripts/init-lab.mjs",
@@ -22,7 +22,8 @@
     "test:unit": "vitest run tests/unit",
     "test:integration": "node --env-file-if-exists=.env --test tests/integration/procurement.test.mjs",
     "verify:concurrency": "node --env-file-if-exists=.env scripts/verify-concurrency.mjs",
-    "verify:ph42-fixture": "node --env-file-if-exists=.env scripts/verify-ph42-fixture.mjs"
+    "verify:ph42-fixture": "node --env-file-if-exists=.env scripts/verify-ph42-fixture.mjs",
+    "verify:all": "python engineering/verify-lab.py"
   },
   "dependencies": {
     "drizzle-orm": "0.45.4",

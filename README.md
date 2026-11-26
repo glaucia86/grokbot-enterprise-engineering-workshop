@@ -6,7 +6,7 @@ Packt Advanced Workshop · December 11, 2026 · 60 minutes
 
 ## Procurement Hub
 
-A synthetic enterprise purchase request and approval platform for demonstrating verification-first agentic engineering with GrokBot. The project is in the specification phase; application code, agent integration and verification evidence have not yet been implemented.
+A synthetic enterprise purchase request and approval platform for demonstrating verification-first agentic engineering with GrokBot. The lab includes purchase submission, approval, audit, and a repeatable verification harness.
 
 ## Start here
 
@@ -33,6 +33,7 @@ Use Node.js 24.22.3, npm 11.19.1 and Docker Compose v2. Install a Chromium brows
 npm ci
 npx playwright install chromium
 npm run lab:up
+npm run lab:doctor -- --db-only
 npm run dev
 ```
 
@@ -55,6 +56,16 @@ A healthy lab returns HTTP 200 with `{"status":"ready"}`. Missing or unreachable
 Stop the application with Ctrl+C and run `npm run lab:down` for the owned Compose lab. This stops the containers and retains the volume and local verification evidence. If another checkout is using the project name or ports, isolate the Compose project and configure separate ports before starting it.
 
 For authoring setup and revision-linked checks, see [slice execution](doc-specs/LOOP-ENGINEERING.md). The optional authoring skill bootstrap uses Python with HTTPS access to the pinned sources.
+
+## Verify the lab in one run
+
+From a clean Git checkout, install dependencies and Chromium as shown above. With Python 3 and local Docker Compose v2 available, run:
+
+```bash
+npm run verify:all -- --run-id workshop-rehearsal
+```
+
+The harness builds the app, starts an isolated PostgreSQL instance, checks readiness, runs the test suites and both PH-42 observations, then removes the resources it created. Use a fresh run ID each time. Read the lifecycle and check manifests under `artifacts/verification/VS-04/<run-id>/` after shutdown. For a local PostgreSQL installation, Windows invocation and individual scenarios, see [the verification guide](skills/verify-procurement/SKILL.md).
 
 ## Check PH-42
 

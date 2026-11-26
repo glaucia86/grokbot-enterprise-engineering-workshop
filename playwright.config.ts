@@ -2,6 +2,7 @@ import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./tests/e2e",
+  outputDir: process.env.WORKSHOP_PLAYWRIGHT_OUTPUT_DIR,
   retries: 0,
   timeout: 20_000,
   use: {
