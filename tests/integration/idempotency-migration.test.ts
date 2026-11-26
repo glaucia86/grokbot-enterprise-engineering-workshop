@@ -1,25 +1,27 @@
 import assert from "node:assert/strict";
-import { randomUUID } from "node:crypto";
 import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import test from "node:test";
+import { test } from "bun:test";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
-import postgres from "postgres";
-import { isLabEnabled, labConnectionString } from "../../src/server/db/lab-config.mjs";
+import postgres, { type Sql } from "postgres";
+import { isLabEnabled, labConnectionString } from "../../src/server/db/lab-config";
 
 const migrationsFolder = fileURLToPath(new URL("../../drizzle/", import.meta.url));
 const initialMigration = "0000_tenant_scoped_procurement.sql";
 const scopedConstraint = "purchase_requests_tenant_key_unique";
 const clientOptions = { max: 1, connect_timeout: 3, connection: { statement_timeout: 5_000 } };
 
-async function withBaseline({ legacy }, verify) {
+async function withBaseline(
+  { legacy }: { legacy: boolean },
+  verify: (sql: Sql, upgrade: () => Promise<void>) => Promise<void>,
+) {
   assert.ok(isLabEnabled(), "Migration tests require the disposable workshop lab.");
   const target = new URL(labConnectionString());
   const admin = postgres(target.toString(), clientOptions);
-  const fixtureName = "workshop_vs05_" + randomUUID().replaceAll("-", "");
+  const fixtureName = "workshop_vs05_" + crypto.randomUUID().replaceAll("-", "");
   const baseline = await mkdtemp(join(tmpdir(), "workshop-vs05-baseline-"));
   try {
     await mkdir(join(baseline, "meta"));
@@ -50,7 +52,7 @@ async function withBaseline({ legacy }, verify) {
   }
 }
 
-function createPurchase(sql, identity) {
+function createPurchase(sql: Sql, identity: string) {
   return sql`
     with created as (
       insert into purchase_requests
@@ -64,15 +66,15 @@ function createPurchase(sql, identity) {
   `;
 }
 
-async function snapshot(sql) {
+async function snapshot(sql: Sql) {
   return {
     requests: [...await sql`select * from purchase_requests order by id`].map(row => ({ ...row })),
     events: [...await sql`select * from audit_events order by id`].map(row => ({ ...row })),
   };
 }
 
-async function migrationCount(sql) {
-  const [result] = await sql`select count(*)::int as count from drizzle.__drizzle_migrations`;
+async function migrationCount(sql: Sql) {
+  const [result] = await sql<{ count: number }[]>`select count(*)::int as count from drizzle.__drizzle_migrations`;
   return result.count;
 }
 
@@ -104,8 +106,8 @@ test("the migration refuses legacy duplicates and preserves both requests and au
     assert.equal(before.events.length, 2);
 
     await assert.rejects(upgrade, error => {
-      const cause = error.cause ?? error;
-      return cause.code === "23505" && cause.message ===
+      const cause = error instanceof Error ? error.cause ?? error : error;
+      return cause instanceof postgres.PostgresError && cause.code === "23505" && cause.message ===
         "The lab contains duplicate tenant/idempotency keys. Reconcile the duplicates before retrying the migration.";
     });
 

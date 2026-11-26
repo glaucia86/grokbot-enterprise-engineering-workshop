@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "bun:test";
 import { decisionSchema } from "../../src/server/http/purchase-input";
 
 describe("purchase decision contract", () => {

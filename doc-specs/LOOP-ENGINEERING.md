@@ -10,15 +10,15 @@ Use the [ticket index](TICKETS.md) to select one eligible slice. Read the linked
 
 ## Executable checks
 
-Install the project-local skills first. Run the configured preparation checks from the repository root with Python 3.10 or newer.
+Install the project-local skills first. Run the configured preparation checks from the repository root with the pinned Bun runtime.
 
 ```bash
-python3 engineering/bootstrap-skills.py
-python3 engineering/bootstrap-skills.py --verify
-python3 engineering/check-slice.py PREP preparation
+bun engineering/bootstrap-skills.ts
+bun engineering/bootstrap-skills.ts --verify
+bun engineering/check-slice.ts PREP preparation
 ```
 
-On Windows, use the equivalent Python command (for example, `py -3`). Add check commands to `engineering/slice-checks.json` as they are implemented. Each command is an argument array with a time limit. Commands come from that tracked file. Use short-lived commands or helpers that own and clean up any processes they start.
+Add check commands to `engineering/slice-checks.json` as they are implemented. Each command is an argument array with a time limit. Commands come from that tracked file. Use short-lived commands or helpers that own and clean up any processes they start.
 
 The runner writes one immutable attempt directory under `artifacts/verification/<slice>/<run-id>/`, with the candidate SHA, worktree status, versions, exit codes, durations and logs. Exit 0 means the checks passed on a clean worktree, 1 means a failure, blocker or dirty worktree, and 2 means the invocation was rejected. An interrupted attempt requires inspection before a new run. Logs remain local until reviewed for sensitive content. `humanReview: pending` is recorded even when all checks pass. Human approval comes from the repository review process.
 

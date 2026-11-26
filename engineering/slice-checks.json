@@ -3,8 +3,8 @@
     {
       "id": "skills-integrity",
       "argv": [
-        "{python}",
-        "engineering/bootstrap-skills.py",
+        "{bun}",
+        "engineering/bootstrap-skills.ts",
         "--verify"
       ],
       "timeoutSeconds": 30
@@ -12,20 +12,16 @@
     {
       "id": "specification-links",
       "argv": [
-        "{python}",
-        "engineering/verify-specifications.py"
+        "{bun}",
+        "engineering/verify-specifications.ts"
       ],
       "timeoutSeconds": 15
     },
     {
       "id": "engineering-test",
       "argv": [
-        "{python}",
-        "-B",
-        "-m",
-        "unittest",
-        "discover",
-        "-s",
+        "{bun}",
+        "test",
         "engineering/tests"
       ],
       "timeoutSeconds": 30
@@ -38,7 +34,8 @@
         "FR-10"
       ],
       "argv": [
-        "node",
+        "{bun}",
+        "--bun",
         "node_modules/eslint/bin/eslint.js",
         "."
       ],
@@ -50,7 +47,8 @@
         "FR-10"
       ],
       "argv": [
-        "node",
+        "{bun}",
+        "--bun",
         "node_modules/typescript/bin/tsc",
         "--noEmit"
       ],
@@ -62,9 +60,9 @@
         "FR-10"
       ],
       "argv": [
-        "node",
-        "--test",
-        "tests/smoke/health.test.mjs"
+        "{bun}",
+        "test",
+        "tests/smoke/health.test.ts"
       ],
       "timeoutSeconds": 20
     },
@@ -74,7 +72,8 @@
         "FR-10"
       ],
       "argv": [
-        "node",
+        "{bun}",
+        "--bun",
         "node_modules/@playwright/test/cli.js",
         "test"
       ],
@@ -88,7 +87,8 @@
         "EG-02"
       ],
       "argv": [
-        "node",
+        "{bun}",
+        "--bun",
         "node_modules/eslint/bin/eslint.js",
         "."
       ],
@@ -100,7 +100,8 @@
         "EG-02"
       ],
       "argv": [
-        "node",
+        "{bun}",
+        "--bun",
         "node_modules/typescript/bin/tsc",
         "--noEmit"
       ],
@@ -113,9 +114,8 @@
         "EG-02"
       ],
       "argv": [
-        "node",
-        "node_modules/vitest/vitest.mjs",
-        "run",
+        "{bun}",
+        "test",
         "tests/unit"
       ],
       "timeoutSeconds": 40
@@ -133,10 +133,9 @@
         "AC-08"
       ],
       "argv": [
-        "node",
-        "--env-file-if-exists=.env",
-        "--test",
-        "tests/integration/procurement.test.mjs"
+        "{bun}",
+        "test",
+        "tests/integration/procurement.test.ts"
       ],
       "timeoutSeconds": 75
     },
@@ -146,9 +145,9 @@
         "FR-10"
       ],
       "argv": [
-        "node",
-        "--test",
-        "tests/smoke/health.test.mjs"
+        "{bun}",
+        "test",
+        "tests/smoke/health.test.ts"
       ],
       "timeoutSeconds": 20
     },
@@ -162,7 +161,8 @@
         "FR-06"
       ],
       "argv": [
-        "node",
+        "{bun}",
+        "--bun",
         "node_modules/@playwright/test/cli.js",
         "test"
       ],
@@ -176,7 +176,8 @@
         "EG-02"
       ],
       "argv": [
-        "node",
+        "{bun}",
+        "--bun",
         "node_modules/eslint/bin/eslint.js",
         "."
       ],
@@ -188,7 +189,8 @@
         "EG-02"
       ],
       "argv": [
-        "node",
+        "{bun}",
+        "--bun",
         "node_modules/typescript/bin/tsc",
         "--noEmit"
       ],
@@ -201,9 +203,8 @@
         "EG-02"
       ],
       "argv": [
-        "node",
-        "node_modules/vitest/vitest.mjs",
-        "run",
+        "{bun}",
+        "test",
         "tests/unit"
       ],
       "timeoutSeconds": 40
@@ -219,10 +220,9 @@
         "AC-08"
       ],
       "argv": [
-        "node",
-        "--env-file-if-exists=.env",
-        "--test",
-        "tests/integration/procurement.test.mjs"
+        "{bun}",
+        "test",
+        "tests/integration/procurement.test.ts"
       ],
       "timeoutSeconds": 75
     },
@@ -232,9 +232,9 @@
         "FR-10"
       ],
       "argv": [
-        "node",
-        "--test",
-        "tests/smoke/health.test.mjs"
+        "{bun}",
+        "test",
+        "tests/smoke/health.test.ts"
       ],
       "timeoutSeconds": 20
     },
@@ -248,7 +248,8 @@
         "FR-06"
       ],
       "argv": [
-        "node",
+        "{bun}",
+        "--bun",
         "node_modules/@playwright/test/cli.js",
         "test"
       ],
@@ -262,7 +263,8 @@
         "EG-02"
       ],
       "argv": [
-        "node",
+        "{bun}",
+        "--bun",
         "node_modules/eslint/bin/eslint.js",
         "."
       ],
@@ -274,7 +276,8 @@
         "EG-02"
       ],
       "argv": [
-        "node",
+        "{bun}",
+        "--bun",
         "node_modules/typescript/bin/tsc",
         "--noEmit"
       ],
@@ -287,9 +290,8 @@
         "EG-02"
       ],
       "argv": [
-        "node",
-        "node_modules/vitest/vitest.mjs",
-        "run",
+        "{bun}",
+        "test",
         "tests/unit"
       ],
       "timeoutSeconds": 40
@@ -305,10 +307,9 @@
         "AC-08"
       ],
       "argv": [
-        "node",
-        "--env-file-if-exists=.env",
-        "--test",
-        "tests/integration/procurement.test.mjs"
+        "{bun}",
+        "test",
+        "tests/integration/procurement.test.ts"
       ],
       "timeoutSeconds": 75
     },
@@ -318,9 +319,9 @@
         "FR-10"
       ],
       "argv": [
-        "node",
-        "--test",
-        "tests/smoke/health.test.mjs"
+        "{bun}",
+        "test",
+        "tests/smoke/health.test.ts"
       ],
       "timeoutSeconds": 20
     },
@@ -334,7 +335,8 @@
         "FR-06"
       ],
       "argv": [
-        "node",
+        "{bun}",
+        "--bun",
         "node_modules/@playwright/test/cli.js",
         "test"
       ],
@@ -347,11 +349,10 @@
         "AC-05"
       ],
       "argv": [
-        "node",
-        "--env-file-if-exists=.env",
-        "--test",
-        "tests/verification/concurrency-observation.test.mjs",
-        "tests/verification/ph42-fixture.test.mjs"
+        "{bun}",
+        "test",
+        "tests/verification/concurrency-observation.test.ts",
+        "tests/verification/ph42-fixture.test.ts"
       ],
       "timeoutSeconds": 30
     },
@@ -362,9 +363,8 @@
         "AC-05"
       ],
       "argv": [
-        "node",
-        "--env-file-if-exists=.env",
-        "scripts/verify-concurrency.mjs"
+        "{bun}",
+        "scripts/verify-concurrency.ts"
       ],
       "timeoutSeconds": 30
     }
@@ -374,8 +374,15 @@
     "checks": [
       {
         "id": "harness-contract",
-        "criteria": ["FR-10", "AC-09"],
-        "argv": ["{python}", "-B", "-m", "unittest", "discover", "-s", "engineering/tests"],
+        "criteria": [
+          "FR-10",
+          "AC-09"
+        ],
+        "argv": [
+          "{bun}",
+          "test",
+          "engineering/tests"
+        ],
         "timeoutSeconds": 30
       }
     ]
@@ -385,8 +392,18 @@
     "checks": [
       {
         "id": "idempotency-migration",
-        "criteria": ["FR-07", "FR-08", "FR-09", "AC-04", "AC-05"],
-        "argv": ["node", "--env-file-if-exists=.env", "--test", "tests/integration/idempotency-migration.test.mjs"],
+        "criteria": [
+          "FR-07",
+          "FR-08",
+          "FR-09",
+          "AC-04",
+          "AC-05"
+        ],
+        "argv": [
+          "{bun}",
+          "test",
+          "tests/integration/idempotency-migration.test.ts"
+        ],
         "timeoutSeconds": 35
       }
     ]

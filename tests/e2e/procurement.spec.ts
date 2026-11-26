@@ -1,8 +1,7 @@
-import { randomUUID } from "node:crypto";
 import { expect, test } from "@playwright/test";
 
 test("a requester submits a purchase and an auditor sees its creation event", async ({ page }) => {
-  const title = "Warehouse gloves " + randomUUID();
+  const title = "Warehouse gloves " + crypto.randomUUID();
   await page.goto("/");
   await page.getByLabel("Lab identity").selectOption("northstar-requester");
   await page.getByRole("button", { name: "Switch identity" }).click();

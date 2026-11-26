@@ -1,7 +1,7 @@
 import { sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import { labConnectionString } from "./lab-config.mjs";
+import { labConnectionString } from "./lab-config";
 
 let database: ReturnType<typeof drizzle> | undefined;
 

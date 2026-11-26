@@ -25,8 +25,8 @@ The runtime driver calls real public application interfaces; direct read-only da
 
 PH-42 uses two evidence sources. Each goes through the same driver-level invariant evaluator.
 
-1. **Repeatable red observation.** `npm run verify:ph42-fixture` evaluates synthetic historical responses and reads the associated records with a PostgreSQL read-only query. It exits 1 and identifies its source as `synthetic-snapshot`. The fixture contract checks tenant and creation-event scope.
-2. **Live runtime proof.** `npm run verify:concurrency` sends an equivalent request on each of two HTTP connections and reads persisted counts from the disposable lab. It exits 0 when the responses identify one committed request and the database contains one creation event.
+1. **Repeatable red observation.** `bun run verify:ph42-fixture` evaluates synthetic historical responses and reads the associated records with a PostgreSQL read-only query. It exits 1 and identifies its source as `synthetic-snapshot`. The fixture contract checks tenant and creation-event scope.
+2. **Live runtime proof.** `bun run verify:concurrency` sends an equivalent request on each of two HTTP connections and reads persisted counts from the disposable lab. It exits 0 when the responses identify one committed request and the database contains one creation event.
 
 The fixture contract passes by asserting the expected fixture failure and its scoped counts. The live runtime check passes when the actual API and database satisfy the invariant. Preserve the output from each command and identify its evidence source in the handoff.
 
@@ -55,9 +55,9 @@ Each feature describes observable behavior, user entry path, exact drive instruc
 ## 5. Command interface
 
 ```bash
-npm ci
-npx playwright install chromium
-npm run verify:all -- --run-id workshop-rehearsal
+bun install --frozen-lockfile
+bun run browser:install
+bun run verify:all --run-id workshop-rehearsal
 ```
 
 The one-shot command runs launch, doctor, drive, evidence and cleanup. It keeps the lifecycle and the individual check results under `artifacts/verification/VS-04/workshop-rehearsal/`. The overall result requires a clean revision, successful required checks and successful teardown. Use a new run ID for each complete run.
@@ -65,28 +65,28 @@ The one-shot command runs launch, doctor, drive, evidence and cleanup. It keeps 
 To work through the checks manually, copy `.env.example` to `.env` and start the database:
 
 ```bash
-npm run lab:up
-npm run lab:doctor -- --db-only
+bun run lab:up
+bun run lab:doctor --db-only
 ```
 
 In a second terminal, start the application:
 
 ```bash
-npm run dev
+bun run dev
 ```
 
 From the first terminal, check app readiness and run your selected scenarios:
 
 ```bash
-npm run lab:doctor
-npm run check:static
-npm run test:unit
-npm run test:integration
-npm run verify:concurrency
-npm run test:e2e
+bun run lab:doctor
+bun run check:static
+bun run test:unit
+bun run test:integration
+bun run verify:concurrency
+bun run test:e2e
 ```
 
-Run `npm run verify:ph42-fixture` on its own to observe the expected exit 1. Stop the manually started app with Ctrl+C and run `npm run lab:down` to stop the database while retaining its volume.
+Run `bun run verify:ph42-fixture` on its own to observe the expected exit 1. Stop the manually started app with Ctrl+C and run `bun run lab:down` to stop the database while retaining its volume.
 
 ## 6. Evidence manifest contract
 
@@ -104,7 +104,7 @@ For every verification run, retain a machine-readable manifest and human summary
       "id": "V-04",
       "criteria": ["AC-01", "AC-05"],
       "status": "not-run",
-      "command": "npm run verify:concurrency",
+      "command": "bun run verify:concurrency",
       "exitCode": null,
       "artifactPaths": [],
       "limitations": ["Illustrative manifest; no execution"]

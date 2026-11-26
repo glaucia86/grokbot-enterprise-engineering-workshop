@@ -1,6 +1,6 @@
 # Workshop skill inventory
 
-The [lockfile](../engineering/skills-lock.json) records all 24 selected skills, with purpose, phase, upstream, pinned revision, license, install path, audit status and exact file digests. Install from the repository root with `python3 engineering/bootstrap-skills.py`. Verify an existing installation offline with `python3 engineering/bootstrap-skills.py --verify`. The installer preserves existing packages and reports any mismatch. Use a fresh checkout for an isolated reinstall.
+The [lockfile](../engineering/skills-lock.json) records all 24 selected skills, with purpose, phase, upstream, pinned revision, license, install path, audit status and exact file digests. Install from the repository root with `bun engineering/bootstrap-skills.ts`. Verify an existing installation offline with `bun engineering/bootstrap-skills.ts --verify`. The installer preserves existing packages and reports any mismatch. Use a fresh checkout for an isolated reinstall.
 
 The audit compared source files with pinned Git objects and the hosted Uizze package with its publisher checksums. It inspected skill manifests, attribution and license information, supporting files, script dependencies and I/O. Upstream executable helpers were reviewed as source. They were not run as part of the bootstrap. The project's authorization still governs every external action suggested by the imported material. Configure participant packaging separately and review redistribution terms for each included skill.
 

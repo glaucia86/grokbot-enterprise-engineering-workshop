@@ -1,7 +1,7 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "bun:test";
 import { keySchema, submissionSchema } from "../../src/server/http/purchase-input";
 
-const valid = { title: "  Gloves ", justification: " Replenishment  ", amountMinor: 123, currency: "USD" };
+const valid = { title: "  Gloves ", justification: " Replenishment  ", amountMinor: 123, currency: "USD" as const };
 
 describe("purchase submission contract", () => {
   it("trims whitespace while preserving meaningful characters and an exact amount", () => {

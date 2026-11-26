@@ -1,16 +1,15 @@
-import { readFile } from "node:fs/promises";
-import { fileURLToPath } from "node:url";
+import { resolve } from "node:path";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
-import { isLabEnabled, labConnectionString } from "../src/server/db/lab-config.mjs";
+import { isLabEnabled, labConnectionString } from "../src/server/db/lab-config";
 
 if (!isLabEnabled()) {
   throw new Error("Enable WORKSHOP_LAB_MODE for the disposable lab before initializing it.");
 }
 
-const migrationsFolder = fileURLToPath(new URL("../drizzle", import.meta.url));
-const seed = await readFile(new URL("seed-lab.sql", import.meta.url), "utf8");
+const migrationsFolder = resolve(import.meta.dir, "../drizzle");
+const seed = await Bun.file(new URL("seed-lab.sql", import.meta.url)).text();
 const client = postgres(labConnectionString(), {
   max: 2,
   connect_timeout: 3,

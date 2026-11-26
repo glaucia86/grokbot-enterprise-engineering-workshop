@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { switchLabIdentity } from "../../../../server/auth/lab-session";
-import { isLabEnabled } from "../../../../server/db/lab-config.mjs";
+import { isLabEnabled } from "../../../../server/db/lab-config";
 import { apiError, hasSameOrigin, labJson, labOrigin, readJson } from "../../../../server/http/lab-responses";
 
 const selection = z.strictObject({ identity: z.string().regex(/^[a-z0-9-]{1,64}$/) });

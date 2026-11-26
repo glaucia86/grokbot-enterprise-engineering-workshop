@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
-import test from "node:test";
-import { evaluateConcurrency } from "../../scripts/concurrency-observation.mjs";
+import { test } from "bun:test";
+import { evaluateConcurrency } from "../../scripts/concurrency-observation";
 
 test("the invariant accepts one committed creation and an equivalent replay", () => {
   assert.deepEqual(evaluateConcurrency({

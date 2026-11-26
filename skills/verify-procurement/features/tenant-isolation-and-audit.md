@@ -5,9 +5,9 @@ Create a purchase as **Northstar Requester** and keep its detail URL. Switch to 
 Switch to **Meridian Requester**. The Northstar title is absent from that tenant’s list and opening its detail URL returns HTTP 404.
 
 ```bash
-npx playwright test tests/e2e/procurement.spec.ts tests/e2e/decision.spec.ts
-npm run test:integration
-npm run verify:concurrency
+bun run test:e2e tests/e2e/procurement.spec.ts tests/e2e/decision.spec.ts
+bun run test:integration
+bun run verify:concurrency
 ```
 
 The integration suite checks list and detail scope, audit authorization at `GET /api/purchase-requests/<id>/audit` and transactional audit behavior. Use the live concurrency result for the persisted creation-event count. It should show one event for the test request.

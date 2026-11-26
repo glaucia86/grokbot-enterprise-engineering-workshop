@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { listLabIdentities, readLabSession } from "../server/auth/lab-session";
-import { isLabEnabled } from "../server/db/lab-config.mjs";
+import { isLabEnabled } from "../server/db/lab-config";
 import { requests } from "../server/procurement/requests";
 import { formatUsd } from "./format-purchase";
 import { LabIdentityForm } from "./lab-identity-form";

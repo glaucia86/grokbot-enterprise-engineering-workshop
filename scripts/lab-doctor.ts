@@ -1,6 +1,6 @@
 import postgres from "postgres";
-import { isLabEnabled, labConnectionString } from "../src/server/db/lab-config.mjs";
-import { labOrigin } from "./lab-origin.mjs";
+import { isLabEnabled, labConnectionString } from "../src/server/db/lab-config";
+import { labOrigin } from "./lab-origin";
 
 async function inspectDatabase() {
   if (!isLabEnabled()) throw new Error("The local lab profile is required.");
@@ -31,7 +31,7 @@ async function inspectDatabase() {
 
 async function inspectApplication() {
   const origin = labOrigin();
-  const options = { redirect: "error", signal: AbortSignal.timeout(5_000) };
+  const options: RequestInit = { redirect: "error", signal: AbortSignal.timeout(5_000) };
   const [health, access] = await Promise.all([
     fetch(new URL("/api/health", origin), options),
     fetch(new URL("/api/purchase-requests", origin), options),
@@ -49,7 +49,7 @@ const mode = args[0] === "--db-only" ? "database" : "application";
 let check = "arguments";
 try {
   if (args.length > 1 || (args.length === 1 && mode !== "database")) {
-    throw new Error("Usage: lab-doctor.mjs [--db-only]");
+    throw new Error("Usage: lab-doctor.ts [--db-only]");
   }
   check = "database";
   const database = await inspectDatabase();

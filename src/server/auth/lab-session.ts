@@ -1,9 +1,9 @@
-import { createHash, randomBytes } from "node:crypto";
 import { and, eq, gt, isNotNull } from "drizzle-orm";
 import { cookies } from "next/headers";
-import { isLabEnabled } from "../db/lab-config.mjs";
+import { isLabEnabled } from "../db/lab-config";
 import { getLabDatabase } from "../db/lab-database";
 import { labSessions, memberships, tenants, users } from "../db/schema";
+import { sha256 } from "../sha256";
 
 const cookieName = "procurement_lab_session";
 const sessionLifetime = 8 * 60 * 60;
@@ -24,18 +24,14 @@ export async function listLabIdentities() {
     .orderBy(tenants.name, users.displayName);
 }
 
-function tokenHash(token: string) {
-  return createHash("sha256").update(token).digest("hex");
-}
-
 function hashFromCookie(jar: Awaited<ReturnType<typeof cookies>>) {
   const token = jar.get(cookieName)?.value;
-  return token && tokenFormat.test(token) ? tokenHash(token) : undefined;
+  return token && tokenFormat.test(token) ? sha256(token) : undefined;
 }
 
 export async function readLabSession() {
   if (!isLabEnabled()) return undefined;
-  const hash = hashFromCookie(await cookies());
+  const hash = await hashFromCookie(await cookies());
   if (!hash) return undefined;
 
   const [session] = await getLabDatabase().select({
@@ -60,8 +56,10 @@ export async function readLabSession() {
 
 export async function switchLabIdentity(identity: string, secure: boolean) {
   const jar = await cookies();
-  const previousHash = hashFromCookie(jar);
-  const token = randomBytes(32).toString("base64url");
+  const previousHash = await hashFromCookie(jar);
+  const token = btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(32))))
+    .replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/, "");
+  const tokenHash = await sha256(token);
   const expiresAt = new Date(Date.now() + sessionLifetime * 1_000);
 
   const selected = await getLabDatabase().transaction(async (transaction) => {
@@ -71,7 +69,7 @@ export async function switchLabIdentity(identity: string, secure: boolean) {
     }).from(memberships).where(eq(memberships.labIdentity, identity)).limit(1);
     if (!membership) return false;
 
-    await transaction.insert(labSessions).values({ ...membership, tokenHash: tokenHash(token), expiresAt });
+    await transaction.insert(labSessions).values({ ...membership, tokenHash, expiresAt });
     if (previousHash) await transaction.delete(labSessions).where(eq(labSessions.tokenHash, previousHash));
     return true;
   });

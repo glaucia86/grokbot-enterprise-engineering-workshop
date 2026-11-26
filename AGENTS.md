@@ -4,6 +4,8 @@
 
 Build Procurement Hub as a reproducible, synthetic enterprise engineering lab for the Packt workshop. Deliver small, verifiable changes that preserve business invariants. This is not a production procurement system.
 
+Use TypeScript for application code, tests, and executable repository tooling. Run the workshop commands with the pinned Bun runtime and lockfile.
+
 The current repository is private authoring material. Do not publish it or expose instructor-only solution details without release review.
 
 ## Context routing
