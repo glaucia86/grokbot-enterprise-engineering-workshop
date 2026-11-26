@@ -17,6 +17,7 @@ from tempfile import TemporaryDirectory
 from time import monotonic, sleep
 
 ROOT = Path(__file__).resolve().parents[1]
+VERIFICATION_DIR = ROOT / "artifacts/verification"
 NEXT = "node_modules/next/dist/bin/next"
 STAGES = ("launch", "doctor", "drive", "evidence", "cleanup")
 CREATE_DATABASE = """
@@ -100,7 +101,8 @@ def last_json(log):
 
 
 class LabRun:
-    def __init__(self, run_id, path, postgres_bin):
+    def __init__(self, slice_id, run_id, path, postgres_bin):
+        self.slice_id = slice_id
         self.run_id = run_id
         self.path = path
         self.postgres_bin = postgres_bin
@@ -120,7 +122,7 @@ class LabRun:
         )
         self.report = {
             "schemaVersion": 1,
-            "slice": "VS-04",
+            "slice": slice_id,
             "runId": run_id,
             "environment": "isolated-lab",
             "runtime": "standalone-postgres" if postgres_bin else "docker-compose",
@@ -216,7 +218,7 @@ class LabRun:
         if not (ROOT / NEXT).is_file():
             raise LabError("Workshop dependencies are missing. Run npm ci first.")
 
-        lock = self.path.parents[1] / ".active"
+        lock = VERIFICATION_DIR / ".active"
         try:
             lock.mkdir()
         except FileExistsError as error:
@@ -243,7 +245,7 @@ class LabRun:
             self.report["doctor"][mode] = last_json(output)
 
     def drive(self):
-        self.command([sys.executable, "engineering/check-slice.py", "VS-04", self.run_id], "drive", 420, status="fail")
+        self.command([sys.executable, "engineering/check-slice.py", self.slice_id, self.run_id], "drive", 450, status="fail")
 
     def capture(self):
         browser_results = self.path.parent / "browser-results"
@@ -298,18 +300,19 @@ class LabRun:
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--slice", choices=("VS-04", "VS-05"), default="VS-04")
     parser.add_argument("--run-id", default=datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S") + "-" + secrets.token_hex(4))
     parser.add_argument("--postgres-bin", type=Path, help="use local initdb and postgres executables instead of Docker")
     args = parser.parse_args()
     if not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,63}", args.run_id):
         parser.error("run ID must contain 1–64 lowercase letters, digits or hyphens")
 
-    run = ROOT / "artifacts/verification/VS-04" / args.run_id
+    run = VERIFICATION_DIR / args.slice / args.run_id
     try:
         run.mkdir(parents=True, exist_ok=False)
         lifecycle = run / "lifecycle"
         lifecycle.mkdir()
-        lab = LabRun(args.run_id, lifecycle, args.postgres_bin)
+        lab = LabRun(args.slice, args.run_id, lifecycle, args.postgres_bin)
     except (OSError, subprocess.SubprocessError):
         parser.error("could not create a new run in the current Git checkout")
     return lab.run()

@@ -1,0 +1,132 @@
+import assert from "node:assert/strict";
+import { randomUUID } from "node:crypto";
+import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+import test from "node:test";
+import { drizzle } from "drizzle-orm/postgres-js";
+import { migrate } from "drizzle-orm/postgres-js/migrator";
+import postgres from "postgres";
+import { isLabEnabled, labConnectionString } from "../../src/server/db/lab-config.mjs";
+
+const migrationsFolder = fileURLToPath(new URL("../../drizzle/", import.meta.url));
+const initialMigration = "0000_tenant_scoped_procurement.sql";
+const scopedConstraint = "purchase_requests_tenant_key_unique";
+const clientOptions = { max: 1, connect_timeout: 3, connection: { statement_timeout: 5_000 } };
+
+async function withBaseline({ legacy }, verify) {
+  assert.ok(isLabEnabled(), "Migration tests require the disposable workshop lab.");
+  const target = new URL(labConnectionString());
+  const admin = postgres(target.toString(), clientOptions);
+  const fixtureName = "workshop_vs05_" + randomUUID().replaceAll("-", "");
+  const baseline = await mkdtemp(join(tmpdir(), "workshop-vs05-baseline-"));
+  try {
+    await mkdir(join(baseline, "meta"));
+    const journal = JSON.parse(await readFile(join(migrationsFolder, "meta", "_journal.json"), "utf8"));
+    await writeFile(join(baseline, "meta", "_journal.json"), JSON.stringify({ ...journal, entries: journal.entries.slice(0, 1) }));
+    await copyFile(join(migrationsFolder, initialMigration), join(baseline, initialMigration));
+
+    await admin`create database ${admin(fixtureName)}`;
+    target.pathname = "/" + fixtureName;
+    const fixture = postgres(target.toString(), clientOptions);
+    try {
+      const database = drizzle(fixture);
+      await migrate(database, { migrationsFolder: baseline });
+      if (legacy) {
+        // Model the old schema only inside this private fixture database.
+        await fixture`alter table purchase_requests drop constraint ${fixture(scopedConstraint)}`;
+      }
+      const seed = await readFile(new URL("../../scripts/seed-lab.sql", import.meta.url), "utf8");
+      await fixture.unsafe(seed).simple();
+      await verify(fixture, () => migrate(database, { migrationsFolder }));
+    } finally {
+      await fixture.end({ timeout: 3 });
+      await admin`drop database ${admin(fixtureName)}`;
+    }
+  } finally {
+    await admin.end({ timeout: 3 });
+    await rm(baseline, { recursive: true, force: true });
+  }
+}
+
+function createPurchase(sql, identity) {
+  return sql`
+    with created as (
+      insert into purchase_requests
+        (tenant_id, requester_id, title, justification, amount_minor, currency, idempotency_key, request_hash)
+      select tenant_id, user_id, 'Gloves', 'Warehouse supplies', 1250, 'USD', 'shared-order', 'fixture'
+      from memberships where lab_identity = ${identity}
+      returning tenant_id, id, requester_id
+    )
+    insert into audit_events (tenant_id, request_id, actor_id, event_type)
+      select tenant_id, id, requester_id, 'CREATED' from created
+  `;
+}
+
+async function snapshot(sql) {
+  return {
+    requests: [...await sql`select * from purchase_requests order by id`].map(row => ({ ...row })),
+    events: [...await sql`select * from audit_events order by id`].map(row => ({ ...row })),
+  };
+}
+
+async function migrationCount(sql) {
+  const [result] = await sql`select count(*)::int as count from drizzle.__drizzle_migrations`;
+  return result.count;
+}
+
+test("the migration installs tenant-scoped uniqueness without changing existing requests or audit events", async () => {
+  await withBaseline({ legacy: true }, async (sql, upgrade) => {
+    await createPurchase(sql, "northstar-requester");
+    await createPurchase(sql, "meridian-requester");
+    const before = await snapshot(sql);
+    assert.equal(before.requests.length, 2);
+    assert.equal(before.events.length, 2);
+
+    await upgrade();
+
+    await assert.rejects(createPurchase(sql, "northstar-requester-alt"), {
+      code: "23505",
+      constraint_name: scopedConstraint,
+    });
+    assert.deepEqual(await snapshot(sql), before);
+    assert.equal(await migrationCount(sql), 2);
+  });
+});
+
+test("the migration refuses legacy duplicates and preserves both requests and audit events", async () => {
+  await withBaseline({ legacy: true }, async (sql, upgrade) => {
+    await createPurchase(sql, "northstar-requester");
+    await createPurchase(sql, "northstar-requester-alt");
+    const before = await snapshot(sql);
+    assert.equal(before.requests.length, 2);
+    assert.equal(before.events.length, 2);
+
+    await assert.rejects(upgrade, error => {
+      const cause = error.cause ?? error;
+      return cause.code === "23505" && cause.message ===
+        "The lab contains duplicate tenant/idempotency keys. Reconcile the duplicates before retrying the migration.";
+    });
+
+    assert.deepEqual(await snapshot(sql), before);
+    assert.equal(await migrationCount(sql), 1);
+  });
+});
+
+test("an already protected baseline can upgrade and rerun without changing its data", async () => {
+  await withBaseline({ legacy: false }, async (sql, upgrade) => {
+    await createPurchase(sql, "northstar-requester");
+    const before = await snapshot(sql);
+
+    await upgrade();
+    await upgrade();
+
+    assert.deepEqual(await snapshot(sql), before);
+    assert.equal(await migrationCount(sql), 2);
+    await assert.rejects(createPurchase(sql, "northstar-requester-alt"), {
+      code: "23505",
+      constraint_name: scopedConstraint,
+    });
+  });
+});

@@ -21,6 +21,7 @@
     "db:generate": "drizzle-kit generate",
     "test:unit": "vitest run tests/unit",
     "test:integration": "node --env-file-if-exists=.env --test tests/integration/procurement.test.mjs",
+    "test:migration": "node --env-file-if-exists=.env --test tests/integration/idempotency-migration.test.mjs",
     "verify:concurrency": "node --env-file-if-exists=.env scripts/verify-concurrency.mjs",
     "verify:ph42-fixture": "node --env-file-if-exists=.env scripts/verify-ph42-fixture.mjs",
     "verify:all": "python engineering/verify-lab.py"
