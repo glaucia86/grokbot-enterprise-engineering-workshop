@@ -132,7 +132,7 @@ For the reference checks, add `--slice VS-05` and read the evidence under `artif
 
 ## Workshop slides and live application
 
-[Reveal.js](slides/README.md) brings the walkthrough, commands and English and Portuguese speaker notes together. The **Workshop slides** workflow builds the deck and makes it available as a ZIP. It also provides the GitHub Pages publication path for the reviewed deck.
+[Reveal.js](slides/README.md) presents the four workshop pillars through PH-42. The **Workshop slides** workflow builds the English audience deck as a ZIP and provides its GitHub Pages publication path. The private [presenter guide](slides/presenter-guide.md) contains the bilingual talk track and stage cues.
 
 The interactive Procurement Hub needs a server and a PostgreSQL database. The [online workshop plan](doc-specs/08-online-workshop.md) documents GitHub Pages for the slides and the isolated Vercel preview for the app. The local walkthrough is available today.
 

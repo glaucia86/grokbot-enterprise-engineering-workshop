@@ -29,7 +29,8 @@
     "verify:formal": "bun engineering/verify-formal.ts",
     "slides:build": "bun slides/build.ts",
     "slides:preview": "bun run slides:build && bun slides/serve.ts",
-    "slides:verify": "bun run slides:build && bun --bun playwright test --config slides/playwright.config.ts"
+    "slides:preview:presenter": "bun run slides:build && bun slides/build.ts --presenter && bun slides/serve.ts --presenter",
+    "slides:verify": "bun run slides:build && bun slides/build.ts --presenter && bun --bun playwright test --config slides/playwright.config.ts"
   },
   "dependencies": {
     "drizzle-orm": "0.45.4",
