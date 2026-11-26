@@ -17,6 +17,7 @@ artifacts/verification/
 artifacts/release/
 artifacts/formal/
 artifacts/slides/
+artifacts/slides-presenter/
 playwright-report/
 test-results/
 playwright/.auth/

@@ -1,7 +1,7 @@
 import { defineConfig } from "@playwright/test";
 import { root } from "../engineering/runtime";
 
-const baseURL = "http://127.0.0.1:4173";
+const baseURL = "http://127.0.0.1:" + (process.env.WORKSHOP_SLIDES_PORT ?? "4173");
 
 export default defineConfig({
   testDir: ".",
@@ -14,7 +14,7 @@ export default defineConfig({
     trace: "retain-on-failure",
   },
   webServer: {
-    command: "bun slides/serve.ts",
+    command: "bun slides/serve.ts --presenter",
     cwd: root,
     url: baseURL + "/workshop/",
   },
