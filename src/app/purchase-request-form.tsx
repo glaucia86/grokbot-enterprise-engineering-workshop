@@ -38,7 +38,7 @@ export function PurchaseRequestForm() {
         return;
       }
       setError(response.status === 409
-        ? "This submission was already recorded. Refresh the page to find it in your requests."
+        ? "This submission key is in use. Refresh the page to start a new request."
         : "Could not submit the request. Check the fields and your lab session.");
     } catch {
       setError("The lab could not confirm the submission. Retry to keep the same submission key.");

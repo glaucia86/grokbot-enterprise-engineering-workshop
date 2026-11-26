@@ -7,6 +7,7 @@ const statuses = {
   FORBIDDEN: 403,
   NOT_FOUND: 404,
   IDEMPOTENCY_CONFLICT: 409,
+  INVALID_TRANSITION: 409,
   INTERNAL_ERROR: 500,
 } as const;
 

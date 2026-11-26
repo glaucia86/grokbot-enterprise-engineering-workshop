@@ -92,3 +92,5 @@ th { color: #3c575b; font-size: 0.85rem; }
 .request-details { display: grid; gap: 1rem; margin: 0; }
 dd { margin: 0.25rem 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 .audit-list { margin: 0; padding-left: 1.4rem; }
+
+.audit-reason { margin: 0.35rem 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }

@@ -23,12 +23,12 @@ The runtime driver calls real public application interfaces; direct read-only da
 
 ## 3. Baseline reproducibility strategy
 
-Concurrency needs a dependable red-to-green demonstration, not a probabilistic race that may fail to appear during the session. Use two independent layers:
+PH-42 uses two evidence sources. Each goes through the same driver-level invariant evaluator.
 
-1. Deterministic integration regression: coordinate two calls at the persistence boundary after both have observed no existing row. The test can inject a synchronization decorator around the repository's read method; it must use the real database and must not change production semantics or rely on sleeps. The reference path may no longer use a pre-read; design the final regression to exercise it too without waiting for a hook it never reaches. Use bounded barrier timeouts and explicit cleanup.
-2. Runtime proof: send concurrent requests to the real HTTP API using fresh synthetic data/keys in a disposable database. If ordinary scheduling does not reproduce the defect, a bounded lab-only PostgreSQL test fixture (e.g., a temporary insert delay trigger) may widen the race window; document, isolate, remove and disclose that fixture, verify the real application path, and also run the fixed code against the ordinary environment. No hidden public test endpoint or mutation of production data. The actual mechanism must be selected and proven in the implementation spike.
+1. **Repeatable red observation.** `npm run verify:ph42-fixture` evaluates synthetic historical responses and reads the associated records with a PostgreSQL read-only query. It exits 1 and identifies its source as `synthetic-snapshot`. The fixture contract checks tenant and creation-event scope.
+2. **Live runtime proof.** `npm run verify:concurrency` sends an equivalent request on each of two HTTP connections and reads persisted counts from the disposable lab. It exits 0 when the responses identify one committed request and the database contains one creation event.
 
-A starter check that unexpectedly passes is a reproducibility failure, not a reason to fake a screenshot. Record the known failing invariant separately from ordinary baseline checks. The starter branch can intentionally exhibit a red lab-specific check; the solution/delivery branch must require the real invariant checks to pass. Do not convert intentional failure into a success result for the candidate fix.
+The fixture contract passes by asserting the expected fixture failure and its scoped counts. The live runtime check passes when the actual API and database satisfy the invariant. Preserve the output from each command and identify its evidence source in the handoff.
 
 ## 4. Verification skill contract
 

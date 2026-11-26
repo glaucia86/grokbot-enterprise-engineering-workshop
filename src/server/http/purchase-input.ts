@@ -14,3 +14,9 @@ export const submissionSchema = z.strictObject({
   currency: z.literal("USD"),
 });
 export const statusSchema = z.enum(purchaseStatuses).optional();
+
+const decisionReason = purchaseText(2_000);
+export const decisionSchema = z.discriminatedUnion("decision", [
+  z.strictObject({ decision: z.literal("APPROVE"), reason: decisionReason.optional() }),
+  z.strictObject({ decision: z.literal("REJECT"), reason: decisionReason }),
+]);

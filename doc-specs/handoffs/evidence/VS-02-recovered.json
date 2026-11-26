@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "slice": "VS-02",
+  "runId": "recovered",
+  "attempt": 0,
+  "candidateSha": "40755b28b6e14b8bb7d95c618428549e0ce4c02b",
+  "worktreeDirty": false,
+  "environment": "isolated-lab",
+  "toolVersions": {
+    "python": "3.12.14",
+    "git": "git version 2.56.1"
+  },
+  "status": "pass",
+  "humanReview": "pending",
+  "checks": [
+    {
+      "id": "static",
+      "criteria": [
+        "EG-02"
+      ],
+      "command": [
+        "node",
+        "node_modules/eslint/bin/eslint.js",
+        "."
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "startedAt": "2026-11-26T11:47:39.483541+00:00",
+      "finishedAt": "2026-11-26T11:47:41.753712+00:00",
+      "durationSeconds": 2.27,
+      "artifactPaths": [
+        "artifacts/verification/VS-02/recovered/attempt-0/static.log"
+      ]
+    },
+    {
+      "id": "typecheck",
+      "criteria": [
+        "EG-02"
+      ],
+      "command": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "startedAt": "2026-11-26T11:47:41.753982+00:00",
+      "finishedAt": "2026-11-26T11:47:44.328699+00:00",
+      "durationSeconds": 2.575,
+      "artifactPaths": [
+        "artifacts/verification/VS-02/recovered/attempt-0/typecheck.log"
+      ]
+    },
+    {
+      "id": "unit",
+      "criteria": [
+        "AC-08",
+        "EG-02"
+      ],
+      "command": [
+        "node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "tests/unit"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "startedAt": "2026-11-26T11:47:44.328880+00:00",
+      "finishedAt": "2026-11-26T11:47:46.552081+00:00",
+      "durationSeconds": 2.223,
+      "artifactPaths": [
+        "artifacts/verification/VS-02/recovered/attempt-0/unit.log"
+      ]
+    },
+    {
+      "id": "http-postgres",
+      "criteria": [
+        "AC-02",
+        "AC-03",
+        "AC-04",
+        "AC-05",
+        "AC-06",
+        "AC-08"
+      ],
+      "command": [
+        "node",
+        "--env-file-if-exists=.env",
+        "--test",
+        "tests/integration/procurement.test.mjs"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "startedAt": "2026-11-26T11:47:46.552326+00:00",
+      "finishedAt": "2026-11-26T11:47:47.420033+00:00",
+      "durationSeconds": 0.868,
+      "artifactPaths": [
+        "artifacts/verification/VS-02/recovered/attempt-0/http-postgres.log"
+      ]
+    },
+    {
+      "id": "vs-00-http-smoke",
+      "criteria": [
+        "FR-10"
+      ],
+      "command": [
+        "node",
+        "--test",
+        "tests/smoke/health.test.mjs"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "startedAt": "2026-11-26T11:47:47.420219+00:00",
+      "finishedAt": "2026-11-26T11:47:47.587136+00:00",
+      "durationSeconds": 0.167,
+      "artifactPaths": [
+        "artifacts/verification/VS-02/recovered/attempt-0/vs-00-http-smoke.log"
+      ]
+    },
+    {
+      "id": "browser",
+      "criteria": [
+        "AC-07",
+        "FR-03",
+        "FR-04",
+        "FR-05",
+        "FR-06"
+      ],
+      "command": [
+        "node",
+        "node_modules/@playwright/test/cli.js",
+        "test"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "startedAt": "2026-11-26T11:47:47.587288+00:00",
+      "finishedAt": "2026-11-26T11:47:52.319910+00:00",
+      "durationSeconds": 4.733,
+      "artifactPaths": [
+        "artifacts/verification/VS-02/recovered/attempt-0/browser.log"
+      ]
+    }
+  ],
+  "testCounts": {
+    "unit": 19,
+    "http-postgres": 13,
+    "vs-00-http-smoke": 1,
+    "browser": 4
+  },
+  "verifiedTreeSha": "4548dd386d7e4d43425b05d62b84e42002c18b20",
+  "source": "reconstructed from the approved VS-01 tree and retained VS-02 implementation history",
+  "originalVs02CodeTree": "87e8bf7b8bc7793c81712d2ec38daee776e66b63",
+  "runtime": {
+    "lockedInstall": "pass",
+    "build": "pass",
+    "postgresql": "18.7",
+    "chromium": "158.0.8127.0",
+    "dockerCompose": "blocked",
+    "windows": "not-run",
+    "independentCi": "not-run"
+  }
+}

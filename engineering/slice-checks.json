@@ -168,5 +168,205 @@
       ],
       "timeoutSeconds": 60
     }
+  ],
+  "VS-02": [
+    {
+      "id": "static",
+      "criteria": [
+        "EG-02"
+      ],
+      "argv": [
+        "node",
+        "node_modules/eslint/bin/eslint.js",
+        "."
+      ],
+      "timeoutSeconds": 45
+    },
+    {
+      "id": "typecheck",
+      "criteria": [
+        "EG-02"
+      ],
+      "argv": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit"
+      ],
+      "timeoutSeconds": 45
+    },
+    {
+      "id": "unit",
+      "criteria": [
+        "AC-08",
+        "EG-02"
+      ],
+      "argv": [
+        "node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "tests/unit"
+      ],
+      "timeoutSeconds": 40
+    },
+    {
+      "id": "http-postgres",
+      "criteria": [
+        "AC-02",
+        "AC-03",
+        "AC-04",
+        "AC-05",
+        "AC-06",
+        "AC-08"
+      ],
+      "argv": [
+        "node",
+        "--env-file-if-exists=.env",
+        "--test",
+        "tests/integration/procurement.test.mjs"
+      ],
+      "timeoutSeconds": 75
+    },
+    {
+      "id": "vs-00-http-smoke",
+      "criteria": [
+        "FR-10"
+      ],
+      "argv": [
+        "node",
+        "--test",
+        "tests/smoke/health.test.mjs"
+      ],
+      "timeoutSeconds": 20
+    },
+    {
+      "id": "browser",
+      "criteria": [
+        "AC-07",
+        "FR-03",
+        "FR-04",
+        "FR-05",
+        "FR-06"
+      ],
+      "argv": [
+        "node",
+        "node_modules/@playwright/test/cli.js",
+        "test"
+      ],
+      "timeoutSeconds": 60
+    }
+  ],
+  "VS-03": [
+    {
+      "id": "static",
+      "criteria": [
+        "EG-02"
+      ],
+      "argv": [
+        "node",
+        "node_modules/eslint/bin/eslint.js",
+        "."
+      ],
+      "timeoutSeconds": 45
+    },
+    {
+      "id": "typecheck",
+      "criteria": [
+        "EG-02"
+      ],
+      "argv": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit"
+      ],
+      "timeoutSeconds": 45
+    },
+    {
+      "id": "unit",
+      "criteria": [
+        "AC-08",
+        "EG-02"
+      ],
+      "argv": [
+        "node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "tests/unit"
+      ],
+      "timeoutSeconds": 40
+    },
+    {
+      "id": "http-postgres",
+      "criteria": [
+        "AC-02",
+        "AC-03",
+        "AC-04",
+        "AC-05",
+        "AC-06",
+        "AC-08"
+      ],
+      "argv": [
+        "node",
+        "--env-file-if-exists=.env",
+        "--test",
+        "tests/integration/procurement.test.mjs"
+      ],
+      "timeoutSeconds": 75
+    },
+    {
+      "id": "vs-00-http-smoke",
+      "criteria": [
+        "FR-10"
+      ],
+      "argv": [
+        "node",
+        "--test",
+        "tests/smoke/health.test.mjs"
+      ],
+      "timeoutSeconds": 20
+    },
+    {
+      "id": "browser",
+      "criteria": [
+        "AC-07",
+        "FR-03",
+        "FR-04",
+        "FR-05",
+        "FR-06"
+      ],
+      "argv": [
+        "node",
+        "node_modules/@playwright/test/cli.js",
+        "test"
+      ],
+      "timeoutSeconds": 60
+    },
+    {
+      "id": "ph42-fixture",
+      "criteria": [
+        "AC-01",
+        "AC-05"
+      ],
+      "argv": [
+        "node",
+        "--env-file-if-exists=.env",
+        "--test",
+        "tests/verification/concurrency-observation.test.mjs",
+        "tests/verification/ph42-fixture.test.mjs"
+      ],
+      "timeoutSeconds": 30
+    },
+    {
+      "id": "ph42-live-invariant",
+      "criteria": [
+        "AC-01",
+        "AC-05"
+      ],
+      "argv": [
+        "node",
+        "--env-file-if-exists=.env",
+        "scripts/verify-concurrency.mjs"
+      ],
+      "timeoutSeconds": 30
+    }
   ]
 }

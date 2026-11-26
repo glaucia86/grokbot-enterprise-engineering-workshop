@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "slice": "VS-03",
+  "runId": "recovered",
+  "attempt": 0,
+  "candidateSha": "558ff8ff035819dbd73a50aa7ddf3ae87294d63c",
+  "worktreeDirty": false,
+  "environment": "isolated-lab",
+  "toolVersions": {
+    "python": "3.12.14",
+    "git": "git version 2.56.1",
+    "node": "24.22.3",
+    "npm": "11.19.1",
+    "postgresql": "18.7",
+    "chromium": "158.0.8127.0"
+  },
+  "status": "pass",
+  "humanReview": "pending",
+  "checks": [
+    {
+      "id": "static",
+      "criteria": [
+        "EG-02"
+      ],
+      "command": [
+        "node",
+        "node_modules/eslint/bin/eslint.js",
+        "."
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "startedAt": "2026-11-26T11:50:30.148673+00:00",
+      "finishedAt": "2026-11-26T11:50:32.524252+00:00",
+      "durationSeconds": 2.376,
+      "artifactPaths": [
+        "artifacts/verification/VS-03/recovered/attempt-0/static.log"
+      ]
+    },
+    {
+      "id": "typecheck",
+      "criteria": [
+        "EG-02"
+      ],
+      "command": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "startedAt": "2026-11-26T11:50:32.524571+00:00",
+      "finishedAt": "2026-11-26T11:50:34.948868+00:00",
+      "durationSeconds": 2.424,
+      "artifactPaths": [
+        "artifacts/verification/VS-03/recovered/attempt-0/typecheck.log"
+      ]
+    },
+    {
+      "id": "unit",
+      "criteria": [
+        "AC-08",
+        "EG-02"
+      ],
+      "command": [
+        "node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "tests/unit"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "startedAt": "2026-11-26T11:50:34.949094+00:00",
+      "finishedAt": "2026-11-26T11:50:37.174218+00:00",
+      "durationSeconds": 2.225,
+      "artifactPaths": [
+        "artifacts/verification/VS-03/recovered/attempt-0/unit.log"
+      ]
+    },
+    {
+      "id": "http-postgres",
+      "criteria": [
+        "AC-02",
+        "AC-03",
+        "AC-04",
+        "AC-05",
+        "AC-06",
+        "AC-08"
+      ],
+      "command": [
+        "node",
+        "--env-file-if-exists=.env",
+        "--test",
+        "tests/integration/procurement.test.mjs"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "startedAt": "2026-11-26T11:50:37.174430+00:00",
+      "finishedAt": "2026-11-26T11:50:38.045001+00:00",
+      "durationSeconds": 0.871,
+      "artifactPaths": [
+        "artifacts/verification/VS-03/recovered/attempt-0/http-postgres.log"
+      ]
+    },
+    {
+      "id": "vs-00-http-smoke",
+      "criteria": [
+        "FR-10"
+      ],
+      "command": [
+        "node",
+        "--test",
+        "tests/smoke/health.test.mjs"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "startedAt": "2026-11-26T11:50:38.045212+00:00",
+      "finishedAt": "2026-11-26T11:50:38.210191+00:00",
+      "durationSeconds": 0.165,
+      "artifactPaths": [
+        "artifacts/verification/VS-03/recovered/attempt-0/vs-00-http-smoke.log"
+      ]
+    },
+    {
+      "id": "browser",
+      "criteria": [
+        "AC-07",
+        "FR-03",
+        "FR-04",
+        "FR-05",
+        "FR-06"
+      ],
+      "command": [
+        "node",
+        "node_modules/@playwright/test/cli.js",
+        "test"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "startedAt": "2026-11-26T11:50:38.210347+00:00",
+      "finishedAt": "2026-11-26T11:50:42.101073+00:00",
+      "durationSeconds": 3.891,
+      "artifactPaths": [
+        "artifacts/verification/VS-03/recovered/attempt-0/browser.log"
+      ]
+    },
+    {
+      "id": "ph42-fixture",
+      "criteria": [
+        "AC-01",
+        "AC-05"
+      ],
+      "command": [
+        "node",
+        "--env-file-if-exists=.env",
+        "--test",
+        "tests/verification/concurrency-observation.test.mjs",
+        "tests/verification/ph42-fixture.test.mjs"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "startedAt": "2026-11-26T11:50:42.101239+00:00",
+      "finishedAt": "2026-11-26T11:50:42.365880+00:00",
+      "durationSeconds": 0.265,
+      "artifactPaths": [
+        "artifacts/verification/VS-03/recovered/attempt-0/ph42-fixture.log"
+      ]
+    },
+    {
+      "id": "ph42-live-invariant",
+      "criteria": [
+        "AC-01",
+        "AC-05"
+      ],
+      "command": [
+        "node",
+        "--env-file-if-exists=.env",
+        "scripts/verify-concurrency.mjs"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "startedAt": "2026-11-26T11:50:42.366036+00:00",
+      "finishedAt": "2026-11-26T11:50:42.480238+00:00",
+      "durationSeconds": 0.114,
+      "artifactPaths": [
+        "artifacts/verification/VS-03/recovered/attempt-0/ph42-live-invariant.log"
+      ]
+    }
+  ],
+  "testCounts": {
+    "unit": 19,
+    "http-postgres": 13,
+    "vs-00-http-smoke": 1,
+    "browser": 4,
+    "ph42-fixture": 4
+  },
+  "verifiedTreeSha": "d5f41b5b41a5181bb360faeb345bdc638a5bc8b6",
+  "recoveredVs02CodeRevision": "40755b28b6e14b8bb7d95c618428549e0ce4c02b",
+  "observations": {
+    "fixture": {
+      "source": "synthetic-snapshot",
+      "status": "fail",
+      "httpStatuses": [
+        201,
+        201
+      ],
+      "sameRequest": false,
+      "requestCount": 2,
+      "creationEventCount": 2,
+      "exitCode": 1,
+      "command": "npm run verify:ph42-fixture"
+    },
+    "liveApi": {
+      "status": "pass",
+      "httpStatuses": [
+        200,
+        201
+      ],
+      "sameRequest": true,
+      "requestCount": 1,
+      "creationEventCount": 1,
+      "source": "live-loopback",
+      "exitCode": 0,
+      "command": "npm run verify:concurrency"
+    }
+  },
+  "runtime": {
+    "lockedInstall": "pass",
+    "build": "pass",
+    "ownedProcessCleanup": "pass",
+    "dockerCompose": "blocked",
+    "windows": "not-run",
+    "independentCi": "not-run"
+  }
+}

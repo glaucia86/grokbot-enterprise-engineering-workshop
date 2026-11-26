@@ -1,0 +1,22 @@
+{
+  "scenario": "PH-42",
+  "scope": {
+    "tenantId": "northstar-fixture",
+    "idempotencyKey": "fixture-key"
+  },
+  "responses": [
+    { "status": 201, "id": "fixture-request-a" },
+    { "status": 201, "id": "fixture-request-b" }
+  ],
+  "requests": [
+    { "id": "fixture-request-a", "tenant_id": "northstar-fixture", "idempotency_key": "fixture-key" },
+    { "id": "fixture-request-b", "tenant_id": "northstar-fixture", "idempotency_key": "fixture-key" },
+    { "id": "fixture-request-c", "tenant_id": "meridian-fixture", "idempotency_key": "fixture-key" }
+  ],
+  "auditEvents": [
+    { "request_id": "fixture-request-a", "tenant_id": "northstar-fixture", "event_type": "CREATED" },
+    { "request_id": "fixture-request-b", "tenant_id": "northstar-fixture", "event_type": "CREATED" },
+    { "request_id": "fixture-request-c", "tenant_id": "meridian-fixture", "event_type": "CREATED" },
+    { "request_id": "fixture-request-a", "tenant_id": "northstar-fixture", "event_type": "APPROVED" }
+  ]
+}

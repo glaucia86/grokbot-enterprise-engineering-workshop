@@ -36,7 +36,7 @@ npm run lab:up
 npm run dev
 ```
 
-While the dev server is running, open `http://127.0.0.1:3000`. Select the Northstar Requester, submit a purchase and open it from **My requests**. From the home page, switch to the Northstar Auditor and open the same purchase to see its creation event. Switch to the Meridian Requester to see the other tenant's workspace.
+While the dev server is running, open `http://127.0.0.1:3000`. Select the Northstar Requester, submit a purchase and open it from **My requests**. From the home page, switch to the Northstar Approver, open the same request and record an approval or rejection. Switch to the Northstar Auditor to see both events, then return as the requester to inspect the final status. Switch to the Meridian Requester to see the other tenant's workspace.
 
 `npm run lab:up` applies the tracked migrations and seeds synthetic identities after PostgreSQL becomes ready. For an existing disposable loopback lab database, run `npm run lab:init` to apply the same migration and seed. Re-running setup preserves existing procurement records. Leave `WORKSHOP_LAB_MODE` unset to disable synthetic sessions.
 
@@ -55,3 +55,14 @@ A healthy lab returns HTTP 200 with `{"status":"ready"}`. Missing or unreachable
 Stop the application with Ctrl+C and run `npm run lab:down` for the owned Compose lab. This stops the containers and retains the volume and local verification evidence. If another checkout is using the project name or ports, isolate the Compose project and configure separate ports before starting it.
 
 For authoring setup and revision-linked checks, see [slice execution](doc-specs/LOOP-ENGINEERING.md). The optional authoring skill bootstrap uses Python with HTTPS access to the pinned sources.
+
+## Check PH-42
+
+With the lab profile enabled, run the two checks separately. The fixture reports the expected failing historical observation with exit 1. The live check uses the running API and disposable PostgreSQL with exit 0 when the invariant holds.
+
+```bash
+npm run verify:ph42-fixture
+npm run verify:concurrency
+```
+
+See the [PH-42 exercise](doc-specs/03-demo-issue-42.md) for the expected responses and persisted counts.

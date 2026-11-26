@@ -9,9 +9,13 @@ const requests = "/api/purchase-requests";
 let database;
 after(() => database?.end({ timeout: 3 }));
 
-async function persistedCounts(key) {
+function labDatabase() {
   database ??= postgres(labConnectionString(), { max: 1, connect_timeout: 3 });
-  const [counts] = await database`
+  return database;
+}
+
+async function persistedCounts(key) {
+  const [counts] = await labDatabase()`
     select count(distinct request.id)::int as requests, count(event.id)::int as events
     from purchase_requests request
     left join audit_events event
@@ -119,11 +123,9 @@ test("key conflicts do not disclose another requester or repeat writes", async (
   const peer = await selectIdentity("northstar-requester-alt");
   const key = randomUUID();
   assert.equal((await call(requests, { cookie: owner, key, body: sample() })).status, 201);
-  for (const cookie of [owner, peer]) {
-    const conflict = await call(requests, { cookie, key, body: { ...sample(), amountMinor: 99 } });
-    assert.equal(conflict.status, 409);
-    assert.deepEqual(await conflict.json(), { error: { code: "IDEMPOTENCY_CONFLICT" } });
-  }
+  await assertError(await call(requests, { cookie: owner, key, body: { ...sample(), amountMinor: 99 } }),
+    409, "IDEMPOTENCY_CONFLICT");
+  await assertError(await call(requests, { cookie: peer, key, body: sample() }), 409, "IDEMPOTENCY_CONFLICT");
   assert.deepEqual(await persistedCounts(key), { requests: 1, events: 1 });
 });
 
@@ -163,4 +165,245 @@ test("switching a synthetic lab identity revokes the previous server session", a
   const switched = await selectIdentity("meridian-requester", login);
   assert.equal((await call(requests, { cookie: login })).status, 401);
   assert.equal((await call(requests, { cookie: switched })).status, 200);
+});
+
+async function assertError(response, status, code) {
+  assert.equal(response.status, status);
+  assert.deepEqual(await response.json(), { error: { code } });
+}
+
+async function createRequest(cookie, key) {
+  const response = await call(requests, { cookie, key, body: sample() });
+  assert.equal(response.status, 201);
+  return response.json();
+}
+
+function decide(id, cookie, body) {
+  return call(requests + "/" + id + "/decision", { cookie, body });
+}
+
+async function readRequest(id, cookie) {
+  const response = await call(requests + "/" + id, { cookie });
+  assert.equal(response.status, 200);
+  return response.json();
+}
+
+async function readAudit(id, cookie) {
+  const response = await call(requests + "/" + id + "/audit", { cookie });
+  assert.equal(response.status, 200);
+  const { events } = await response.json();
+  return events.map(({ type, actorName, reason }) => ({ type, actorName, reason }));
+}
+
+async function withSyntheticNorthstarMember(role, exercise) {
+  const db = labDatabase();
+  const userId = randomUUID();
+  const identity = "vs02-" + userId;
+  const displayName = "VS-02 Temporary " + role;
+  await db.begin(async (sql) => {
+    await sql`insert into users (id, display_name) values (${userId}, ${displayName})`;
+    const memberships = await sql`
+      insert into memberships (tenant_id, user_id, role, lab_identity)
+      select tenant_id, ${userId}, ${role}, ${identity}
+      from memberships where lab_identity = 'northstar-requester'
+      returning user_id
+    `;
+    assert.equal(memberships.length, 1, "the Northstar tenant fixture exists");
+  });
+
+  try {
+    await exercise({ userId, identity, displayName });
+  } finally {
+    await db.begin(async (sql) => {
+      await sql`
+        delete from audit_events where request_id in (
+          select id from purchase_requests where requester_id = ${userId}
+        )
+      `;
+      await sql`delete from purchase_requests where requester_id = ${userId}`;
+      await sql`delete from memberships where user_id = ${userId}`;
+      await sql`delete from users where id = ${userId}`;
+    });
+  }
+}
+
+async function withAuditWriteRejected(field, value, eventType, exercise) {
+  const db = labDatabase();
+  const name = "vs02_audit_" + randomUUID().replaceAll("-", "");
+  // PostgreSQL utility statements require quoted literals in CHECK expressions.
+  const [{ statement }] = await db`
+    select format(
+      'alter table audit_events add constraint %I check (%I <> %L::uuid or event_type <> %L) not valid',
+      ${name}::text, ${field}::text, ${value}::text, ${eventType}::text
+    ) as statement
+  `;
+  await db.unsafe(statement);
+  try {
+    await exercise();
+  } finally {
+    await db`alter table audit_events drop constraint ${db(name)}`;
+  }
+}
+
+test("an equivalent replay returns the original request without duplicating its creation event", async () => {
+  const requester = await selectIdentity("northstar-requester");
+  const key = randomUUID();
+  const created = await createRequest(requester, key);
+  const replay = await call(requests, {
+    cookie: requester,
+    key,
+    body: { ...sample(), title: "Safety gloves", justification: "Warehouse replenishment" },
+  });
+  assert.equal(replay.status, 200);
+  assert.deepEqual(await replay.json(), created);
+  assert.deepEqual(await persistedCounts(key), { requests: 1, events: 1 });
+});
+
+test("an approver decides a pending request and replay returns its approved state", async () => {
+  const requester = await selectIdentity("northstar-requester");
+  const approver = await selectIdentity("northstar-approver");
+  const auditor = await selectIdentity("northstar-auditor");
+  const key = randomUUID();
+  const created = await createRequest(requester, key);
+  const response = await decide(created.id, approver, { decision: "APPROVE" });
+  assert.equal(response.status, 200);
+  const approved = await response.json();
+  assert.equal(approved.id, created.id);
+  assert.equal(approved.status, "APPROVED");
+
+  const replay = await call(requests, { cookie: requester, key, body: sample() });
+  assert.equal(replay.status, 200);
+  assert.deepEqual(await replay.json(), approved);
+  assert.deepEqual(await readAudit(created.id, auditor), [
+    { type: "CREATED", actorName: "Northstar Requester", reason: null },
+    { type: "APPROVED", actorName: "Northstar Approver", reason: null },
+  ]);
+  assert.deepEqual(await persistedCounts(key), { requests: 1, events: 2 });
+});
+
+test("rejection records the normalized reason and a terminal request cannot be changed", async () => {
+  const requester = await selectIdentity("northstar-requester");
+  const approver = await selectIdentity("northstar-approver");
+  const auditor = await selectIdentity("northstar-auditor");
+  const key = randomUUID();
+  const created = await createRequest(requester, key);
+  const response = await decide(created.id, approver, { decision: "REJECT", reason: "  Reconfirm quantity  " });
+  assert.equal(response.status, 200);
+  const rejected = await response.json();
+  assert.equal(rejected.id, created.id);
+  assert.equal(rejected.status, "REJECTED");
+  await assertError(await decide(created.id, approver, { decision: "APPROVE" }), 409, "INVALID_TRANSITION");
+  assert.deepEqual(await readRequest(created.id, requester), rejected);
+  assert.deepEqual(await readAudit(created.id, auditor), [
+    { type: "CREATED", actorName: "Northstar Requester", reason: null },
+    { type: "REJECTED", actorName: "Northstar Approver", reason: "Reconfirm quantity" },
+  ]);
+  assert.deepEqual(await persistedCounts(key), { requests: 1, events: 2 });
+});
+
+test("invalid, unauthenticated and out-of-scope decisions preserve the request and audit", async () => {
+  const requester = await selectIdentity("northstar-requester");
+  const approver = await selectIdentity("northstar-approver");
+  const auditor = await selectIdentity("northstar-auditor");
+  const foreign = await selectIdentity("meridian-approver");
+  const key = randomUUID();
+  const created = await createRequest(requester, key);
+  const approval = { decision: "APPROVE" };
+  await assertError(await decide(created.id, undefined, approval), 401, "UNAUTHENTICATED");
+  await assertError(await decide(created.id, requester, approval), 403, "FORBIDDEN");
+  await assertError(await decide(created.id, auditor, approval), 403, "FORBIDDEN");
+  await assertError(await decide(created.id, foreign, approval), 404, "NOT_FOUND");
+  await assertError(await decide(randomUUID(), approver, approval), 404, "NOT_FOUND");
+  for (const body of [
+    { decision: "REJECT" },
+    { decision: "REJECT", reason: "   " },
+    { decision: "REJECT", reason: "x".repeat(2_001) },
+    { decision: "REJECT", reason: "broken" + String.fromCharCode(0) },
+    { decision: "CANCEL" },
+  ]) {
+    await assertError(await decide(created.id, approver, body), 400, "INVALID_INPUT");
+  }
+  assert.deepEqual(await readRequest(created.id, requester), created);
+  assert.deepEqual(await persistedCounts(key), { requests: 1, events: 1 });
+});
+
+test("a requester who becomes an approver cannot decide their own request", async () => {
+  await withSyntheticNorthstarMember("REQUESTER", async ({ userId, identity }) => {
+    const requester = await selectIdentity(identity);
+    const key = randomUUID();
+    const created = await createRequest(requester, key);
+    await labDatabase()`update memberships set role = 'APPROVER' where user_id = ${userId}`;
+    await assertError(await decide(created.id, requester, { decision: "APPROVE" }), 403, "FORBIDDEN");
+    assert.deepEqual(await readRequest(created.id, requester), created);
+    assert.deepEqual(await persistedCounts(key), { requests: 1, events: 1 });
+  });
+});
+
+test("two concurrent decisions by different approvers persist one terminal result", async () => {
+  await withSyntheticNorthstarMember("APPROVER", async ({ identity, displayName }) => {
+    const requester = await selectIdentity("northstar-requester");
+    const approving = await selectIdentity("northstar-approver");
+    const rejecting = await selectIdentity(identity);
+    const auditor = await selectIdentity("northstar-auditor");
+    const key = randomUUID();
+    const created = await createRequest(requester, key);
+    try {
+      const [approve, reject] = await Promise.all([
+        decide(created.id, approving, { decision: "APPROVE" }),
+        decide(created.id, rejecting, { decision: "REJECT", reason: "Reconfirm quantity" }),
+      ]);
+      assert.deepEqual([approve.status, reject.status].sort(), [200, 409]);
+      const approved = approve.status === 200;
+      const winner = await (approved ? approve : reject).json();
+      await assertError(approved ? reject : approve, 409, "INVALID_TRANSITION");
+      assert.equal(winner.id, created.id);
+      assert.equal(winner.status, approved ? "APPROVED" : "REJECTED");
+      assert.deepEqual(await readRequest(created.id, requester), winner);
+      assert.deepEqual(await readAudit(created.id, auditor), [
+        { type: "CREATED", actorName: "Northstar Requester", reason: null },
+        approved
+          ? { type: "APPROVED", actorName: "Northstar Approver", reason: null }
+          : { type: "REJECTED", actorName: displayName, reason: "Reconfirm quantity" },
+      ]);
+      assert.deepEqual(await persistedCounts(key), { requests: 1, events: 2 });
+    } finally {
+      await labDatabase().begin(async (sql) => {
+        await sql`delete from audit_events where request_id = ${created.id}`;
+        await sql`delete from purchase_requests where id = ${created.id}`;
+      });
+    }
+  });
+});
+
+test("an audit write failure rolls back creation and leaves the key reusable", async () => {
+  await withSyntheticNorthstarMember("REQUESTER", async ({ identity, userId }) => {
+    const requester = await selectIdentity(identity);
+    const key = randomUUID();
+    await withAuditWriteRejected("actor_id", userId, "CREATED", async () => {
+      await assertError(await call(requests, { cookie: requester, key, body: sample() }), 500, "INTERNAL_ERROR");
+      assert.deepEqual(await persistedCounts(key), { requests: 0, events: 0 });
+      const [audit] = await labDatabase()`select count(*)::int as events from audit_events where actor_id = ${userId}`;
+      assert.equal(audit.events, 0);
+    });
+    await createRequest(requester, key);
+    assert.deepEqual(await persistedCounts(key), { requests: 1, events: 1 });
+  });
+});
+
+test("an audit write failure rolls back a decision before a retry succeeds", async () => {
+  const requester = await selectIdentity("northstar-requester");
+  const approver = await selectIdentity("northstar-approver");
+  const key = randomUUID();
+  const created = await createRequest(requester, key);
+  const approval = { decision: "APPROVE" };
+  await withAuditWriteRejected("request_id", created.id, "APPROVED", async () => {
+    await assertError(await decide(created.id, approver, approval), 500, "INTERNAL_ERROR");
+    assert.deepEqual(await readRequest(created.id, requester), created);
+    assert.deepEqual(await persistedCounts(key), { requests: 1, events: 1 });
+  });
+
+  const retry = await decide(created.id, approver, approval);
+  assert.equal(retry.status, 200);
+  assert.equal((await retry.json()).status, "APPROVED");
+  assert.deepEqual(await persistedCounts(key), { requests: 1, events: 2 });
 });
