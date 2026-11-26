@@ -283,5 +283,29 @@
     "nativeGrokBot": "not-run",
     "independentCI": "not-run",
     "humanReview": "pending"
+  },
+  "typescriptFollowUp": {
+    "status": "pass",
+    "candidateSha": "05aea80951e3f0a24a4a61ca06fba70875612cd1",
+    "verifiedTreeSha": "e1ef0650290549aaa88f80e44622100592e6404a",
+    "worktreeDirty": false,
+    "runId": "vs05-typescript",
+    "node": "v24.22.3",
+    "finishedAt": "2026-11-26T12:48:33.747762+00:00",
+    "passedGates": 10,
+    "testCounts": {
+      "unit": 19,
+      "http-postgres": 14,
+      "vs-00-http-smoke": 1,
+      "browser": 4,
+      "ph42-fixture": 4,
+      "harness-contract": 3,
+      "idempotency-migration": 3
+    },
+    "httpSuite": "tests/integration/procurement.test.ts",
+    "migrationSuite": "tests/integration/idempotency-migration.test.ts",
+    "lifecycleManifest": "artifacts/verification/VS-05/vs05-typescript/lifecycle/manifest.json",
+    "checkManifest": "artifacts/verification/VS-05/vs05-typescript/attempt-0/manifest.json",
+    "loopbackPortsClosed": true
   }
 }

@@ -5,27 +5,27 @@ description: Launch, check, exercise, and clean up an isolated Procurement Hub l
 
 # Verify Procurement Hub
 
-Use a clean Git checkout, Node.js 24.22.3, npm 11.19.1, Python 3 and either local Docker Compose v2 or local PostgreSQL executables. Run `npm ci` and `npx playwright install chromium` from the repository root. An installed compatible browser can be selected with `WORKSHOP_CHROMIUM_PATH`.
+Use a clean Git checkout, Bun 1.4.5 and either local Docker Compose v2 or local PostgreSQL executables. Run `bun install --frozen-lockfile` and `bun run browser:install` from the repository root. An installed compatible browser can be selected with `WORKSHOP_CHROMIUM_PATH`.
 
 ## Launch
 
 ```bash
-npm run verify:all -- --run-id workshop-rehearsal
+bun run verify:all --run-id workshop-rehearsal
 ```
 
 The command builds the candidate, allocates local ports, starts its own isolated database, applies tracked migrations, seeds synthetic identities, and starts a loopback app. Use a local Docker context. To use local PostgreSQL, supply the directory with `initdb` and `postgres`:
 
 ```bash
-npm run verify:all -- --run-id workshop-rehearsal --postgres-bin /path/to/postgresql/bin
+bun run verify:all --run-id workshop-rehearsal --postgres-bin /path/to/postgresql/bin
 ```
 
-When using the Windows Python launcher, run `py -3 engineering/verify-lab.py --run-id workshop-rehearsal`. The harness gives the build 180 seconds, Compose database readiness 60 seconds, and the app listener 40 seconds.
+The harness gives the build 180 seconds, Compose database readiness 60 seconds, and the app listener 40 seconds.
 
-For the VS-05 reference candidate, add `--slice VS-05` to run the earlier checks and the migration suite. To check only migrations with a disposable lab database running, use `npm run test:migration`.
+For the VS-05 reference candidate, add `--slice VS-05` to run the earlier checks and the migration suite. To check only migrations with a disposable lab database running, use `bun run test:migration`.
 
 ## Doctor
 
-The harness runs `npm run lab:doctor -- --db-only` and then the app-ready check equivalent to `npm run lab:doctor`. It uses a read-only transaction to confirm the lab database, two tenants and the four identities needed by the feature map. It checks `GET /api/health` for HTTP 200 and anonymous `GET /api/purchase-requests` for HTTP 401. Sign-in and role-specific access run during the HTTP and browser checks.
+The harness runs `bun run lab:doctor --db-only` and then the app-ready check equivalent to `bun run lab:doctor`. It uses a read-only transaction to confirm the lab database, two tenants and the four identities needed by the feature map. It checks `GET /api/health` for HTTP 200 and anonymous `GET /api/purchase-requests` for HTTP 401. Sign-in and role-specific access run during the HTTP and browser checks.
 
 For individual scenarios, follow the [manual startup order](../../README.md#run-the-lab). The standalone doctor commands inherit the manual lab configuration.
 
@@ -41,4 +41,4 @@ Playwright keeps diagnostic output for each run under `browser-results/`. Keep r
 
 ## Cleanup
 
-The one-shot command stops the app and removes its own temporary PostgreSQL cluster or uniquely named Compose project and volume. Confirm the cleanup stage passed and that both manifests still open. For a manually started lab, stop the app with Ctrl+C and use `npm run lab:down`; the manual database volume is retained.
+The one-shot command stops the app and removes its own temporary PostgreSQL cluster or uniquely named Compose project and volume. Confirm the cleanup stage passed and that both manifests still open. For a manually started lab, stop the app with Ctrl+C and use `bun run lab:down`; the manual database volume is retained.

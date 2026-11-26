@@ -4,27 +4,27 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "24.22.3",
-    "npm": "11.19.1"
+    "bun": "1.4.5"
   },
-  "packageManager": "npm@11.19.1",
+  "packageManager": "bun@1.4.5",
   "scripts": {
-    "dev": "next dev --hostname 127.0.0.1",
-    "build": "next build",
-    "start": "next start --hostname 127.0.0.1",
-    "check:static": "eslint . && tsc --noEmit",
-    "lab:up": "docker compose up --wait --wait-timeout 60 db && npm run lab:init",
-    "lab:doctor": "node --env-file-if-exists=.env scripts/lab-doctor.mjs",
-    "test:e2e": "playwright test",
+    "dev": "bun --bun next dev --hostname 127.0.0.1",
+    "build": "bun --bun next build",
+    "start": "bun --bun next start --hostname 127.0.0.1",
+    "check:static": "bun --bun eslint . && bun --bun tsc --noEmit",
+    "lab:up": "docker compose up --wait --wait-timeout 60 db && bun run lab:init",
+    "lab:doctor": "bun scripts/lab-doctor.ts",
+    "test:e2e": "bun --bun playwright test",
     "lab:down": "docker compose down",
-    "lab:init": "node --env-file-if-exists=.env scripts/init-lab.mjs",
-    "db:generate": "drizzle-kit generate",
-    "test:unit": "vitest run tests/unit",
-    "test:integration": "node --env-file-if-exists=.env --test tests/integration/procurement.test.mjs",
-    "test:migration": "node --env-file-if-exists=.env --test tests/integration/idempotency-migration.test.mjs",
-    "verify:concurrency": "node --env-file-if-exists=.env scripts/verify-concurrency.mjs",
-    "verify:ph42-fixture": "node --env-file-if-exists=.env scripts/verify-ph42-fixture.mjs",
-    "verify:all": "python engineering/verify-lab.py"
+    "lab:init": "bun scripts/init-lab.ts",
+    "db:generate": "bun --bun drizzle-kit generate",
+    "test:unit": "bun test tests/unit",
+    "test:integration": "bun test tests/integration/procurement.test.ts",
+    "test:migration": "bun test tests/integration/idempotency-migration.test.ts",
+    "verify:concurrency": "bun scripts/verify-concurrency.ts",
+    "verify:ph42-fixture": "bun scripts/verify-ph42-fixture.ts",
+    "verify:all": "bun engineering/verify-lab.ts",
+    "browser:install": "bun --bun playwright install chromium"
   },
   "dependencies": {
     "drizzle-orm": "0.45.4",
@@ -36,13 +36,13 @@
   },
   "devDependencies": {
     "@playwright/test": "1.62.1",
+    "@types/bun": "1.4.5",
     "@types/node": "24.19.4",
     "@types/react": "19.3.3",
     "@types/react-dom": "19.2.3",
     "drizzle-kit": "0.31.11",
     "eslint": "9.39.5",
     "eslint-config-next": "16.4.6",
-    "typescript": "5.9.3",
-    "vitest": "5.1.2"
+    "typescript": "5.9.3"
   }
 }

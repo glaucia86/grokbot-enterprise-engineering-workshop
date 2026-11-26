@@ -1,7 +1,7 @@
-import { createHash } from "node:crypto";
 import { and, desc, eq, getTableColumns, ne, sql } from "drizzle-orm";
 import { getLabDatabase } from "../../../server/db/lab-database";
 import { auditEvents, purchaseRequests, users } from "../../../server/db/schema";
+import { sha256 } from "../../../server/sha256";
 import type { PurchaseRequestRepository } from "../application/requests";
 import { decisionStatuses } from "../domain/procurement";
 import type { PurchaseSubmission, TenantActor } from "../domain/procurement";
@@ -30,9 +30,9 @@ function canonicalSubmission({ title, justification, amountMinor, currency }: Pu
 }
 
 export const postgresRequests: PurchaseRequestRepository = {
-  create(actor, input, key) {
+  async create(actor, input, key) {
     const canonical = canonicalSubmission(input);
-    const requestHash = createHash("sha256").update(canonical).digest("hex");
+    const requestHash = await sha256(canonical);
     return getLabDatabase().transaction(async (transaction) => {
       const [request] = await transaction.insert(purchaseRequests).values({
         ...input,

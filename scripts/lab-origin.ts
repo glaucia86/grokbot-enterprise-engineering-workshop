@@ -1,4 +1,4 @@
-import { isLabEnabled } from "../src/server/db/lab-config.mjs";
+import { isLabEnabled } from "../src/server/db/lab-config";
 
 export function labOrigin() {
   const url = new URL(process.env.WORKSHOP_BASE_URL ?? "http://127.0.0.1:3000");

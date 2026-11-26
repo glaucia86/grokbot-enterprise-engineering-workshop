@@ -13,8 +13,8 @@ Start the loopback workshop profile and run the readiness check described in the
 
 | Command | Input | Expected observation |
 | --- | --- | --- |
-| `npm run verify:ph42-fixture` | Synthetic historical snapshot read by PostgreSQL in a read-only transaction | Simulated HTTP 201/201, different request IDs, two requests and two CREATED events for one tenant and key. The check exits 1. |
-| `npm run verify:concurrency` | Two equivalent submissions through the running API using the synthetic requester | Observed HTTP 200/201, a shared request ID, one request and one CREATED event. The check exits 0. |
+| `bun run verify:ph42-fixture` | Synthetic historical snapshot read by PostgreSQL in a read-only transaction | Simulated HTTP 201/201, different request IDs, two requests and two CREATED events for one tenant and key. The check exits 1. |
+| `bun run verify:concurrency` | Two equivalent submissions through the running API using the synthetic requester | Observed HTTP 200/201, a shared request ID, one request and one CREATED event. The check exits 0. |
 
 Both commands evaluate the same invariant. Record the snapshot output and the API output with their sources when presenting or reviewing evidence.
 

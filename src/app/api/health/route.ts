@@ -1,5 +1,5 @@
 import { listLabIdentities } from "../../../server/auth/lab-session";
-import { isLabEnabled } from "../../../server/db/lab-config.mjs";
+import { isLabEnabled } from "../../../server/db/lab-config";
 import { checkLabDatabase } from "../../../server/db/lab-database";
 
 export const runtime = "nodejs";

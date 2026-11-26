@@ -1,48 +1,24 @@
-import { randomUUID } from "node:crypto";
-import { request } from "node:http";
 import postgres from "postgres";
-import { labConnectionString } from "../src/server/db/lab-config.mjs";
-import { evaluateConcurrency } from "./concurrency-observation.mjs";
-import { labOrigin } from "./lab-origin.mjs";
+import { labConnectionString } from "../src/server/db/lab-config";
+import { evaluateConcurrency, type PersistedCounts } from "./concurrency-observation";
+import { labOrigin } from "./lab-origin";
 
-function call(origin, path, { body, headers = {} } = {}) {
-  const data = body === undefined ? undefined : JSON.stringify(body);
-  const requestHeaders = data === undefined ? headers : {
-    Origin: origin,
-    "Content-Type": "application/json",
-    "Content-Length": Buffer.byteLength(data),
-    ...headers,
-  };
+type CallOptions = { body?: Record<string, unknown>; headers?: Record<string, string> };
 
-  return new Promise((resolve, reject) => {
-    const operation = request(new URL(path, origin), {
-      method: data === undefined ? "GET" : "POST",
-      headers: requestHeaders,
-      agent: false,
-      signal: AbortSignal.timeout(8_000),
-    }, (response) => {
-      response.setEncoding("utf8");
-      let text = "";
-      response.on("data", (chunk) => { text += chunk; });
-      response.once("error", reject);
-      response.once("end", () => {
-        try {
-          resolve({
-            status: response.statusCode,
-            body: JSON.parse(text),
-            cookies: response.headers["set-cookie"] ?? [],
-          });
-        } catch {
-          resolve({ status: response.statusCode, cookies: [] });
-        }
-      });
-    });
-    operation.once("error", reject);
-    operation.end(data);
+async function call(origin: string, path: string, { body, headers }: CallOptions = {}) {
+  const response = await fetch(new URL(path, origin), {
+    method: body === undefined ? "GET" : "POST",
+    headers: { ...(body === undefined ? {} : { Origin: origin, "Content-Type": "application/json" }), ...headers },
+    body: body === undefined ? undefined : JSON.stringify(body),
+    keepalive: false,
+    redirect: "error",
+    signal: AbortSignal.timeout(8_000),
   });
+  const payload: { status?: unknown; id?: unknown } | null = await response.json().catch(() => null);
+  return { status: response.status, body: payload, cookies: response.headers.getSetCookie() };
 }
 
-async function createLabSession(origin) {
+async function createLabSession(origin: string) {
   const login = await call(origin, "/api/lab/session", { body: { identity: "northstar-requester" } });
   const cookie = login.cookies[0]?.split(";", 1)[0];
   if (login.status !== 200 || !cookie?.startsWith("procurement_lab_session=")) {
@@ -59,7 +35,7 @@ async function verify() {
     if (health.status !== 200 || health.body?.status !== "ready") throw new Error("The lab is not ready.");
 
     const cookie = await createLabSession(origin);
-    const key = randomUUID();
+    const key = crypto.randomUUID();
     const submission = {
       body: { title: "Warehouse safety gloves", justification: "Workshop procurement exercise", amountMinor: 1250, currency: "USD" },
       headers: { Cookie: cookie, "Idempotency-Key": key },
@@ -69,7 +45,7 @@ async function verify() {
       call(origin, "/api/purchase-requests", submission),
     ]);
 
-    const [persisted] = await db`
+    const [persisted] = await db<PersistedCounts[]>`
       select count(distinct purchase.id)::int as "requestCount", count(event.id)::int as "creationEventCount"
       from purchase_requests purchase
       left join audit_events event on event.request_id = purchase.id

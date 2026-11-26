@@ -35,7 +35,7 @@ The agent does not participate in purchase approvals; it is an engineering tool.
 | Web/API | Next.js App Router, TypeScript strict mode |
 | Validation | Zod at external boundaries |
 | Database | PostgreSQL, Drizzle ORM + tracked migrations |
-| Local environment | Docker Compose, Node.js LTS, npm with lockfile |
+| Local environment | Docker Compose, Bun 1.4.5 with a frozen lockfile |
 | Deterministic checks | TypeScript, ESLint, Vitest |
 | Runtime | Playwright browser automation, Node HTTP verification driver, real PostgreSQL |
 | Optional | fast-check; TLA+/TLC model checker |

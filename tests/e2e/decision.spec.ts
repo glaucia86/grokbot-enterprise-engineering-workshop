@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import { expect, test, type Page } from "@playwright/test";
 
 const identities = {
@@ -19,7 +18,7 @@ for (const scenario of [
   { action: "Reject", status: "REJECTED", reason: "The shelf dimensions need to be confirmed." },
 ] as const) {
   test(`an approver can ${scenario.action.toLowerCase()} a request and an auditor can verify the decision`, async ({ page }) => {
-    const title = "Warehouse shelving " + randomUUID();
+    const title = "Warehouse shelving " + crypto.randomUUID();
     await page.goto("/");
     await switchIdentity(page, "requester");
     await page.getByLabel("Title").fill(title);
