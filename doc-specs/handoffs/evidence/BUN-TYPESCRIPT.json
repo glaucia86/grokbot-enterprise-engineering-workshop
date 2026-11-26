@@ -1,0 +1,170 @@
+{
+  "schemaVersion": 1,
+  "status": "pass",
+  "candidateSha": "15fe0ec6b10412645fd3314ce5f8d6d06941cbf6",
+  "verifiedTreeSha": "a89ab1fc1ab6579024684abd8826dc927b1b294a",
+  "githubBaseSha": "75a4ed60f40639f50448ad59b40895ed35726298",
+  "worktreeDirty": false,
+  "runtime": {
+    "javascript": "Bun 1.4.5",
+    "postgresql": "18.7",
+    "chromium": "Chromium 158.0.8127.0",
+    "platform": "Linux",
+    "nodeAndNpmAbsentFromPath": true
+  },
+  "verifiedRun": {
+    "runId": "bun-workshop-verified",
+    "candidateSha": "15fe0ec6b10412645fd3314ce5f8d6d06941cbf6",
+    "status": "pass",
+    "exitCode": 0,
+    "loopbackPortsClosed": true,
+    "temporaryClusterRemoved": true,
+    "logsRetained": true
+  },
+  "defaultVs04Run": {
+    "runId": "bun-vs04-default",
+    "candidateSha": "736ed15982900b3139096c195f0b1f9a07a32322",
+    "status": "pass",
+    "exitCode": 0,
+    "loopbackPortsClosed": true,
+    "temporaryClusterRemoved": true,
+    "logsRetained": true
+  },
+  "browserFailureRun": {
+    "runId": "bun-browser-failure",
+    "candidateSha": "736ed15982900b3139096c195f0b1f9a07a32322",
+    "status": "fail",
+    "exitCode": 1,
+    "loopbackPortsClosed": true,
+    "temporaryClusterRemoved": true,
+    "logsRetained": true
+  },
+  "commandTemplate": "bun run verify:all --slice VS-05 --run-id <id> --postgres-bin <bin-dir>",
+  "execution": {
+    "frozenInstallFromCleanCheckout": "pass",
+    "build": "pass",
+    "playwrightInstallDryRun": "pass",
+    "representativePinnedSkillDownloadAndDigest": "pass"
+  },
+  "checks": [
+    {
+      "id": "static",
+      "status": "pass",
+      "exitCode": 0,
+      "artifactPaths": [
+        "artifacts/verification/VS-05/bun-workshop-verified/attempt-0/static.log"
+      ]
+    },
+    {
+      "id": "typecheck",
+      "status": "pass",
+      "exitCode": 0,
+      "artifactPaths": [
+        "artifacts/verification/VS-05/bun-workshop-verified/attempt-0/typecheck.log"
+      ]
+    },
+    {
+      "id": "unit",
+      "status": "pass",
+      "exitCode": 0,
+      "artifactPaths": [
+        "artifacts/verification/VS-05/bun-workshop-verified/attempt-0/unit.log"
+      ]
+    },
+    {
+      "id": "http-postgres",
+      "status": "pass",
+      "exitCode": 0,
+      "artifactPaths": [
+        "artifacts/verification/VS-05/bun-workshop-verified/attempt-0/http-postgres.log"
+      ]
+    },
+    {
+      "id": "vs-00-http-smoke",
+      "status": "pass",
+      "exitCode": 0,
+      "artifactPaths": [
+        "artifacts/verification/VS-05/bun-workshop-verified/attempt-0/vs-00-http-smoke.log"
+      ]
+    },
+    {
+      "id": "browser",
+      "status": "pass",
+      "exitCode": 0,
+      "artifactPaths": [
+        "artifacts/verification/VS-05/bun-workshop-verified/attempt-0/browser.log"
+      ]
+    },
+    {
+      "id": "ph42-fixture",
+      "status": "pass",
+      "exitCode": 0,
+      "artifactPaths": [
+        "artifacts/verification/VS-05/bun-workshop-verified/attempt-0/ph42-fixture.log"
+      ]
+    },
+    {
+      "id": "ph42-live-invariant",
+      "status": "pass",
+      "exitCode": 0,
+      "artifactPaths": [
+        "artifacts/verification/VS-05/bun-workshop-verified/attempt-0/ph42-live-invariant.log"
+      ]
+    },
+    {
+      "id": "harness-contract",
+      "status": "pass",
+      "exitCode": 0,
+      "artifactPaths": [
+        "artifacts/verification/VS-05/bun-workshop-verified/attempt-0/harness-contract.log"
+      ]
+    },
+    {
+      "id": "idempotency-migration",
+      "status": "pass",
+      "exitCode": 0,
+      "artifactPaths": [
+        "artifacts/verification/VS-05/bun-workshop-verified/attempt-0/idempotency-migration.log"
+      ]
+    }
+  ],
+  "testCounts": {
+    "unit": 19,
+    "http-postgres": 14,
+    "vs-00-http-smoke": 1,
+    "browser": 4,
+    "ph42-fixture": 4,
+    "harness-contract": 3,
+    "idempotency-migration": 3
+  },
+  "ph42": {
+    "liveApi": {
+      "status": "pass",
+      "httpStatuses": [
+        200,
+        201
+      ],
+      "sameRequest": true,
+      "requestCount": 1,
+      "creationEventCount": 1
+    },
+    "syntheticSnapshot": {
+      "source": "synthetic-snapshot",
+      "status": "fail",
+      "httpStatuses": [
+        201,
+        201
+      ],
+      "sameRequest": false,
+      "requestCount": 2,
+      "creationEventCount": 2
+    }
+  },
+  "pending": {
+    "dockerCompose": "blocked",
+    "windows": "not-run",
+    "independentCI": "not-run",
+    "nativeGrokBot": "not-run",
+    "humanReview": "pending"
+  }
+}
