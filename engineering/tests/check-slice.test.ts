@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { readdir } from "node:fs/promises";
 import { join } from "node:path";
-import { test } from "bun:test";
+import { test } from "vitest";
 import { commitFixture, git, run, withFixture } from "./fixture";
 
 test("the check runner preserves attempts and stops after two retries", async () => {

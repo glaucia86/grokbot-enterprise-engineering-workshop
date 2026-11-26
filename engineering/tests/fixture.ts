@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import { copyFile, mkdir, mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const fixtureDir = dirname(fileURLToPath(import.meta.url));
 
 export async function withFixture(script: string, verify: (repo: string) => Promise<void>) {
   const repo = await mkdtemp(join(tmpdir(), "workshop-engineering-"));
@@ -9,7 +12,7 @@ export async function withFixture(script: string, verify: (repo: string) => Prom
     const tools = join(repo, "engineering");
     await mkdir(tools);
     for (const file of [script, "runtime.ts"]) {
-      await copyFile(join(import.meta.dir, "..", file), join(tools, file));
+      await copyFile(join(fixtureDir, "..", file), join(tools, file));
     }
     await Bun.write(join(repo, ".gitignore"), "artifacts/\n");
     await verify(repo);

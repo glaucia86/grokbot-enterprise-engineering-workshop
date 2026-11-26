@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { test } from "bun:test";
+import { test } from "vitest";
 
 test("Procurement Hub health confirms a live lab database", async () => {
   const base = process.env.WORKSHOP_BASE_URL ?? "http://127.0.0.1:3000";

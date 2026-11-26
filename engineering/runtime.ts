@@ -1,7 +1,8 @@
 import { lstat, open, rename } from "node:fs/promises";
-import { relative, resolve } from "node:path";
+import { dirname, relative, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-export const root = resolve(import.meta.dir, "..");
+export const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 export const verificationDir = resolve(root, "artifacts/verification");
 export const bun = process.execPath;
 export const runIdPattern = /^[a-z0-9][a-z0-9-]{0,63}$/;

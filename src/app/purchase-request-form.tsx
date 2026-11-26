@@ -2,10 +2,12 @@
 
 import { useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { formatUsd } from "./format-purchase";
 
 type Attempt = { payload: string; key: string };
+type CostCenterOption = { id: string; code: string; name: string; availableBudgetMinor: number };
 
-export function PurchaseRequestForm() {
+export function PurchaseRequestForm({ costCenters }: { costCenters: CostCenterOption[] }) {
   const router = useRouter();
   const attempt = useRef<Attempt | null>(null);
   const [error, setError] = useState("");
@@ -15,6 +17,7 @@ export function PurchaseRequestForm() {
     event.preventDefault();
     const fields = new FormData(event.currentTarget);
     const payload = JSON.stringify({
+      costCenterId: String(fields.get("costCenterId")),
       title: String(fields.get("title")).trim(),
       justification: String(fields.get("justification")).trim(),
       amountMinor: Number(fields.get("amountMinor")),
@@ -50,6 +53,16 @@ export function PurchaseRequestForm() {
   return (
     <form className="request-form" onSubmit={submit}>
       <div className="field">
+        <label htmlFor="cost-center">Cost center</label>
+        <select id="cost-center" name="costCenterId" required defaultValue={costCenters[0]?.id ?? ""}>
+          {costCenters.map((center) => (
+            <option key={center.id} value={center.id}>
+              {center.code} — {center.name} (Available: {formatUsd(center.availableBudgetMinor)})
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="field">
         <label htmlFor="title">Title</label>
         <input id="title" name="title" maxLength={120} required />
       </div>
@@ -61,7 +74,9 @@ export function PurchaseRequestForm() {
         <label htmlFor="amount">Amount (USD cents)</label>
         <input id="amount" name="amountMinor" type="number" min={1} max={Number.MAX_SAFE_INTEGER} step={1} required />
       </div>
-      <button type="submit" disabled={pending}>{pending ? "Submitting…" : "Submit request"}</button>
+      <button type="submit" disabled={pending || costCenters.length === 0}>
+        {pending ? "Submitting…" : "Submit request"}
+      </button>
       {error && <p className="error" role="alert">{error}</p>}
     </form>
   );

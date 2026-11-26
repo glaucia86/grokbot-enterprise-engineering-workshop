@@ -8,6 +8,7 @@ function purchaseText(maxLength: number) {
 }
 
 export const submissionSchema = z.strictObject({
+  costCenterId: z.uuid(),
   title: purchaseText(120),
   justification: purchaseText(2_000),
   amountMinor: z.int().positive(),

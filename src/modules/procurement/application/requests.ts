@@ -1,26 +1,63 @@
-import { canDecidePurchase } from "../domain/procurement";
+import { canApproveAmount, canDecidePurchase } from "../domain/procurement";
 import type {
-  AuditEvent, PurchaseDecision, PurchaseRequest, PurchaseStatus, PurchaseSubmission, TenantActor,
+  AuditEvent,
+  CostCenter,
+  FinancialCommitment,
+  PurchaseDecision,
+  PurchaseRequest,
+  PurchaseStatus,
+  PurchaseSubmission,
+  TenantActor,
 } from "../domain/procurement";
 
-type SubmissionResult =
+export type SubmissionResult =
   | { kind: "created" | "replayed"; request: PurchaseRequest }
+  | { kind: "not-found" }
   | { kind: "conflict" };
 
-type DecisionResult =
-  | { kind: "decided"; request: PurchaseRequest }
-  | { kind: "forbidden" | "not-found" | "invalid-transition" };
+export type DecisionOptions = {
+  idempotencyKey: string;
+  labSyncBarrier?: string;
+};
+
+export type DecisionResult =
+  | {
+      kind: "decided";
+      request: PurchaseRequest;
+      costCenter: CostCenter;
+      commitment: FinancialCommitment | null;
+      replayed: boolean;
+    }
+  | {
+      kind:
+        | "forbidden"
+        | "approval-limit-exceeded"
+        | "not-found"
+        | "invalid-transition"
+        | "insufficient-budget"
+        | "idempotency-conflict";
+    };
+
+export type PurchaseRequestDetailRecord = {
+  request: PurchaseRequest;
+  requesterId: string;
+  costCenter: CostCenter;
+  commitment: FinancialCommitment | null;
+};
 
 export type PurchaseRequestRepository = {
+  listCostCenters(actor: TenantActor): Promise<CostCenter[]>;
   create(actor: TenantActor, input: PurchaseSubmission, key: string): Promise<SubmissionResult>;
   list(actor: TenantActor, status?: PurchaseStatus): Promise<PurchaseRequest[]>;
-  find(actor: TenantActor, id: string): Promise<{ request: PurchaseRequest; requesterId: string } | undefined>;
-  decide(actor: TenantActor, id: string, input: PurchaseDecision): Promise<DecisionResult>;
+  find(actor: TenantActor, id: string): Promise<PurchaseRequestDetailRecord | undefined>;
+  decide(actor: TenantActor, id: string, input: PurchaseDecision, options: DecisionOptions): Promise<DecisionResult>;
   audit(tenantId: string, requestId: string): Promise<AuditEvent[]>;
 };
 
 export function purchaseRequestService(repository: PurchaseRequestRepository) {
   return {
+    listCostCenters: (actor: TenantActor) => repository.listCostCenters(actor),
+
     async create(actor: TenantActor, input: PurchaseSubmission, key: string) {
       if (actor.role !== "REQUESTER") return { kind: "forbidden" } as const;
       return repository.create(actor, input, key);
@@ -29,7 +66,7 @@ export function purchaseRequestService(repository: PurchaseRequestRepository) {
     list: (actor: TenantActor, status?: PurchaseStatus) => repository.list(actor, status),
 
     async find(actor: TenantActor, id: string) {
-      return (await repository.find(actor, id))?.request;
+      return repository.find(actor, id);
     },
 
     async detail(actor: TenantActor, id: string) {
@@ -38,13 +75,16 @@ export function purchaseRequestService(repository: PurchaseRequestRepository) {
 
       return {
         purchase: record.request,
-        canDecide: canDecidePurchase(actor, record.requesterId, record.request.status),
+        costCenter: record.costCenter,
+        commitment: record.commitment,
+        canDecide: canDecidePurchase(actor, record.requesterId, record.request.status, record.request.amountMinor),
+        canApprove: canApproveAmount(actor, record.requesterId, record.request.status, record.request.amountMinor),
       };
     },
 
-    async decide(actor: TenantActor, id: string, input: PurchaseDecision) {
+    async decide(actor: TenantActor, id: string, input: PurchaseDecision, options: DecisionOptions) {
       if (actor.role !== "APPROVER") return { kind: "forbidden" } as const;
-      return repository.decide(actor, id, input);
+      return repository.decide(actor, id, input, options);
     },
 
     async audit(actor: TenantActor, requestId: string) {

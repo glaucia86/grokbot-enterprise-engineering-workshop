@@ -13,7 +13,10 @@ export default async function Home() {
   const [identities, session] = enabled
     ? await Promise.all([listLabIdentities(), readLabSession()])
     : [[], undefined] as const;
-  const purchases = session ? await requests.list(session) : [];
+
+  const [purchases, costCenters] = session
+    ? await Promise.all([requests.list(session), requests.listCostCenters(session)])
+    : [[], []];
 
   return (
     <main>
@@ -27,6 +30,9 @@ export default async function Home() {
         {session && (
           <p className="session-state">
             <strong>{session.tenantName}</strong> · {session.displayName} · {session.role}
+            {session.role === "APPROVER" && session.approvalLimitMinor !== null && (
+              <> · Approval limit {formatUsd(session.approvalLimitMinor)}</>
+            )}
           </p>
         )}
         {enabled
@@ -35,20 +41,31 @@ export default async function Home() {
       </section>
 
       {session && (
-        <div className="workspace">
-          <section className="panel" aria-labelledby="requests-heading">
-            <h2 id="requests-heading">{session.role === "REQUESTER" ? "My requests" : "Tenant requests"}</h2>
-            {purchases.length === 0 ? <p>No purchase requests yet.</p> : (
+        <>
+          <section className="panel" aria-labelledby="budgets-heading">
+            <h2 id="budgets-heading">Cost center budgets</h2>
+            {costCenters.length === 0 ? <p>No cost centers configured for this tenant.</p> : (
               <table>
                 <thead>
-                  <tr><th scope="col">Request</th><th scope="col">Amount</th><th scope="col">Status</th></tr>
+                  <tr>
+                    <th scope="col">Code</th>
+                    <th scope="col">Cost center</th>
+                    <th scope="col">Allocated</th>
+                    <th scope="col">Committed</th>
+                    <th scope="col">Available</th>
+                  </tr>
                 </thead>
                 <tbody>
-                  {purchases.map((purchase) => (
-                    <tr key={purchase.id}>
-                      <td><Link href={"/requests/" + purchase.id} prefetch={false}>{purchase.title}</Link></td>
-                      <td className="amount">{formatUsd(purchase.amountMinor)}</td>
-                      <td><span className="status">{purchase.status}</span></td>
+                  {costCenters.map((center) => (
+                    <tr key={center.id} data-cost-center-code={center.code}>
+                      <td><code>{center.code}</code></td>
+                      <td>{center.name}</td>
+                      <td className="amount">{formatUsd(center.allocatedBudgetMinor)}</td>
+                      <td className="amount">{formatUsd(center.committedBudgetMinor)}</td>
+                      <td className={center.availableBudgetMinor < 0 ? "amount budget-overspent" : "amount"}>
+                        {formatUsd(center.availableBudgetMinor)}
+                        {center.availableBudgetMinor < 0 && " (OVERSPENT)"}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -56,13 +73,48 @@ export default async function Home() {
             )}
           </section>
 
-          {session.role === "REQUESTER" && (
-            <section className="panel" aria-labelledby="create-heading">
-              <h2 id="create-heading">New purchase request</h2>
-              <PurchaseRequestForm />
+          <div className="workspace">
+            <section className="panel" aria-labelledby="requests-heading">
+              <h2 id="requests-heading">{session.role === "REQUESTER" ? "My requests" : "Tenant requests"}</h2>
+              {purchases.length === 0 ? <p>No purchase requests yet.</p> : (
+                <table>
+                  <thead>
+                    <tr>
+                      <th scope="col">Request</th>
+                      <th scope="col">Cost center</th>
+                      <th scope="col">Amount</th>
+                      <th scope="col">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {purchases.map((purchase) => (
+                      <tr key={purchase.id}>
+                        <td><Link href={"/requests/" + purchase.id} prefetch={false}>{purchase.title}</Link></td>
+                        <td><code>{purchase.costCenterCode}</code></td>
+                        <td className="amount">{formatUsd(purchase.amountMinor)}</td>
+                        <td><span className={"status status-" + purchase.status.toLowerCase()}>{purchase.status}</span></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
             </section>
-          )}
-        </div>
+
+            {session.role === "REQUESTER" && (
+              <section className="panel" aria-labelledby="create-heading">
+                <h2 id="create-heading">New purchase request</h2>
+                <PurchaseRequestForm
+                  costCenters={costCenters.map(({ id, code, name, availableBudgetMinor }) => ({
+                    id,
+                    code,
+                    name,
+                    availableBudgetMinor,
+                  }))}
+                />
+              </section>
+            )}
+          </div>
+        </>
       )}
     </main>
   );

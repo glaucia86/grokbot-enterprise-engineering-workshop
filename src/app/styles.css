@@ -67,7 +67,7 @@ button {
 }
 button:hover { background: #004337; }
 button:disabled { opacity: 0.65; cursor: wait; }
-.error { flex-basis: 100%; color: #933939; }
+.error { flex-basis: 100%; color: #933939; font-weight: 600; }
 .session-state { color: #334f56; }
 
 table { width: 100%; border-collapse: collapse; }
@@ -79,6 +79,7 @@ th, td {
 }
 th { color: #3c575b; font-size: 0.85rem; }
 .amount, time { font-variant-numeric: tabular-nums; }
+.budget-overspent { color: #9c1c1c; font-weight: 750; }
 .status {
   display: inline-block;
   padding: 0.28rem 0.5rem;
@@ -88,6 +89,8 @@ th { color: #3c575b; font-size: 0.85rem; }
   font-size: 0.75rem;
   font-weight: 700;
 }
+.status-approved { color: #0a5233; background: #d4f4e2; }
+.status-rejected { color: #7c1f1f; background: #fadbd8; }
 .back-link { display: inline-block; margin-bottom: 1.25rem; }
 .request-details { display: grid; gap: 1rem; margin: 0; }
 dd { margin: 0.25rem 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }

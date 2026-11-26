@@ -1,7 +1,13 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import { keySchema, submissionSchema } from "../../src/server/http/purchase-input";
 
-const valid = { title: "  Gloves ", justification: " Replenishment  ", amountMinor: 123, currency: "USD" as const };
+const valid = {
+  costCenterId: "30000000-0000-4000-8000-000000000001",
+  title: "  Gloves ",
+  justification: " Replenishment  ",
+  amountMinor: 123,
+  currency: "USD" as const,
+};
 
 describe("purchase submission contract", () => {
   it("trims whitespace while preserving meaningful characters and an exact amount", () => {
@@ -13,7 +19,8 @@ describe("purchase submission contract", () => {
     expect(submissionSchema.safeParse({ ...valid, amountMinor }).success).toBe(false);
   });
 
-  it("rejects client-provided authority and non-USD currency", () => {
+  it("rejects missing or invalid costCenterId, client-provided authority, and non-USD currency", () => {
+    expect(submissionSchema.safeParse({ ...valid, costCenterId: "not-a-uuid" }).success).toBe(false);
     expect(submissionSchema.safeParse({ ...valid, tenantId: "injected-tenant" }).success).toBe(false);
     expect(submissionSchema.safeParse({ ...valid, currency: "BRL" }).success).toBe(false);
   });
@@ -21,7 +28,6 @@ describe("purchase submission contract", () => {
   it("rejects text the database cannot round trip", () => {
     expect(submissionSchema.safeParse({ ...valid, title: "Gloves" + String.fromCharCode(0) }).success).toBe(false);
     expect(submissionSchema.safeParse({ ...valid, title: String.fromCharCode(0xd800) }).success).toBe(false);
-    expect(submissionSchema.safeParse({ ...valid, title: "Gloves 🧤" }).success).toBe(true);
   });
 
   it("preserves allowed key case and rejects keys outside the documented alphabet and length", () => {

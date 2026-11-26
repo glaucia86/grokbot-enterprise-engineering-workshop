@@ -46,3 +46,28 @@
 - **What was verified:** Cross-document consistency check across all invariant IDs (`INV-01`–`INV-10`), AC IDs (`AC-01`–`AC-12`), schema tables, error codes, and relative markdown paths.
 - **What failed / blocked:** None.
 - **Next executable phase:** Phase 03 — Adopt Vitest, strengthen 4-layer ESLint architectural boundaries + negative tests, implement Cost Centers/Budgets/Commitments/UI, and build deterministic live PH-42 starter reproduction.
+
+---
+
+## Phase 03 — Defective Starter Baseline, Vitest, Enforceable Boundaries & Live PH-42 Reproduction
+
+- **Status:** COMPLETED & LIVE-VERIFIED
+- **What changed:**
+  - Installed pinned `vitest@5.1.1` (published 2026-11-18, >7 days old) and configured `vitest.config.ts` (`pool: "threads"` for Bun 1.4.5 compatibility).
+  - Strengthened `eslint.config.ts` across all 4 Modular Monolith layers (`domain`, `application`, `infrastructure`, `src/app/**/*.tsx`) plus floating-point bans in `domain/`, backed by `tests/unit/architecture.test.ts` and `scripts/verify-architecture.ts`.
+  - Modeled exact integer minor units (`MoneyMinor`), `CostCenter`, `FinancialCommitment`, `ApprovalPolicy` (`evaluateApprovalAuthority` with `approvalLimitMinor`), state machine, and canonical payload helpers in pure `src/modules/procurement/domain/procurement.ts`.
+  - Added Drizzle migration `0002_cost_centers_and_commitments.sql`, updated `scripts/seed-lab.sql` (9 identities + 3 Cost Centers), added `GET /api/cost-centers`, updated `POST /api/purchase-requests` & `POST /api/purchase-requests/:id/decision`, and upgraded Procurement Hub UI to show live Cost Center budgets (with overspent highlight), approval limits, and financial commitments.
+  - Built strictly lab-only synchronization barrier (`src/server/db/lab-sync-barrier.ts`), `scripts/reproduce-ph42.ts` (`bun run ph42:reproduce`), `scripts/seed-ph42.ts`, and `scripts/reset-lab.ts`.
+- **Why it changed:** Replaced the static fake-fixture starter with a genuine brownfield financial system whose normal workflows pass while concurrent approvals deterministically overspend real PostgreSQL.
+- **Requirements addressed:** Golden Prompt §§5–10, `AC-10`, starter reproducibility.
+- **What was verified (live execution):**
+  - `bun run check:static` (ESLint + `tsc --noEmit`): **PASS** (`exit 0`)
+  - `bun run verify:architecture`: **PASS** — all 5 negative boundary fixtures rejected by ESLint (`exit 1` per fixture)
+  - `bun run test:unit`: **29/29 PASS** (Vitest)
+  - `bun run test:properties`: **2/2 PASS** (400 fast-check cases, seed `4207`)
+  - `bun run test:harness`: **4/4 PASS** (Vitest)
+  - `bun run build`: **PASS** (Next.js 16.4.6 production build)
+  - Live PostgreSQL 18.7 + Next.js starter baseline integration (`tests/integration/procurement.test.ts`): **14/14 PASS**
+  - Live `bun run ph42:reproduce` on starter: **FAIL as expected (`exit 1`)** — `httpStatuses: [200, 200]`, `CC-ENG-01` `allocatedBudgetMinor: 1000000`, `committedBudgetMinor: 1400000`, `availableBudgetMinor: -400000`, `violatedInvariants: ["INV-01", "INV-02"]`.
+- **What failed / blocked:** None.
+- **Next executable phase:** Phase 04 & Phase 05 — Verification Harness (`manifest.json` + `summary.md` surviving cleanup), `verify-procurement` skill + 8 Feature Maps, Bounded Loop Engine (`engineering/loop-runner.ts`), Specialized Agent Roles, and `verify-formal-approval` skill.

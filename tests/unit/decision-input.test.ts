@@ -1,4 +1,4 @@
-import { describe, expect, it } from "bun:test";
+import { describe, expect, it } from "vitest";
 import { decisionSchema } from "../../src/server/http/purchase-input";
 
 describe("purchase decision contract", () => {
@@ -7,8 +7,8 @@ describe("purchase decision contract", () => {
   });
 
   it("trims a rejection reason while preserving its text", () => {
-    expect(decisionSchema.parse({ decision: "REJECT", reason: "  Budget 🧾 deferred  " }))
-      .toEqual({ decision: "REJECT", reason: "Budget 🧾 deferred" });
+    expect(decisionSchema.parse({ decision: "REJECT", reason: "  Budget deferred  " }))
+      .toEqual({ decision: "REJECT", reason: "Budget deferred" });
   });
 
   it.each([

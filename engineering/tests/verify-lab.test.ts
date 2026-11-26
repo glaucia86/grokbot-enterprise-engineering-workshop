@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { join } from "node:path";
-import { test } from "bun:test";
+import { test } from "vitest";
 import { commitFixture, run, withFixture } from "./fixture";
 
 test("a blocked launch writes evidence and refuses to reuse the run ID", async () => {

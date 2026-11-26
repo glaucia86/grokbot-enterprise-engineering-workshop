@@ -1,4 +1,4 @@
-import { expect, test } from "bun:test";
+import { expect, test } from "vitest";
 import { sanitizeEvidence } from "../ci-evidence";
 
 test("CI artifacts retain exact-revision outcomes and omit arbitrary runner content", () => {

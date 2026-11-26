@@ -1,17 +1,24 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition, type FormEvent } from "react";
+import { useRef, useState, useTransition, type FormEvent } from "react";
 
-const decisionErrors: Partial<Record<number, string>> = {
-  400: "Choose a decision and provide a reason when rejecting.",
-  401: "Your lab session has expired. Switch your lab identity to continue.",
-  403: "Your lab identity cannot decide this request.",
-  404: "This request is unavailable to your lab identity.",
+type Attempt = { payload: string; key: string };
+
+const errorCodeMessages: Record<string, string> = {
+  INVALID_INPUT: "Choose a decision and provide a reason when rejecting.",
+  UNAUTHENTICATED: "Your lab session has expired. Switch your lab identity to continue.",
+  FORBIDDEN: "Your lab identity cannot decide this request.",
+  APPROVAL_LIMIT_EXCEEDED: "This request exceeds your organizational approval limit.",
+  NOT_FOUND: "This request is unavailable to your lab identity.",
+  INSUFFICIENT_BUDGET: "Insufficient available budget in the cost center to approve this request.",
+  IDEMPOTENCY_CONFLICT: "This decision idempotency key was already used for a different decision.",
+  INVALID_TRANSITION: "This request already has a terminal decision.",
 };
 
 export function DecisionForm({ requestId }: { requestId: string }) {
   const router = useRouter();
+  const attempt = useRef<Attempt | null>(null);
   const [decision, setDecision] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -29,22 +36,34 @@ export function DecisionForm({ requestId }: { requestId: string }) {
       return;
     }
 
+    const payload = JSON.stringify({ decision, reason });
+    if (attempt.current?.payload !== payload) {
+      attempt.current = { payload, key: crypto.randomUUID() };
+    }
+
     setError("");
     setSubmitting(true);
     try {
       const response = await fetch(`/api/purchase-requests/${requestId}/decision`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ decision, reason }),
+        headers: {
+          "Content-Type": "application/json",
+          "Idempotency-Key": attempt.current.key,
+        },
+        body: payload,
       });
-      if (response.ok || response.status === 409) {
-        if (response.status === 409) setError("This request already has a decision.");
+      if (response.ok) {
         startTransition(() => router.refresh());
-      } else {
-        setError(decisionErrors[response.status] ?? "Could not save the decision. Try again.");
+        return;
+      }
+      const body = await response.json().catch(() => null) as { error?: { code?: string } } | null;
+      const code = body?.error?.code ?? "";
+      setError(errorCodeMessages[code] ?? "Could not save the decision. Try again.");
+      if (code === "INVALID_TRANSITION" || code === "INSUFFICIENT_BUDGET") {
+        startTransition(() => router.refresh());
       }
     } catch {
-      setError("The lab could not confirm the decision. Refresh the page to check its status.");
+      setError("The lab could not confirm the decision. Retry to reuse the same idempotency key safely.");
     } finally {
       setSubmitting(false);
     }

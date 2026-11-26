@@ -12,6 +12,7 @@ const tokenFormat = /^[A-Za-z0-9_-]{43}$/;
 const identityColumns = {
   key: memberships.labIdentity,
   role: memberships.role,
+  approvalLimitMinor: memberships.approvalLimitMinor,
   displayName: users.displayName,
   tenantName: tenants.name,
 };

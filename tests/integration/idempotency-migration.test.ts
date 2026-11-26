@@ -3,7 +3,7 @@ import { copyFile, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promi
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { test } from "bun:test";
+import { test } from "vitest";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres, { type Sql } from "postgres";
@@ -23,11 +23,16 @@ async function withBaseline(
   const admin = postgres(target.toString(), clientOptions);
   const fixtureName = "workshop_vs05_" + crypto.randomUUID().replaceAll("-", "");
   const baseline = await mkdtemp(join(tmpdir(), "workshop-vs05-baseline-"));
+  const targetFolder = await mkdtemp(join(tmpdir(), "workshop-vs05-target-"));
   try {
     await mkdir(join(baseline, "meta"));
+    await mkdir(join(targetFolder, "meta"));
     const journal = JSON.parse(await readFile(join(migrationsFolder, "meta", "_journal.json"), "utf8"));
     await writeFile(join(baseline, "meta", "_journal.json"), JSON.stringify({ ...journal, entries: journal.entries.slice(0, 1) }));
     await copyFile(join(migrationsFolder, initialMigration), join(baseline, initialMigration));
+    await writeFile(join(targetFolder, "meta", "_journal.json"), JSON.stringify({ ...journal, entries: journal.entries.slice(0, 2) }));
+    await copyFile(join(migrationsFolder, initialMigration), join(targetFolder, initialMigration));
+    await copyFile(join(migrationsFolder, "0001_ensure_tenant_idempotency.sql"), join(targetFolder, "0001_ensure_tenant_idempotency.sql"));
 
     await admin`create database ${admin(fixtureName)}`;
     target.pathname = "/" + fixtureName;
@@ -39,9 +44,24 @@ async function withBaseline(
         // Model the old schema only inside this private fixture database.
         await fixture`alter table purchase_requests drop constraint ${fixture(scopedConstraint)}`;
       }
-      const seed = await readFile(new URL("../../scripts/seed-lab.sql", import.meta.url), "utf8");
-      await fixture.unsafe(seed).simple();
-      await verify(fixture, () => migrate(database, { migrationsFolder }));
+      const legacySeed = `
+        INSERT INTO tenants (id, name) VALUES
+          ('10000000-0000-4000-8000-000000000001', 'Northstar Industries'),
+          ('10000000-0000-4000-8000-000000000002', 'Meridian Retail')
+        ON CONFLICT (id) DO NOTHING;
+        INSERT INTO users (id, display_name) VALUES
+          ('20000000-0000-4000-8000-000000000001', 'Northstar Requester'),
+          ('20000000-0000-4000-8000-000000000002', 'Northstar Alternate Requester'),
+          ('20000000-0000-4000-8000-000000000005', 'Meridian Requester')
+        ON CONFLICT (id) DO NOTHING;
+        INSERT INTO memberships (tenant_id, user_id, role, lab_identity) VALUES
+          ('10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', 'REQUESTER', 'northstar-requester'),
+          ('10000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000002', 'REQUESTER', 'northstar-requester-alt'),
+          ('10000000-0000-4000-8000-000000000002', '20000000-0000-4000-8000-000000000005', 'REQUESTER', 'meridian-requester')
+        ON CONFLICT (tenant_id, user_id) DO NOTHING;
+      `;
+      await fixture.unsafe(legacySeed).simple();
+      await verify(fixture, () => migrate(database, { migrationsFolder: targetFolder }));
     } finally {
       await fixture.end({ timeout: 3 });
       await admin`drop database ${admin(fixtureName)}`;
@@ -49,6 +69,7 @@ async function withBaseline(
   } finally {
     await admin.end({ timeout: 3 });
     await rm(baseline, { recursive: true, force: true });
+    await rm(targetFolder, { recursive: true, force: true });
   }
 }
 
