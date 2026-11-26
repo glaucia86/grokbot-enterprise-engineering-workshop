@@ -77,3 +77,7 @@ bun run verify:concurrency
 ```
 
 See the [PH-42 exercise](doc-specs/03-demo-issue-42.md) for the expected responses and persisted counts.
+
+## Optional formal extension
+
+Run generated contract tests with `bun run test:properties`. The [bounded PH-42 exercise](formal/README.md) pairs a TLA+ counterexample with an exhaustive check of the atomic model over its configured states. Its evidence is separate from the real HTTP and PostgreSQL run.

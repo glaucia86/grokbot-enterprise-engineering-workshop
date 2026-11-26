@@ -124,4 +124,4 @@ Allowed statuses: `pass`, `fail`, `blocked`, `not-run`; an absent or skipped req
 
 ## 8. Formal extension boundary
 
-The optional prepared TLA+ exercise models two actors submitting a key, tenant scope, and commit semantics. Specify initial states, transitions, finite domains and a uniqueness invariant. Show a counterexample for the faulty model and a checked corrected model over its configured bounds. It is a separate teaching artifact; it must not be described as proving actual database code or exhaustive production behavior. Omit from live session if main runtime proof or Q&A needs the time.
+The [optional PH-42 exercise](../formal/README.md) provides TypeScript property tests and a TLA+ model that compares stale reads with an atomic commit. The model covers two clients, two tenants and two keys. Keep the model's trace and state counts separate from the implementation evidence. Omit this extension from the live session if the runtime walkthrough or Q&A needs the time.
