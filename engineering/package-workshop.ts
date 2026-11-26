@@ -69,7 +69,13 @@ async function packageEdition(edition: Edition, output: string, revision: string
     }
     await Bun.write(join(directory, "README.md"), invokeGit(root, ["show", revision + ":release/" + edition + ".md"]));
     await jsonFile(join(directory, "package.json"), (document) => {
-      delete (document.scripts as Record<string, string>)["verify:formal"];
+      const scripts = document.scripts as Record<string, string>;
+      for (const script of Object.keys(scripts)) {
+        if (script === "verify:formal" || script.startsWith("slides:")) delete scripts[script];
+      }
+    });
+    await jsonFile(join(directory, "tsconfig.json"), (document) => {
+      document.include = (document.include as string[]).filter((path) => path !== "slides/**/*.ts");
     });
     await jsonFile(join(directory, "engineering/slice-checks.json"), (document) => {
       delete document.PREP;

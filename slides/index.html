@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="The Packt advanced workshop on taking a Procurement Hub issue to a verified pull request.">
+  <title>GrokBot · From Issue to Verified Pull Request</title>
+  <link rel="stylesheet" href="./reset.css">
+  <link rel="stylesheet" href="./reveal.css">
+  <link rel="stylesheet" href="./deck.css">
+</head>
+<body>
+  <main class="reveal" aria-label="Workshop slides">
+    <div class="slides">
+      <section id="start" class="cover dark" data-background-color="#10222a">
+        <div class="cover-layout">
+          <div>
+            <p class="kicker">Packt advanced workshop</p>
+            <h1>From Issue to<br> Verified Pull Request</h1>
+            <p class="lead">GrokBot for Enterprise Engineering Workflows</p>
+            <p class="signature">Glaucia Lemos · December 11, 2026</p>
+          </div>
+          <aside class="cover-sidebar" aria-label="Workshop focus">
+            <p class="kicker">Procurement Hub</p>
+            <ol>
+              <li>Reproduce the failure</li>
+              <li>Verify the application</li>
+              <li>Review the evidence</li>
+            </ol>
+            <p class="shortcut">Use <kbd>←</kbd> <kbd>→</kbd> to navigate. Press <kbd>S</kbd> for notes.</p>
+          </aside>
+        </div>
+        <aside class="notes">
+          <p lang="en"><strong>EN.</strong> Open with the reviewer’s question. What would you need to see before approving a change suggested by a coding agent? Over the next hour we will build that evidence around one purchase workflow.</p>
+          <p lang="pt-BR"><strong>PT.</strong> Abra com a pergunta de quem revisa. O que você precisaria ver para aprovar uma mudança proposta por um agente? Ao longo da hora, vamos produzir essa evidência em um único fluxo de compras.</p>
+        </aside>
+      </section>
+
+      <section id="procurement-hub" data-background-color="#f5f1e8">
+        <p class="kicker">00–05 min · The business case</p>
+        <h2>A duplicate purchase can be approved twice</h2>
+        <div class="columns product">
+          <div>
+            <p>Procurement Hub lets a requester submit a purchase, an approver decide it and an auditor review the recorded events.</p>
+            <p>In PH-42, a retry raced the original submission and produced a second request with its own creation event.</p>
+            <p class="callout">One logical purchase should produce one request ID and one creation event.</p>
+          </div>
+          <figure>
+            <img src="./assets/procurement-hub.webp" alt="Procurement Hub’s Northstar audit trail with CREATED and APPROVED events">
+            <figcaption>Audit view from the running lab using synthetic data.</figcaption>
+          </figure>
+        </div>
+        <aside class="notes">
+          <p lang="en"><strong>EN.</strong> Point to the two events in the screenshot. A creation and a decision are expected. PH-42 concerns two creation events for the same logical operation. Ask who would discover a duplicate in their own organization.</p>
+          <p lang="pt-BR"><strong>PT.</strong> Aponte os dois eventos na imagem. Uma criação e uma decisão são esperadas. O PH-42 trata de dois eventos de criação para a mesma operação. Pergunte quem perceberia uma duplicidade como essa na empresa.</p>
+        </aside>
+      </section>
+
+      <section id="boundaries" data-background-color="#f5f1e8">
+        <p class="kicker">05–12 min · Enforceable architecture</p>
+        <h2>Follow the invariant from the browser to the database</h2>
+        <div class="cards three">
+          <article>
+            <h3>Next.js</h3>
+            <p>The server resolves the actor and tenant from the workshop session.</p>
+          </article>
+          <article>
+            <h3>Procurement</h3>
+            <p>Role and ownership determine who can submit, decide and read each request.</p>
+          </article>
+          <article>
+            <h3>PostgreSQL</h3>
+            <p>The purchase and its audit event must remain consistent when requests race.</p>
+          </article>
+        </div>
+        <p class="callout">The invariant must hold when two requests arrive together and share the same database.</p>
+        <aside class="notes">
+          <p lang="en"><strong>EN.</strong> Ask where a browser button or a prompt ends and a server guarantee begins. Show the route, procurement service and persistence layers in the participant checkout. Discuss why timing alone cannot guarantee correctness across app instances.</p>
+          <p lang="pt-BR"><strong>PT.</strong> Pergunte onde termina o botão ou o prompt e onde começa a garantia do servidor. Mostre as camadas de rota, serviço e persistência no checkout dos participantes. Discuta por que tempo de execução por si só não garante resultado correto entre instâncias.</p>
+        </aside>
+      </section>
+
+      <section id="boot-lab" data-background-color="#f5f1e8">
+        <p class="kicker">12–20 min · Prepare the lab</p>
+        <h2>Start Next.js and disposable PostgreSQL</h2>
+        <div class="columns">
+          <div>
+            <p>Install Bun 1.4.5 and Docker Compose v2. Copy <code>.env.example</code> to <code>.env</code> before starting.</p>
+            <p>Open <a href="http://127.0.0.1:3000" target="_blank" rel="noopener noreferrer">Procurement Hub on 127.0.0.1:3000</a>. Run <code>bun run lab:doctor</code> in a second terminal.</p>
+          </div>
+          <pre><code>bun install --frozen-lockfile
+bun run browser:install
+bun run lab:up
+bun run lab:doctor --db-only
+bun run dev</code></pre>
+        </div>
+        <aside class="notes">
+          <p lang="en"><strong>EN.</strong> Open the application from a prepared checkout. The database command applies the migrations and seeds synthetic identities. Confirm the readiness response before launching checks. If the audience is watching in a browser, the loopback URL opens the app running on their own device.</p>
+          <p lang="pt-BR"><strong>PT.</strong> Abra o app a partir de um checkout preparado. O comando do banco aplica as migrações e semeia identidades sintéticas. Confirme a resposta de prontidão antes dos testes. O endereço local abre o app no próprio computador de quem acompanha.</p>
+        </aside>
+      </section>
+
+      <section id="try-the-app" data-background-color="#f5f1e8">
+        <p class="kicker">12–20 min · Exercise the UI</p>
+        <h2>Submit, decide and inspect the same purchase</h2>
+        <ol class="steps">
+          <li><strong>Northstar Requester</strong><span>Submit a purchase and open it from My requests.</span></li>
+          <li><strong>Northstar Approver</strong><span>Switch identities from the home page and record a decision.</span></li>
+          <li><strong>Northstar Auditor</strong><span>Find the creation event and decision event for that purchase.</span></li>
+        </ol>
+        <p class="callout">Switch to Meridian Requester to explore the separate tenant workspace.</p>
+        <aside class="notes">
+          <p lang="en"><strong>EN.</strong> Use a small synthetic purchase. Save the request identifier to keep each view tied to the same record. Show the tenant switch after the Northstar audit view.</p>
+          <p lang="pt-BR"><strong>PT.</strong> Use uma compra sintética simples. Guarde o identificador para manter cada tela ligada ao mesmo registro. Mostre a troca de tenant depois da auditoria da Northstar.</p>
+        </aside>
+      </section>
+
+      <section id="reproduce" data-background-color="#f5f1e8">
+        <p class="kicker">20–40 min · Reproduce the symptom</p>
+        <h2>Read the historical PH-42 observation</h2>
+        <pre class="command"><code>bun run verify:ph42-fixture</code></pre>
+        <p class="lead">The fixture reads a synthetic snapshot in PostgreSQL. Exit <strong>1</strong> is expected.</p>
+        <dl class="metrics">
+          <div><dt>201 + 201</dt><dd>Simulated responses</dd></div>
+          <div><dt>2 requests</dt><dd>Different IDs</dd></div>
+          <div><dt>2 events</dt><dd>Both CREATED</dd></div>
+        </dl>
+        <aside class="notes">
+          <p lang="en"><strong>EN.</strong> Label this output “synthetic historical snapshot” as soon as it appears. Explain why this command reports failure even in the reference checkout. The later runtime check sends real requests to the currently running app.</p>
+          <p lang="pt-BR"><strong>PT.</strong> Identifique a saída como “snapshot histórico sintético”. Explique por que o comando indica falha inclusive no checkout de referência. A próxima verificação envia requisições reais ao app em execução.</p>
+        </aside>
+      </section>
+
+      <section id="agent-loop" data-background-color="#10222a" class="dark">
+        <p class="kicker">20–40 min · Work with GrokBot</p>
+        <h2>Give the agent an issue and a way to check its work</h2>
+        <div class="cards three">
+          <article>
+            <h3>Inspect</h3>
+            <p>Read PH-42 and its acceptance criteria. Record the failing observation and trace the write path.</p>
+          </article>
+          <article>
+            <h3>Change</h3>
+            <p>Keep the change scoped to request submission. Preserve the API, tenant isolation and audit behavior.</p>
+          </article>
+          <article>
+            <h3>Verify</h3>
+            <p>Run the live concurrency check and regressions. Use the first unexpected result to guide the next action.</p>
+          </article>
+        </div>
+        <p class="callout">Ask for the candidate SHA, actual commands, observed results and any remaining gaps.</p>
+        <aside class="notes">
+          <p lang="en"><strong>EN.</strong> Give GrokBot the issue, acceptance criteria, repository boundaries and verification commands. If the integration is unavailable, run the same commands in a terminal and demonstrate how their output drives the next step.</p>
+          <p lang="pt-BR"><strong>PT.</strong> Passe ao GrokBot a issue, os critérios, os limites do repositório e os comandos de verificação. Se a integração estiver indisponível, execute os mesmos comandos no terminal e mostre como a saída orienta o próximo passo.</p>
+        </aside>
+      </section>
+
+      <section id="verify-live" data-background-color="#e0f0e5">
+        <p class="kicker">20–40 min · Verify the running application</p>
+        <h2>Two HTTP submissions converge on one purchase</h2>
+        <pre class="command"><code>bun run verify:concurrency</code></pre>
+        <p class="lead">Send equivalent submissions to the live API and check PostgreSQL. Exit <strong>0</strong> when the invariant holds.</p>
+        <dl class="metrics">
+          <div><dt>200 + 201</dt><dd>Observed responses</dd></div>
+          <div><dt>1 request</dt><dd>Both responses share its ID</dd></div>
+          <div><dt>1 event</dt><dd>One CREATED entry</dd></div>
+        </dl>
+        <aside class="notes">
+          <p lang="en"><strong>EN.</strong> Compare every column with the historical observation. Show that the check reads database counts and uses the same requester and key in both submissions. Mention the separate regression checks for payload conflicts, other actors and other tenants.</p>
+          <p lang="pt-BR"><strong>PT.</strong> Compare as colunas com a observação histórica. Mostre que a verificação lê as contagens no banco e usa a mesma pessoa e a mesma chave nos dois envios. Cite as regressões de conflito de conteúdo, outros atores e outros tenants.</p>
+        </aside>
+      </section>
+
+      <section id="run-harness" data-background-color="#f5f1e8">
+        <p class="kicker">40–48 min · Collect evidence</p>
+        <h2>Re-run the lab from a clean candidate</h2>
+        <pre class="command"><code>bun run verify:all --run-id workshop-rehearsal</code></pre>
+        <div class="cards two">
+          <article>
+            <h3>What runs</h3>
+            <p>Build, readiness, PostgreSQL and Chromium tests, and both PH-42 observations.</p>
+          </article>
+          <article>
+            <h3>Where to look</h3>
+            <p>Find the lifecycle and check manifests under <code>artifacts/verification/VS-04/&lt;run-id&gt;/</code>.</p>
+          </article>
+        </div>
+        <p class="callout">Use a fresh run ID. The harness cleans up the lab resources it creates.</p>
+        <aside class="notes">
+          <p lang="en"><strong>EN.</strong> Show a saved run’s manifest if time is tight. Point at the revision, stage results and evidence references. If presenting from the instructor checkout, identify which slice was run when sharing the manifest.</p>
+          <p lang="pt-BR"><strong>PT.</strong> Mostre o manifesto de uma execução já salva se o tempo estiver curto. Aponte revisão, etapas e evidências. Se estiver no checkout da instrutora, identifique o slice executado ao compartilhar o manifesto.</p>
+        </aside>
+      </section>
+
+      <section id="review" data-background-color="#f5f1e8">
+        <p class="kicker">40–48 min · Independent review</p>
+        <h2>Review the pull request against the exact commit</h2>
+        <ol class="steps">
+          <li><strong>Start with PH-42</strong><span>Which acceptance criteria does the diff address?</span></li>
+          <li><strong>Match the candidate SHA</strong><span>Find that revision in the GitHub Actions run for Workshop verification.</span></li>
+          <li><strong>Inspect <code>workshop-evidence-*</code></strong><span>Compare the check outcomes and counts with the PR description.</span></li>
+        </ol>
+        <p class="callout">Give the human reviewer a named artifact and a clear list of anything unverified.</p>
+        <aside class="notes">
+          <p lang="en"><strong>EN.</strong> Open the candidate’s Actions run and model a review. Check that the recorded revision equals the PR head, then check how the historical failure and the runtime success were classified.</p>
+          <p lang="pt-BR"><strong>PT.</strong> Abra a execução do Actions e modele uma revisão. Confirme que a revisão registrada coincide com o head do PR. Depois, confira como a falha histórica e o sucesso em runtime foram classificados.</p>
+        </aside>
+      </section>
+
+      <section id="optional-extension" data-background-color="#f5f1e8">
+        <p class="kicker">48–53 min · Optional extension</p>
+        <h2>Ask what each verification can establish</h2>
+        <div class="cards two">
+          <article>
+            <h3>Runtime verification</h3>
+            <p>Observe the real API response, the persisted request and its audit entry in a specific run.</p>
+          </article>
+          <article>
+            <h3>Bounded model checking</h3>
+            <p>Explore configured states and interleavings in the separate TLA+ exercise.</p>
+          </article>
+        </div>
+        <p class="callout">If time is short, use this slot to trace a live result back to its PostgreSQL evidence.</p>
+        <aside class="notes">
+          <p lang="en"><strong>EN.</strong> If prepared model evidence is available, state the model’s scope before showing results. Otherwise, inspect the runtime artifact with the group and ask which assumptions still deserve a test.</p>
+          <p lang="pt-BR"><strong>PT.</strong> Se houver evidência preparada do modelo, diga qual é o escopo antes de mostrar o resultado. Caso contrário, abra o artefato de runtime com o grupo e pergunte quais hipóteses ainda merecem um teste.</p>
+        </aside>
+      </section>
+
+      <section id="questions" data-background-color="#10222a" class="dark">
+        <p class="kicker">53–60 min · Q&amp;A</p>
+        <div class="columns closing">
+          <div>
+            <h2>What would you ask an agent to prove in your repository?</h2>
+            <p class="lead">Pick an invariant, a check that can observe it and evidence someone else can review.</p>
+            <p><a href="#/start">Back to the first slide</a></p>
+          </div>
+          <div class="presenter">
+            <img src="./assets/glaucia-lemos.jpg" alt="Glaucia Lemos" width="170" height="170">
+            <h3>Glaucia Lemos</h3>
+            <p>Principal Software Engineer</p>
+            <p><a href="https://github.com/glaucia86">GitHub</a> · <a href="https://www.linkedin.com/in/glaucialemos/">LinkedIn</a></p>
+          </div>
+        </div>
+        <aside class="notes">
+          <p lang="en"><strong>EN.</strong> Ask participants to name one invariant from their own systems and the evidence they would bring to a review. Credit Lauren Tan’s “All Code Is Slop (Except Mine)” and pstack as inspirations for the verification-first workflow.</p>
+          <p lang="pt-BR"><strong>PT.</strong> Peça que as pessoas nomeiem um invariante dos próprios sistemas e a evidência que levariam para a revisão. Credite a palestra “All Code Is Slop (Except Mine)”, da Lauren Tan, e o pstack como inspirações para o fluxo.</p>
+        </aside>
+      </section>
+    </div>
+  </main>
+  <script type="module" src="./deck.js"></script>
+</body>
+</html>
