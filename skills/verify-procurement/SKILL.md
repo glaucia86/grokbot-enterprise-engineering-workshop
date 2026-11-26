@@ -21,6 +21,8 @@ npm run verify:all -- --run-id workshop-rehearsal --postgres-bin /path/to/postgr
 
 When using the Windows Python launcher, run `py -3 engineering/verify-lab.py --run-id workshop-rehearsal`. The harness gives the build 180 seconds, Compose database readiness 60 seconds, and the app listener 40 seconds.
 
+For the VS-05 reference candidate, add `--slice VS-05` to run the earlier checks and the migration suite. To check only migrations with a disposable lab database running, use `npm run test:migration`.
+
 ## Doctor
 
 The harness runs `npm run lab:doctor -- --db-only` and then the app-ready check equivalent to `npm run lab:doctor`. It uses a read-only transaction to confirm the lab database, two tenants and the four identities needed by the feature map. It checks `GET /api/health` for HTTP 200 and anonymous `GET /api/purchase-requests` for HTTP 401. Sign-in and role-specific access run during the HTTP and browser checks.
@@ -29,11 +31,11 @@ For individual scenarios, follow the [manual startup order](../../README.md#run-
 
 ## Drive
 
-Use the [feature map](features/README.md) to select a scenario, its expected observations and exact browser or HTTP commands. The full run executes the VS-04 checks in [the registry](../../engineering/slice-checks.json). A browser or app failure leaves a failing run with diagnostic evidence. For a repeat run, use a new ID so the prior evidence remains available.
+Use the [feature map](features/README.md) to select a scenario, its expected observations and exact browser or HTTP commands. The full run executes the selected slice in [the registry](../../engineering/slice-checks.json), with VS-04 as the default. A browser or app failure leaves a failing run with diagnostic evidence. For a repeat run, use a new ID so the prior evidence remains available.
 
 ## Evidence
 
-Open `artifacts/verification/VS-04/<run-id>/lifecycle/manifest.json` for the revision, stage outcomes, observed PH-42 results and log paths. Open `attempt-0/manifest.json` in the same run directory for the individual commands and exit codes. The snapshot should show HTTP 201 and 201, two IDs and two creation events, with exit 1. The live API should show HTTP 200 and 201, one ID and one creation event, with exit 0.
+Open `artifacts/verification/<slice>/<run-id>/lifecycle/manifest.json` for the revision, stage outcomes, observed PH-42 results and log paths. Open `attempt-0/manifest.json` in the same run directory for the individual commands and exit codes. The snapshot should show HTTP 201 and 201, two IDs and two creation events, with exit 1. The live API should show HTTP 200 and 201, one ID and one creation event, with exit 0.
 
 Playwright keeps diagnostic output for each run under `browser-results/`. Keep raw traces local and limit shared evidence to synthetic counts, statuses and sanitized logs. A successful local run exits 0, a failed check or dirty candidate exits 1, and a blocker exits 2. Review both manifests before claiming the required checks passed.
 

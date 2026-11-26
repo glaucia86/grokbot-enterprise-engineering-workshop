@@ -259,6 +259,20 @@ test("an equivalent replay returns the original request without duplicating its 
   assert.deepEqual(await persistedCounts(key), { requests: 1, events: 1 });
 });
 
+test("replay uses the normalized purchase when a historical fingerprint differs", async () => {
+  const requester = await selectIdentity("northstar-requester");
+  const key = randomUUID();
+  const created = await createRequest(requester, key);
+  await labDatabase()`update purchase_requests set request_hash = 'legacy-v0' where id = ${created.id}`;
+
+  const equivalent = await call(requests, { cookie: requester, key, body: sample() });
+  assert.equal(equivalent.status, 200);
+  assert.deepEqual(await equivalent.json(), created);
+  await assertError(await call(requests, { cookie: requester, key, body: { ...sample(), amountMinor: 99 } }),
+    409, "IDEMPOTENCY_CONFLICT");
+  assert.deepEqual(await persistedCounts(key), { requests: 1, events: 1 });
+});
+
 test("an approver decides a pending request and replay returns its approved state", async () => {
   const requester = await selectIdentity("northstar-requester");
   const approver = await selectIdentity("northstar-approver");

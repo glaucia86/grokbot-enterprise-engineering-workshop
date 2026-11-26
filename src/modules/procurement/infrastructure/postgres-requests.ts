@@ -25,14 +25,14 @@ function scopedTo(actor: TenantActor) {
   );
 }
 
-function fingerprint({ title, justification, amountMinor, currency }: PurchaseSubmission) {
-  const tuple = JSON.stringify(["purchase-v1", title, justification, amountMinor, currency]);
-  return createHash("sha256").update(tuple).digest("hex");
+function canonicalSubmission({ title, justification, amountMinor, currency }: PurchaseSubmission) {
+  return JSON.stringify(["purchase-v1", title, justification, amountMinor, currency]);
 }
 
 export const postgresRequests: PurchaseRequestRepository = {
   create(actor, input, key) {
-    const requestHash = fingerprint(input);
+    const canonical = canonicalSubmission(input);
+    const requestHash = createHash("sha256").update(canonical).digest("hex");
     return getLabDatabase().transaction(async (transaction) => {
       const [request] = await transaction.insert(purchaseRequests).values({
         ...input,
@@ -55,14 +55,19 @@ export const postgresRequests: PurchaseRequestRepository = {
       }
 
       // A new statement sees the winning commit after the unique-key conflict.
-      const [replayed] = await transaction.select(publicRequest).from(purchaseRequests)
+      const [existing] = await transaction.select({
+        request: publicRequest,
+        requesterId: purchaseRequests.requesterId,
+      }).from(purchaseRequests)
         .where(and(
           eq(purchaseRequests.tenantId, actor.tenantId),
-          eq(purchaseRequests.requesterId, actor.userId),
           eq(purchaseRequests.idempotencyKey, key),
-          eq(purchaseRequests.requestHash, requestHash),
         )).limit(1);
-      return replayed ? { kind: "replayed", request: replayed } : { kind: "conflict" };
+      if (!existing) throw new Error("The purchase request that owns the idempotency key could not be read.");
+      if (existing.requesterId !== actor.userId || canonicalSubmission(existing.request) !== canonical) {
+        return { kind: "conflict" };
+      }
+      return { kind: "replayed", request: existing.request };
     }, { isolationLevel: "read committed" });
   },
 

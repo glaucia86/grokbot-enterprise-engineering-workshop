@@ -1,0 +1,287 @@
+{
+  "schemaVersion": 1,
+  "slice": "VS-05",
+  "status": "pass",
+  "runtime": "standalone-postgres",
+  "githubBaseSha": "ae628ed6209cd369e2d8815f699a5a6f8c209026",
+  "candidateSha": "e1eadcf19f036897e3225980c892088a94e8a853",
+  "verifiedTreeSha": "cd1cc9fba7821cdbe939d87aca95735ad86c3655",
+  "worktreeDirty": false,
+  "toolVersions": {
+    "python": "3.12.14",
+    "git": "git version 2.56.1",
+    "node": "v24.22.3",
+    "npm": "11.19.1",
+    "postgresql": "18.7",
+    "chromium": "158.0.8127.0"
+  },
+  "runId": "vs05-verified",
+  "startedAt": "2026-11-26T12:30:38.109559+00:00",
+  "finishedAt": "2026-11-26T12:31:04.600907+00:00",
+  "commandTemplate": "npm run verify:all -- --slice VS-05 --run-id <id> --postgres-bin <bin-dir>",
+  "stages": [
+    {
+      "id": "launch",
+      "status": "pass",
+      "durationSeconds": 9.267
+    },
+    {
+      "id": "doctor",
+      "status": "pass",
+      "durationSeconds": 0.381
+    },
+    {
+      "id": "drive",
+      "status": "pass",
+      "durationSeconds": 16.652
+    },
+    {
+      "id": "evidence",
+      "status": "pass",
+      "durationSeconds": 0.117
+    },
+    {
+      "id": "cleanup",
+      "status": "pass",
+      "durationSeconds": 0.054
+    }
+  ],
+  "doctor": {
+    "database": {
+      "status": "pass",
+      "mode": "database",
+      "database": {
+        "database": "procurement_hub_lab",
+        "postgresVersion": "18.7",
+        "tenants": 2,
+        "requiredIdentities": 4
+      }
+    },
+    "application": {
+      "status": "pass",
+      "mode": "application",
+      "database": {
+        "database": "procurement_hub_lab",
+        "postgresVersion": "18.7",
+        "tenants": 2,
+        "requiredIdentities": 4
+      },
+      "app": {
+        "healthStatus": 200,
+        "unauthenticatedStatus": 401
+      }
+    }
+  },
+  "checks": [
+    {
+      "id": "static",
+      "criteria": [
+        "EG-02"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "durationSeconds": 2.426,
+      "artifactPaths": [
+        "artifacts/verification/VS-05/vs05-verified/attempt-0/static.log"
+      ]
+    },
+    {
+      "id": "typecheck",
+      "criteria": [
+        "EG-02"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "durationSeconds": 2.741,
+      "artifactPaths": [
+        "artifacts/verification/VS-05/vs05-verified/attempt-0/typecheck.log"
+      ]
+    },
+    {
+      "id": "unit",
+      "criteria": [
+        "AC-08",
+        "EG-02"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "durationSeconds": 2.584,
+      "artifactPaths": [
+        "artifacts/verification/VS-05/vs05-verified/attempt-0/unit.log"
+      ]
+    },
+    {
+      "id": "http-postgres",
+      "criteria": [
+        "AC-02",
+        "AC-03",
+        "AC-04",
+        "AC-05",
+        "AC-06",
+        "AC-08"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "durationSeconds": 2.265,
+      "artifactPaths": [
+        "artifacts/verification/VS-05/vs05-verified/attempt-0/http-postgres.log"
+      ]
+    },
+    {
+      "id": "vs-00-http-smoke",
+      "criteria": [
+        "FR-10"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "durationSeconds": 0.216,
+      "artifactPaths": [
+        "artifacts/verification/VS-05/vs05-verified/attempt-0/vs-00-http-smoke.log"
+      ]
+    },
+    {
+      "id": "browser",
+      "criteria": [
+        "AC-07",
+        "FR-03",
+        "FR-04",
+        "FR-05",
+        "FR-06"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "durationSeconds": 4.511,
+      "artifactPaths": [
+        "artifacts/verification/VS-05/vs05-verified/attempt-0/browser.log"
+      ]
+    },
+    {
+      "id": "ph42-fixture",
+      "criteria": [
+        "AC-01",
+        "AC-05"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "durationSeconds": 0.265,
+      "artifactPaths": [
+        "artifacts/verification/VS-05/vs05-verified/attempt-0/ph42-fixture.log"
+      ]
+    },
+    {
+      "id": "ph42-live-invariant",
+      "criteria": [
+        "AC-01",
+        "AC-05"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "durationSeconds": 0.115,
+      "artifactPaths": [
+        "artifacts/verification/VS-05/vs05-verified/attempt-0/ph42-live-invariant.log"
+      ]
+    },
+    {
+      "id": "harness-contract",
+      "criteria": [
+        "FR-10",
+        "AC-09"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "durationSeconds": 0.569,
+      "artifactPaths": [
+        "artifacts/verification/VS-05/vs05-verified/attempt-0/harness-contract.log"
+      ]
+    },
+    {
+      "id": "idempotency-migration",
+      "criteria": [
+        "FR-07",
+        "FR-08",
+        "FR-09",
+        "AC-04",
+        "AC-05"
+      ],
+      "status": "pass",
+      "exitCode": 0,
+      "durationSeconds": 0.87,
+      "artifactPaths": [
+        "artifacts/verification/VS-05/vs05-verified/attempt-0/idempotency-migration.log"
+      ]
+    }
+  ],
+  "testCounts": {
+    "unit": 19,
+    "http-postgres": 14,
+    "vs-00-http-smoke": 1,
+    "browser": 4,
+    "ph42-fixture": 4,
+    "harness-contract": 3,
+    "idempotency-migration": 3
+  },
+  "redRuns": [
+    {
+      "runId": "vs05-reference",
+      "candidateSha": "024a32d99d7dba6bd78287a937987cb4987065cc",
+      "failedGate": "idempotency-migration",
+      "exitCode": 1,
+      "observed": "The clean legacy database accepted another same-tenant key, the duplicate fixture did not stop migration, and the protected baseline journal stayed at one migration."
+    },
+    {
+      "runId": "vs05-replay-red",
+      "candidateSha": "c4959ee3d680d157daef12b9de74a20906f0b51e",
+      "failedGate": "http-postgres",
+      "exitCode": 1,
+      "observed": "The historical fingerprint replay returned 409 instead of 200. All three migration tests passed."
+    }
+  ],
+  "migrationCases": {
+    "legacyWithoutDuplicates": "pass",
+    "legacyWithDuplicatesRefusedAndPreserved": "pass",
+    "protectedBaselineAndRerun": "pass"
+  },
+  "observations": {
+    "liveApi": {
+      "status": "pass",
+      "httpStatuses": [
+        200,
+        201
+      ],
+      "sameRequest": true,
+      "requestCount": 1,
+      "creationEventCount": 1,
+      "source": "live-loopback",
+      "exitCode": 0
+    },
+    "syntheticSnapshot": {
+      "source": "synthetic-snapshot",
+      "status": "fail",
+      "httpStatuses": [
+        201,
+        201
+      ],
+      "sameRequest": false,
+      "requestCount": 2,
+      "creationEventCount": 2,
+      "exitCode": 1
+    }
+  },
+  "defaultVs04Regression": {
+    "runId": "vs04-after-vs05",
+    "status": "pass",
+    "checkCount": 9
+  },
+  "cleanup": {
+    "loopbackPortsClosed": true,
+    "temporaryClustersRemoved": true,
+    "manifestsAndGateLogsRetained": true
+  },
+  "pending": {
+    "dockerCompose": "blocked",
+    "windows": "not-run",
+    "nativeGrokBot": "not-run",
+    "independentCI": "not-run",
+    "humanReview": "pending"
+  }
+}
