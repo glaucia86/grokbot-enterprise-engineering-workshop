@@ -5,6 +5,7 @@ const docs = join(root, "doc-specs");
 const sources = [
   join(root, "README.md"),
   join(root, "AGENTS.md"),
+  join(root, "slides/README.md"),
   ...new Bun.Glob("**/*.md").scanSync({ cwd: docs, absolute: true }),
 ];
 const problems = [];

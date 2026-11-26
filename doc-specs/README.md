@@ -18,6 +18,8 @@ This is the private authoring specification pack. It includes instructor-only ma
 | [04 — Verification strategy](04-verification-strategy.md) | Evidence, harness, deterministic checks, CI and limits |
 | [05 — Vertical slices and repository plan](05-vertical-slices.md) | Build sequence, checkpoints, release criteria, demo contingency |
 | [06 — Engineering guardrails](06-engineering-guardrails.md) | Agent permissions, planned enforceable controls, evidence and stop conditions |
+| [07 — Release rehearsal](07-release-rehearsal.md) | Independent CI and isolated participant and instructor bundles |
+| [08 — Online workshop](08-online-workshop.md) | Reveal.js on Pages and an interactive hosted preview |
 | [Domain model](DOMAIN-MODEL.md) | Shared terms, state transitions and invariants |
 | [Implementation tickets](TICKETS.md) | Outcomes, dependencies and requirements traceability |
 | [Slice execution and review](LOOP-ENGINEERING.md) | Loop, executable checks, approvals and handoffs |

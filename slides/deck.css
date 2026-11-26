@@ -1,0 +1,404 @@
+:root {
+  --ink: #10222a;
+  --soft-ink: #405650;
+  --paper: #f5f1e8;
+  --mint: #baefd5;
+  --green: #1e624a;
+  --border: #a2b6a9;
+  --r-link-color: #23634b;
+}
+
+body {
+  background: var(--paper);
+}
+
+.reveal {
+  color: var(--ink);
+  font-family: system-ui, sans-serif;
+  font-size: 27px;
+  line-height: 1.35;
+}
+
+.reveal .slides {
+  text-align: left;
+}
+
+.reveal .slides section {
+  box-sizing: border-box;
+  padding: 68px 76px 60px;
+}
+
+.reveal .cover-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 290px;
+  align-items: center;
+  gap: 40px;
+  min-height: 570px;
+}
+
+.reveal h1,
+.reveal h2 {
+  margin: 0 0 24px;
+  font-family: Georgia, serif;
+  font-weight: 600;
+  letter-spacing: -0.045em;
+  line-height: 1.05;
+}
+
+.reveal h1 {
+  font-size: 84px;
+}
+
+.reveal h2 {
+  max-width: 1060px;
+  font-size: 67px;
+}
+
+.reveal h3 {
+  margin: 0 0 10px;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.15;
+}
+
+.reveal p {
+  margin: 0 0 20px;
+}
+
+.reveal .kicker {
+  margin-bottom: 16px;
+  color: var(--green);
+  font-size: 17px;
+  font-weight: 780;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.reveal .lead {
+  max-width: 1000px;
+  font-size: 33px;
+  line-height: 1.29;
+}
+
+.reveal a {
+  color: var(--r-link-color);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+.reveal :focus-visible {
+  outline: 3px solid #c36632;
+  outline-offset: 4px;
+}
+
+.reveal .dark {
+  color: var(--paper);
+}
+
+.reveal .dark .kicker,
+.reveal .dark a,
+.reveal .dark .callout {
+  color: var(--mint);
+}
+
+.reveal .cover .lead {
+  max-width: 610px;
+}
+
+.reveal .signature {
+  margin-top: 40px;
+  color: var(--mint);
+  font-size: 23px;
+}
+
+.reveal .cover-sidebar {
+  padding: 28px 24px;
+  border: 1px solid #4d6c66;
+  border-top: 5px solid var(--mint);
+  background: #172f35;
+}
+
+.reveal .cover-sidebar ol {
+  margin: 20px 0 28px;
+  padding-left: 24px;
+  font-size: 22px;
+  line-height: 1.7;
+}
+
+.reveal .shortcut {
+  color: #d4e3dd;
+  font-size: 17px;
+}
+
+.reveal kbd {
+  padding: 0 4px;
+  border: 1px solid #78908b;
+  border-radius: 4px;
+  font-family: system-ui, sans-serif;
+}
+
+.reveal .columns {
+  display: grid;
+  grid-template-columns: 1fr 1.05fr;
+  align-items: start;
+  gap: 38px;
+  margin-top: 32px;
+}
+
+.reveal .product {
+  grid-template-columns: 0.9fr 1.15fr;
+}
+
+.reveal .callout {
+  margin: 24px 0 0;
+  padding: 8px 0 8px 18px;
+  border-left: 5px solid #70a48a;
+  color: #184a38;
+  font-size: 25px;
+  font-weight: 660;
+}
+
+.reveal figure {
+  margin: 0;
+}
+
+.reveal figure img {
+  display: block;
+  width: 100%;
+  max-height: 360px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #e5eeea;
+  object-fit: contain;
+  object-position: top;
+}
+
+.reveal figcaption {
+  margin-top: 9px;
+  color: var(--soft-ink);
+  font-size: 17px;
+}
+
+.reveal .cards {
+  display: grid;
+  gap: 18px;
+  margin-top: 30px;
+}
+
+.reveal .three,
+.reveal .metrics {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.reveal .two {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.reveal .cards article {
+  padding: 24px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: #fffbf2;
+}
+
+.reveal .dark .cards article {
+  border-color: #4d6c66;
+  background: #172f35;
+}
+
+.reveal .cards p {
+  margin: 0;
+  font-size: 24px;
+}
+
+.reveal code {
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 0.87em;
+}
+
+.reveal pre {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 22px 26px;
+  border-radius: 11px;
+  background: #122831;
+  color: #d3fae6;
+  font-size: 25px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.reveal .command {
+  margin: 24px 0;
+}
+
+.reveal .steps {
+  display: grid;
+  gap: 10px;
+  margin: 36px 0 0;
+  padding: 0 0 0 40px;
+}
+
+.reveal .steps li {
+  padding: 11px 0 11px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.reveal .steps li::marker {
+  color: var(--green);
+  font-weight: 750;
+}
+
+.reveal .steps strong,
+.reveal .steps span {
+  display: block;
+}
+
+.reveal .steps span {
+  color: var(--soft-ink);
+  font-size: 24px;
+}
+
+.reveal .metrics {
+  display: grid;
+  gap: 16px;
+  margin: 30px 0 0;
+}
+
+.reveal .metrics div {
+  padding-top: 15px;
+  border-top: 3px solid #70a48a;
+}
+
+.reveal .metrics dt {
+  font-size: 36px;
+  font-weight: 750;
+}
+
+.reveal .metrics dd {
+  margin: 3px 0 0;
+  color: var(--soft-ink);
+  font-size: 22px;
+}
+
+.reveal .closing {
+  grid-template-columns: 2fr 300px;
+  align-items: center;
+  margin-top: 18px;
+}
+
+.reveal .presenter {
+  padding: 24px 16px;
+  border: 1px solid #4d6c66;
+  border-radius: 12px;
+  background: #172f35;
+  text-align: center;
+}
+
+.reveal .presenter img {
+  width: 170px;
+  height: 170px;
+  margin-bottom: 15px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.reveal .presenter p {
+  margin: 0 0 8px;
+  color: #d4e3dd;
+  font-size: 20px;
+}
+
+.reveal .controls,
+.reveal.has-light-background .controls {
+  color: var(--green);
+}
+
+.reveal.has-dark-background .controls {
+  color: var(--mint);
+}
+
+.reveal .progress {
+  height: 4px;
+  color: #6bb58f;
+}
+
+.reveal .slide-number {
+  padding: 4px 8px;
+  background: #10222a;
+  color: #f5f1e8;
+  font: 14px system-ui, sans-serif;
+}
+
+@media (orientation: portrait) and (max-width: 760px) {
+  .reveal {
+    font-size: 34px;
+  }
+
+  .reveal .slides section {
+    padding: 60px 52px 52px;
+  }
+
+  .reveal .cover-layout,
+  .reveal .columns,
+  .reveal .cards {
+    grid-template-columns: 1fr;
+  }
+
+  .reveal .cover-layout {
+    min-height: 0;
+    align-items: start;
+    gap: 50px;
+    padding-top: 50px;
+  }
+
+  .reveal h1 {
+    font-size: 90px;
+  }
+
+  .reveal h2 {
+    font-size: 70px;
+  }
+
+  .reveal h3 {
+    font-size: 35px;
+  }
+
+  .reveal .kicker,
+  .reveal figcaption,
+  .reveal .shortcut {
+    font-size: 24px;
+  }
+
+  .reveal .columns {
+    gap: 27px;
+    margin-top: 20px;
+  }
+
+  .reveal .cards p,
+  .reveal .steps span,
+  .reveal .callout,
+  .reveal .cover-sidebar ol {
+    font-size: 31px;
+  }
+
+  .reveal .metrics dt {
+    font-size: 34px;
+  }
+
+  .reveal .metrics dd,
+  .reveal .presenter p,
+  .reveal .signature {
+    font-size: 27px;
+  }
+
+  .reveal .presenter {
+    justify-self: start;
+    min-width: 320px;
+  }
+
+  .reveal .presenter img {
+    width: 144px;
+    height: 144px;
+  }
+}

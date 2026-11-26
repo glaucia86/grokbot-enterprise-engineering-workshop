@@ -26,7 +26,10 @@
     "verify:all": "bun engineering/verify-lab.ts",
     "browser:install": "bun --bun playwright install chromium",
     "test:properties": "bun test tests/properties",
-    "verify:formal": "bun engineering/verify-formal.ts"
+    "verify:formal": "bun engineering/verify-formal.ts",
+    "slides:build": "bun slides/build.ts",
+    "slides:preview": "bun run slides:build && bun slides/serve.ts",
+    "slides:verify": "bun run slides:build && bun --bun playwright test --config slides/playwright.config.ts"
   },
   "dependencies": {
     "drizzle-orm": "0.45.4",
@@ -46,6 +49,7 @@
     "eslint": "9.39.5",
     "eslint-config-next": "16.4.6",
     "fast-check": "4.11.0",
+    "reveal.js": "6.0.2",
     "typescript": "5.9.3"
   }
 }

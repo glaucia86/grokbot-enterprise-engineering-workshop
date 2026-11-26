@@ -32,6 +32,7 @@
     "drizzle.config.ts",
     "scripts/**/*.ts",
     "engineering/**/*.ts",
+    "slides/**/*.ts",
     "tests/**/*.ts",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts"
