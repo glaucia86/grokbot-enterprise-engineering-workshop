@@ -16,15 +16,92 @@ test("the public output contains the deck and its reviewed static resources", as
     .map((entry) => join(entry.parentPath, entry.name).slice(directory.length + 1).replaceAll("\\", "/"))
     .sort();
   expect(files).toEqual([
-    "assets/architecture.svg", "assets/bloub-license.txt", "assets/concurrency.svg",
-    "assets/credits.txt", "assets/devops.svg", "assets/engineering-lead.svg",
-    "assets/fde-typescript.svg", "assets/glaucia-lemos.jpg", "assets/grok.svg",
-    "assets/procurement-hub.webp", "assets/qa-bot.svg", "assets/verification-loop.svg",
+    "assets/architecture.svg", "assets/bloub-default-cycle.gif", "assets/bloub-cycle-still.webp",
+    "assets/bloub-license.txt", "assets/concurrency.svg", "assets/credits.txt",
+    "assets/glaucia-lemos.jpg", "assets/procurement-hub.webp", "assets/verification-loop.svg",
     "deck.css", "deck.js", "index.html", "reset.css", "reveal-license.txt", "reveal.css",
   ].sort());
   const html = await (await request.get("/workshop/")).text();
   expect(html).not.toMatch(/data-presenter|class="notes"|lang="pt-BR"|speaker:|slide:|ADR-0001|presenter-guide/);
   expect((await request.get("/workshop/presenter-guide.md")).status()).toBe(404);
+  expect((await request.get("/workshop/grokbot-profiles.md")).status()).toBe(404);
+});
+
+const cast = ["Engineering Lead", "Harness Engineer", "TypeScript FDE", "QA Engineer", "DevOps Engineer"];
+
+test("only the active cast follows the mouse and resets to its resting pose", async ({ page }) => {
+  await page.goto("/workshop/#/start");
+  const eyes = page.locator("#start .cast .avatar-gaze");
+  await expect(eyes).toHaveCount(5);
+  const offsets = () => eyes.evaluateAll((groups) => groups.map((group) => {
+    const transform = getComputedStyle(group).transform;
+    const { m41, m42 } = new DOMMatrixReadOnly(transform === "none" ? undefined : transform);
+    return { x: m41, y: m42 };
+  }));
+  const neutral = cast.map(() => ({ x: 0, y: 0 }));
+  const maskIds = await page.locator(".avatar mask").evaluateAll((masks) => masks.map((mask) => mask.id));
+  expect(new Set(maskIds).size).toBe(maskIds.length);
+  await expect.poll(offsets).toEqual(neutral);
+  await page.mouse.move(3, 3);
+  await expect.poll(async () => (await offsets()).every(({ x, y }) => x < -2 && y < -1)).toBe(true);
+  for (const { x, y } of await offsets()) expect(Math.hypot(x, y)).toBeLessThanOrEqual(8.01);
+  await expect(page.locator("#questions .avatar-gaze").first()).toHaveCSS("transform", "none");
+  await page.mouse.move(1260, 700);
+  await expect.poll(async () => (await offsets()).every(({ x, y }) => x > 2 && y > 1)).toBe(true);
+  await page.keyboard.press("Escape");
+  await expect(page.locator(".reveal")).toHaveClass(/\boverview\b/);
+  await expect.poll(offsets).toEqual(neutral);
+  await page.keyboard.press("Escape");
+  await page.mouse.move(3, 3);
+  await expect.poll(offsets).not.toEqual(neutral);
+  await page.evaluate(() => window.dispatchEvent(new Event("blur")));
+  await expect.poll(offsets).toEqual(neutral);
+  await page.mouse.move(1260, 700);
+  await expect.poll(offsets).not.toEqual(neutral);
+  await page.keyboard.press("ArrowRight");
+  await expect.poll(offsets).toEqual(neutral);
+  await page.keyboard.press("ArrowLeft");
+  await page.mouse.move(3, 3);
+  await expect.poll(offsets).not.toEqual(neutral);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.mouse.move(1260, 700);
+  await expect.poll(offsets).toEqual(neutral);
+});
+
+test("the illustrative GIF loads on request and stops on toggle or navigation", async ({ page }) => {
+  const gifs: string[] = [];
+  page.on("request", (request) => {
+    if (request.url().endsWith(".gif")) gifs.push(request.url());
+  });
+  await page.goto("/workshop/#/agent-loop");
+  const image = page.locator("#agent-loop .expression img");
+  const play = page.getByRole("button", { name: "Play avatar animation" });
+  const stop = page.getByRole("button", { name: "Stop avatar animation" });
+  await expect(image).toHaveAttribute("src", /\.webp$/);
+  expect(gifs).toEqual([]);
+  await play.press("Space");
+  await expect(image).toHaveAttribute("src", /\.gif$/);
+  await expect.poll(() => gifs.length).toBe(1);
+  await expect.poll(() => image.evaluate((node: HTMLImageElement) => node.complete && node.naturalWidth > 0)).toBe(true);
+  await expect(page.locator("#agent-loop .fragment.visible")).toHaveCount(0);
+  await stop.press("Space");
+  await expect(image).toHaveAttribute("src", /\.webp$/);
+  await play.click();
+  const next = page.getByRole("button", { name: "next slide" });
+  await next.click();
+  await expect(image).toHaveAttribute("src", /\.gif$/);
+  await next.click();
+  await expect(page.locator("#verify-live.present")).toBeVisible();
+  await expect(image).toHaveAttribute("src", /\.webp$/);
+  await page.getByRole("button", { name: "previous slide" }).click();
+  await expect(play).toBeVisible();
+  await play.click();
+  await page.emulateMedia({ media: "print" });
+  await expect(image).toHaveAttribute("src", /\.webp$/);
+  await expect(play).toBeHidden();
+  await page.emulateMedia({ media: "screen" });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await expect(play).toBeHidden();
 });
 
 test("keyboard, controls and the pyramid reveal the five layers in order", async ({ page }) => {
@@ -59,6 +136,13 @@ test("presenter notes match all slides and open in Reveal speaker view", async (
     await expect(slide.locator('.notes [lang="en"] p')).not.toBeEmpty();
     await expect(slide.locator('.notes [lang="pt-BR"] p')).toHaveCount(2);
   }
+  for (const [id, role] of [
+    ["procurement-hub", cast[0]], ["boot-lab", cast[1]], ["runtime", cast[2]],
+    ["verify-live", cast[3]], ["run-harness", cast[4]],
+  ]) {
+    await expect(page.locator(`#${id} .face figcaption`)).toHaveText(role);
+  }
+  await expect(page.locator("#review .presenter")).toContainText("Human Reviewer");
   await expect(page.locator("section.present .notes")).toBeHidden();
 
   const popup = page.waitForEvent("popup");
@@ -102,11 +186,18 @@ for (const [name, viewport] of [
         expect(rect!.y + rect!.height, id).toBeLessThanOrEqual(viewport.height + 1);
         await page.screenshot({ path: testInfo.outputPath(id + ".png"), animations: "disabled" });
       }
-      await expect(page.locator("#questions .cast img")).toHaveCount(5);
+      await expect(page.locator("#questions .cast figcaption")).toHaveText(cast);
       const back = page.getByRole("link", { name: "Back to the first slide" });
       if (name === "phone") await back.tap();
       else await back.click();
-      await expect(page.locator("#start.present .cast img")).toHaveCount(5);
+      await expect(page.locator("#start.present .cast figcaption")).toHaveText(cast);
+      if (name === "phone") {
+        await page.emulateMedia({ reducedMotion: "no-preference" });
+        await page.mouse.move(10, 10);
+        await expect(page.locator("#start .avatar-gaze").first()).toHaveCSS("transform", "none");
+        await page.goto("/workshop/#/agent-loop");
+        await expect(page.getByRole("button", { name: "Play avatar animation" })).toBeVisible();
+      }
       expect(failures).toEqual([]);
     });
   });
