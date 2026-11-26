@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "slice": "VS-07",
+  "sourceTree": "b2c73a8e0ca2136718fcc21772948689680b79f7",
+  "model": {
+    "schemaVersion": 1,
+    "runId": "vs07-verified",
+    "candidateSha": "dfd10c6854b8ee126f00b57933a3faba60fb4e83",
+    "worktreeDirty": false,
+    "evidenceType": "bounded-model",
+    "seed": 4207,
+    "workers": 1,
+    "tlcSha256": "936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88",
+    "digest": {
+      "PH42.tla": "bfa9ccac203f5079415b9978b532bb5977811b284edf7ad109cac5a5147779a1",
+      "stale-check.cfg": "78e592ba6b3aec0a9fdf87e93d7fa80bce6081fd64a840a51f0f7bb9e49c0990",
+      "atomic.cfg": "5525b106324f8383ed0550d513a9fd2fe650eb9268a14d3c4061ac86bc1e4032"
+    },
+    "status": "pass",
+    "results": [
+      {
+        "configuration": "stale-check.cfg",
+        "logFile": "stale-check.log",
+        "version": "TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)",
+        "exitCode": 12,
+        "expected": true,
+        "generatedStates": 114,
+        "distinctStates": 74,
+        "queuedStates": 39,
+        "counterexample": [
+          "Initial",
+          "Observe",
+          "Observe",
+          "Commit",
+          "Commit"
+        ]
+      },
+      {
+        "configuration": "atomic.cfg",
+        "logFile": "atomic.log",
+        "version": "TLC2 Version 2.19 of 08 August 2024 (rev: 5a47802)",
+        "exitCode": 0,
+        "expected": true,
+        "generatedStates": 145,
+        "distinctStates": 85,
+        "queuedStates": 0,
+        "counterexample": []
+      }
+    ]
+  },
+  "bounds": {
+    "clients": 2,
+    "tenants": 2,
+    "keys": 2,
+    "observationsPerClient": 1,
+    "commitsPerClient": 1
+  },
+  "counterexampleFinalState": {
+    "tenant": "tenantA",
+    "key": "keyA",
+    "requests": 2,
+    "creationEvents": 2
+  },
+  "modelRunnerNegativeCheck": {
+    "exitCode": 1,
+    "status": "fail",
+    "condition": "Expected counterexample absent"
+  },
+  "properties": {
+    "engine": "fast-check 4.11.0",
+    "seeds": [
+      4207,
+      1789
+    ],
+    "properties": 2,
+    "examplesPerPropertyPerSeed": 200,
+    "status": "pass"
+  },
+  "applicationRegression": {
+    "slice": "VS-05",
+    "runId": "vs07-vs05-regression",
+    "status": "pass",
+    "gates": 10,
+    "testCounts": {
+      "unit": 19,
+      "http-postgres": 14,
+      "vs-00-http-smoke": 1,
+      "browser": 4,
+      "ph42-fixture": 4,
+      "harness-contract": 4,
+      "idempotency-migration": 3
+    },
+    "postgresql": "18.7",
+    "chromium": "Chromium 158.0.8127.0",
+    "portsClosedAfterTeardown": true
+  },
+  "packaging": {
+    "starterProperties": "pass",
+    "solutionProperties": "pass",
+    "authoringModelExcluded": true
+  }
+}
