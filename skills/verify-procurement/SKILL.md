@@ -21,7 +21,7 @@ bun run verify:all --run-id workshop-rehearsal --postgres-bin /path/to/postgresq
 
 The harness gives the build 180 seconds, Compose database readiness 60 seconds, and the app listener 40 seconds.
 
-For the VS-05 reference candidate, add `--slice VS-05` to run the earlier checks and the migration suite. To check only migrations with a disposable lab database running, use `bun run test:migration`.
+If the checkout includes the reference migration suite, add `--slice VS-05` for the full reference gate or run `bun run test:migration` with a disposable lab database running.
 
 ## Doctor
 

@@ -1,0 +1,319 @@
+{
+  "schemaVersion": 1,
+  "slice": "VS-06",
+  "githubBaseSha": "a86cb194cdd88ac9b4acb75f08336e784c55c4ba",
+  "runtime": {
+    "bun": "1.4.5",
+    "postgresql": "18.7",
+    "chromium": "Chromium 158.0.8127.0"
+  },
+  "runs": {
+    "authoring": {
+      "slice": "VS-05",
+      "runId": "vs06-authoring",
+      "candidateSha": "dfbc9d0e67b90634957f565a607c207878fc19c2",
+      "candidateTree": "7a2503336d49e2b1b3d5883419d5238b164c963b",
+      "status": "pass",
+      "worktreeDirty": false,
+      "toolVersions": {
+        "bun": "1.4.5",
+        "git": "git version 2.56.1"
+      },
+      "observations": {
+        "liveApi": {
+          "status": "pass",
+          "httpStatuses": [
+            200,
+            201
+          ],
+          "sameRequest": true,
+          "requestCount": 1,
+          "creationEventCount": 1
+        },
+        "syntheticSnapshot": {
+          "source": "synthetic-snapshot",
+          "status": "fail",
+          "httpStatuses": [
+            201,
+            201
+          ],
+          "sameRequest": false,
+          "requestCount": 2,
+          "creationEventCount": 2
+        }
+      },
+      "checks": [
+        {
+          "id": "static",
+          "status": "pass",
+          "exitCode": 0
+        },
+        {
+          "id": "typecheck",
+          "status": "pass",
+          "exitCode": 0
+        },
+        {
+          "id": "unit",
+          "status": "pass",
+          "exitCode": 0
+        },
+        {
+          "id": "http-postgres",
+          "status": "pass",
+          "exitCode": 0
+        },
+        {
+          "id": "vs-00-http-smoke",
+          "status": "pass",
+          "exitCode": 0
+        },
+        {
+          "id": "browser",
+          "status": "pass",
+          "exitCode": 0
+        },
+        {
+          "id": "ph42-fixture",
+          "status": "pass",
+          "exitCode": 0
+        },
+        {
+          "id": "ph42-live-invariant",
+          "status": "pass",
+          "exitCode": 0
+        },
+        {
+          "id": "harness-contract",
+          "status": "pass",
+          "exitCode": 0
+        },
+        {
+          "id": "idempotency-migration",
+          "status": "pass",
+          "exitCode": 0
+        }
+      ],
+      "testCounts": {
+        "unit": 19,
+        "http-postgres": 14,
+        "vs-00-http-smoke": 1,
+        "browser": 4,
+        "ph42-fixture": 4,
+        "harness-contract": 4,
+        "idempotency-migration": 3
+      },
+      "portsClosedAfterTeardown": true
+    },
+    "starter": {
+      "slice": "VS-04",
+      "runId": "vs06-starter",
+      "candidateSha": "9243a1ec69ae91b82fe6e5a6109d9147cb14baf2",
+      "candidateTree": "f34c1eeab0b71a8c88b78e9a9ec11b03d74e4f96",
+      "status": "pass",
+      "worktreeDirty": false,
+      "toolVersions": {
+        "bun": "1.4.5",
+        "git": "git version 2.56.1"
+      },
+      "observations": {
+        "liveApi": {
+          "status": "pass",
+          "httpStatuses": [
+            200,
+            201
+          ],
+          "sameRequest": true,
+          "requestCount": 1,
+          "creationEventCount": 1
+        },
+        "syntheticSnapshot": {
+          "source": "synthetic-snapshot",
+          "status": "fail",
+          "httpStatuses": [
+            201,
+            201
+          ],
+          "sameRequest": false,
+          "requestCount": 2,
+          "creationEventCount": 2
+        }
+      },
+      "checks": [
+        {
+          "id": "static",
+          "status": "pass",
+          "exitCode": 0
+        },
+        {
+          "id": "typecheck",
+          "status": "pass",
+          "exitCode": 0
+        },
+        {
+          "id": "unit",
+          "status": "pass",
+          "exitCode": 0
+        },
+        {
+          "id": "http-postgres",
+          "status": "pass",
+          "exitCode": 0
+        },
+        {
+          "id": "vs-00-http-smoke",
+          "status": "pass",
+          "exitCode": 0
+        },
+        {
+          "id": "browser",
+          "status": "pass",
+          "exitCode": 0
+        },
+        {
+          "id": "ph42-fixture",
+          "status": "pass",
+          "exitCode": 0
+        },
+        {
+          "id": "ph42-live-invariant",
+          "status": "pass",
+          "exitCode": 0
+        },
+        {
+          "id": "harness-contract",
+          "status": "pass",
+          "exitCode": 0
+        }
+      ],
+      "testCounts": {
+        "unit": 19,
+        "http-postgres": 13,
+        "vs-00-http-smoke": 1,
+        "browser": 4,
+        "ph42-fixture": 4,
+        "harness-contract": 2
+      },
+      "portsClosedAfterTeardown": true,
+      "reachableCommits": 1,
+      "relativeLinksVerified": 11
+    },
+    "solution": {
+      "slice": "VS-05",
+      "runId": "vs06-solution",
+      "candidateSha": "e8cd294329ffa50ad4a1a9e6c1dd2cd0f0b5abff",
+      "candidateTree": "e4c30489155f981dd461329a5e61a3d076480033",
+      "status": "pass",
+      "worktreeDirty": false,
+      "toolVersions": {
+        "bun": "1.4.5",
+        "git": "git version 2.56.1"
+      },
+      "observations": {
+        "liveApi": {
+          "status": "pass",
+          "httpStatuses": [
+            200,
+            201
+          ],
+          "sameRequest": true,
+          "requestCount": 1,
+          "creationEventCount": 1
+        },
+        "syntheticSnapshot": {
+          "source": "synthetic-snapshot",
+          "status": "fail",
+          "httpStatuses": [
+            201,
+            201
+          ],
+          "sameRequest": false,
+          "requestCount": 2,
+          "creationEventCount": 2
+        }
+      },
+      "checks": [
+        {
+          "id": "static",
+          "status": "pass",
+          "exitCode": 0
+        },
+        {
+          "id": "typecheck",
+          "status": "pass",
+          "exitCode": 0
+        },
+        {
+          "id": "unit",
+          "status": "pass",
+          "exitCode": 0
+        },
+        {
+          "id": "http-postgres",
+          "status": "pass",
+          "exitCode": 0
+        },
+        {
+          "id": "vs-00-http-smoke",
+          "status": "pass",
+          "exitCode": 0
+        },
+        {
+          "id": "browser",
+          "status": "pass",
+          "exitCode": 0
+        },
+        {
+          "id": "ph42-fixture",
+          "status": "pass",
+          "exitCode": 0
+        },
+        {
+          "id": "ph42-live-invariant",
+          "status": "pass",
+          "exitCode": 0
+        },
+        {
+          "id": "harness-contract",
+          "status": "pass",
+          "exitCode": 0
+        },
+        {
+          "id": "idempotency-migration",
+          "status": "pass",
+          "exitCode": 0
+        }
+      ],
+      "testCounts": {
+        "unit": 19,
+        "http-postgres": 14,
+        "vs-00-http-smoke": 1,
+        "browser": 4,
+        "ph42-fixture": 4,
+        "harness-contract": 2,
+        "idempotency-migration": 3
+      },
+      "portsClosedAfterTeardown": true,
+      "reachableCommits": 1,
+      "relativeLinksVerified": 11
+    }
+  },
+  "bundles": {
+    "source": "dfbc9d0e67b90634957f565a607c207878fc19c2",
+    "starter": {
+      "branch": "workshop/starter",
+      "commit": "9243a1ec69ae91b82fe6e5a6109d9147cb14baf2",
+      "file": "starter.bundle",
+      "files": 72
+    },
+    "solution": {
+      "branch": "workshop/solution",
+      "commit": "e8cd294329ffa50ad4a1a9e6c1dd2cd0f0b5abff",
+      "file": "solution.bundle",
+      "files": 76
+    },
+    "publication": "pending-review"
+  },
+  "independentCI": "see-pull-request",
+  "publication": "pending-review"
+}

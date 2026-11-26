@@ -1,0 +1,51 @@
+name: Workshop verification
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Bun, PostgreSQL and Chromium
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      WORKSHOP_RUN_ID: ci-${{ github.run_id }}-${{ github.run_attempt }}
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - name: Checkout the candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.CANDIDATE_SHA }}
+          persist-credentials: false
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@ecf28ddc73e819eb6fa29df6b34ef8921c743461 # v2.1.3
+        with:
+          bun-version: '1.4.5'
+          no-cache: true
+      - name: Install locked dependencies
+        run: bun install --frozen-lockfile
+      - name: Install the pinned Chromium and its OS libraries
+        run: bun run browser:install --with-deps
+      - name: Verify the reference candidate
+        run: |
+          test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA"
+          bun run verify:all --slice VS-05 --run-id "$WORKSHOP_RUN_ID"
+      - name: Prepare evidence for review
+        if: ${{ !cancelled() && hashFiles(format('artifacts/verification/VS-05/{0}/lifecycle/manifest.json', env.WORKSHOP_RUN_ID)) != '' }}
+        run: bun engineering/ci-evidence.ts "$CANDIDATE_SHA" "$WORKSHOP_RUN_ID"
+      - name: Retain sanitized evidence
+        if: ${{ !cancelled() && hashFiles(format('artifacts/verification/VS-05/{0}/ci-evidence.json', env.WORKSHOP_RUN_ID)) != '' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: workshop-evidence-${{ env.WORKSHOP_RUN_ID }}
+          path: artifacts/verification/VS-05/${{ env.WORKSHOP_RUN_ID }}/ci-evidence.json
+          if-no-files-found: error
+          retention-days: 14
