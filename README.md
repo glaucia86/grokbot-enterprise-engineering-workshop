@@ -17,7 +17,7 @@ A synthetic enterprise purchase request and approval platform for demonstrating 
 
 Keep this repository private during preparation. The specification pack contains instructor-facing design details and the reference solution ADR. Before public release, prepare a participant-facing starter with no instructor-only content in its reachable history. Branch separation alone is not an access control. Do not commit credentials, real customer data or private presenter notes.
 
-The starter and solution refs, checkpoints and release tags will be created when their corresponding states have been verified.
+The [release rehearsal](doc-specs/07-release-rehearsal.md) prepares self-contained starter and solution bundles with isolated Git history. GitHub Actions runs the reference checks on the exact pull request head and retains a sanitized evidence manifest.
 
 ## Attribution
 

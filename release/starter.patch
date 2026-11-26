@@ -1,0 +1,48 @@
+--- a/src/modules/procurement/infrastructure/postgres-requests.ts
++++ b/src/modules/procurement/infrastructure/postgres-requests.ts
+@@ -55,19 +55,14 @@
+       }
+
+       // A new statement sees the winning commit after the unique-key conflict.
+-      const [existing] = await transaction.select({
+-        request: publicRequest,
+-        requesterId: purchaseRequests.requesterId,
+-      }).from(purchaseRequests)
++      const [replayed] = await transaction.select(publicRequest).from(purchaseRequests)
+         .where(and(
+           eq(purchaseRequests.tenantId, actor.tenantId),
++          eq(purchaseRequests.requesterId, actor.userId),
+           eq(purchaseRequests.idempotencyKey, key),
++          eq(purchaseRequests.requestHash, requestHash),
+         )).limit(1);
+-      if (!existing) throw new Error("The purchase request that owns the idempotency key could not be read.");
+-      if (existing.requesterId !== actor.userId || canonicalSubmission(existing.request) !== canonical) {
+-        return { kind: "conflict" };
+-      }
+-      return { kind: "replayed", request: existing.request };
++      return replayed ? { kind: "replayed", request: replayed } : { kind: "conflict" };
+     }, { isolationLevel: "read committed" });
+   },
+
+--- a/tests/integration/procurement.test.ts
++++ b/tests/integration/procurement.test.ts
+@@ -280,19 +280,5 @@
+   });
+   assert.equal(replay.status, 200);
+   assert.deepEqual(await replay.json(), created);
+-  assert.deepEqual(await persistedCounts(key), { requests: 1, events: 1 });
+-});
+-
+-test("replay uses the normalized purchase when a historical fingerprint differs", async () => {
+-  const requester = await selectIdentity("northstar-requester");
+-  const key = crypto.randomUUID();
+-  const created = await createRequest(requester, key);
+-  await labDatabase()`update purchase_requests set request_hash = 'legacy-v0' where id = ${created.id}`;
+-
+-  const equivalent = await call(requests, { cookie: requester, key, body: sample() });
+-  assert.equal(equivalent.status, 200);
+-  assert.deepEqual(await equivalent.json(), created);
+-  await assertError(await call(requests, { cookie: requester, key, body: { ...sample(), amountMinor: 99 } }),
+-    409, "IDEMPOTENCY_CONFLICT");
+   assert.deepEqual(await persistedCounts(key), { requests: 1, events: 1 });
+ });
