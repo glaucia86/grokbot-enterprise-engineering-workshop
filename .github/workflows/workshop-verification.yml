@@ -11,16 +11,15 @@ permissions:
   contents: read
 
 jobs:
-  verify:
-    name: Bun, PostgreSQL and Chromium
+  static-and-architecture:
+    name: Static checks and architecture boundaries
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 10
     env:
       CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-      WORKSHOP_RUN_ID: ci-${{ github.run_id }}-${{ github.run_attempt }}
       NEXT_TELEMETRY_DISABLED: '1'
     steps:
-      - name: Checkout the candidate
+      - name: Checkout candidate
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ env.CANDIDATE_SHA }}
@@ -32,20 +31,195 @@ jobs:
           no-cache: true
       - name: Install locked dependencies
         run: bun install --frozen-lockfile
-      - name: Install the pinned Chromium and its OS libraries
-        run: bun run browser:install --with-deps
-      - name: Verify the reference candidate
+      - name: Verify exact SHA, ESLint, TypeScript and negative architecture fixtures
         run: |
           test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA"
-          bun run verify:all --slice VS-05 --run-id "$WORKSHOP_RUN_ID"
-      - name: Prepare evidence for review
-        if: ${{ !cancelled() && hashFiles(format('artifacts/verification/VS-05/{0}/lifecycle/manifest.json', env.WORKSHOP_RUN_ID)) != '' }}
-        run: bun engineering/ci-evidence.ts "$CANDIDATE_SHA" "$WORKSHOP_RUN_ID"
-      - name: Retain sanitized evidence
-        if: ${{ !cancelled() && hashFiles(format('artifacts/verification/VS-05/{0}/ci-evidence.json', env.WORKSHOP_RUN_ID)) != '' }}
+          bun run check:static
+          bun run verify:architecture
+
+  unit-and-properties:
+    name: Unit, domain, harness and property-based tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      PH42_PROPERTY_SEED: '4207'
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.CANDIDATE_SHA }}
+          persist-credentials: false
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@ecf28ddc73e819eb6fa29df6b34ef8921c743461 # v2.1.3
+        with:
+          bun-version: '1.4.5'
+          no-cache: true
+      - name: Install locked dependencies
+        run: bun install --frozen-lockfile
+      - name: Run Vitest unit, property-based and harness suites
+        run: |
+          test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA"
+          bun run test:unit
+          bun run test:properties
+          bun run test:harness
+
+  integration-concurrency-security:
+    name: PostgreSQL integration, concurrency, security and migrations
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:18.7
+        env:
+          POSTGRES_DB: procurement_hub_lab
+          POSTGRES_USER: procurement
+          POSTGRES_PASSWORD: ci-ephemeral-lab-password
+        ports:
+          - 55432:5432
+        options: >-
+          --health-cmd="pg_isready -U procurement -d procurement_hub_lab"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+    env:
+      CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      WORKSHOP_DB_PASSWORD: ci-ephemeral-lab-password
+      WORKSHOP_DATABASE_URL: postgresql://procurement:ci-ephemeral-lab-password@127.0.0.1:55432/procurement_hub_lab
+      WORKSHOP_LAB_MODE: enabled
+      WORKSHOP_BASE_URL: http://127.0.0.1:3000
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.CANDIDATE_SHA }}
+          persist-credentials: false
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@ecf28ddc73e819eb6fa29df6b34ef8921c743461 # v2.1.3
+        with:
+          bun-version: '1.4.5'
+          no-cache: true
+      - name: Install locked dependencies
+        run: bun install --frozen-lockfile
+      - name: Initialize lab, build app and run PostgreSQL suites
+        run: |
+          test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA"
+          bun run lab:init
+          bun run lab:doctor --db-only
+          bun run build
+          bun run start -- --port 3000 &
+          APP_PID=$!
+          trap 'kill "$APP_PID" 2>/dev/null || true' EXIT
+          for _ in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:3000/api/health >/dev/null 2>&1; then break; fi
+            sleep 0.5
+          done
+          bun run lab:doctor
+          bun run test:integration
+          bun run test:concurrency
+          bun run test:security
+          bun run verify:concurrency
+          bun run ph42:reproduce -- --isolated
+
+  runtime-e2e-and-evidence:
+    name: Full runtime harness, Playwright E2E and evidence bundle
+    needs: [static-and-architecture, unit-and-properties]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      WORKSHOP_RUN_ID: ci-${{ github.run_id }}-${{ github.run_attempt }}
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.CANDIDATE_SHA }}
+          persist-credentials: false
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@ecf28ddc73e819eb6fa29df6b34ef8921c743461 # v2.1.3
+        with:
+          bun-version: '1.4.5'
+          no-cache: true
+      - name: Install locked dependencies
+        run: bun install --frozen-lockfile
+      - name: Install pinned Chromium and OS dependencies
+        run: bun run browser:install --with-deps
+      - name: Run full isolated verification harness
+        run: |
+          test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA"
+          bun run verify:all -- --slice solution --run-id "$WORKSHOP_RUN_ID"
+      - name: Prepare sanitized CI evidence
+        if: ${{ !cancelled() && hashFiles(format('artifacts/verification/solution/{0}/lifecycle/manifest.json', env.WORKSHOP_RUN_ID)) != '' }}
+        run: bun engineering/ci-evidence.ts "$CANDIDATE_SHA" "$WORKSHOP_RUN_ID" solution
+      - name: Upload sanitized verification evidence
+        if: ${{ !cancelled() && hashFiles(format('artifacts/verification/solution/{0}/ci-evidence.json', env.WORKSHOP_RUN_ID)) != '' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: workshop-evidence-${{ env.WORKSHOP_RUN_ID }}
-          path: artifacts/verification/VS-05/${{ env.WORKSHOP_RUN_ID }}/ci-evidence.json
+          path: |
+            artifacts/verification/solution/${{ env.WORKSHOP_RUN_ID }}/ci-evidence.json
+            artifacts/verification/solution/${{ env.WORKSHOP_RUN_ID }}/summary.md
           if-no-files-found: error
           retention-days: 14
+
+  formal-verification:
+    name: Bounded TLA+ and TLC model checking
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      CANDIDATE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      FORMAL_RUN_ID: ci-formal-${{ github.run_id }}-${{ github.run_attempt }}
+    steps:
+      - name: Checkout candidate
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.CANDIDATE_SHA }}
+          persist-credentials: false
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@ecf28ddc73e819eb6fa29df6b34ef8921c743461 # v2.1.3
+        with:
+          bun-version: '1.4.5'
+          no-cache: true
+      - name: Run TLC against defective and locked models (Docker JRE or native Java)
+        run: |
+          test "$(git rev-parse HEAD)" = "$CANDIDATE_SHA"
+          bun run verify:formal -- --run-id "$FORMAL_RUN_ID"
+      - name: Upload bounded model-checking evidence
+        if: ${{ !cancelled() && hashFiles(format('artifacts/formal/{0}/manifest.json', env.FORMAL_RUN_ID)) != '' }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: formal-evidence-${{ env.FORMAL_RUN_ID }}
+          path: |
+            artifacts/formal/${{ env.FORMAL_RUN_ID }}/manifest.json
+            artifacts/formal/${{ env.FORMAL_RUN_ID }}/summary.md
+            artifacts/formal/${{ env.FORMAL_RUN_ID }}/*.log
+          if-no-files-found: error
+          retention-days: 14
+
+  governance-guard:
+    name: Protected criteria and verifier change notice
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Checkout with base history
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check for edits to protected acceptance criteria, boundaries or workflows
+        run: |
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          PROTECTED=$(git diff --name-only "$BASE_SHA" "$HEAD_SHA" | grep -E '^(PRD\.md|SPEC\.md|eslint\.config\.ts|engineering/slice-checks\.json|\.github/workflows/|tests/concurrency/|tests/security/|formal/)' || true)
+          if [ -n "$PROTECTED" ]; then
+            echo "## Protected Governance / Verifier Files Modified" >> "$GITHUB_STEP_SUMMARY"
+            echo "Human reviewer must explicitly audit these changes to confirm acceptance criteria or gates were not weakened:" >> "$GITHUB_STEP_SUMMARY"
+            echo "" >> "$GITHUB_STEP_SUMMARY"
+            echo "$PROTECTED" | sed 's/^/- `/' | sed 's/$/`/' >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No protected acceptance criteria, architecture rules, or CI workflows were modified." >> "$GITHUB_STEP_SUMMARY"
+          fi

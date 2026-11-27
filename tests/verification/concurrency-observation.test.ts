@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { test } from "bun:test";
+import { test } from "vitest";
 import { evaluateConcurrency } from "../../scripts/concurrency-observation";
 
 test("the invariant accepts one committed creation and an equivalent replay", () => {

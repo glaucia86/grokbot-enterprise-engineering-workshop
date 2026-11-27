@@ -10,17 +10,46 @@ type StageId = typeof stageIds[number];
 type StageStatus = "pass" | "fail" | "blocked" | "not-run";
 type Command = { command: string[]; expectedExitCode: number; exitCode: number | null; artifactPath: string };
 type Stage = {
-  id: StageId; status: StageStatus; commands: Command[];
-  startedAt?: string; finishedAt?: string; durationSeconds?: number; detail?: string;
+  id: StageId;
+  status: StageStatus;
+  commands: Command[];
+  startedAt?: string;
+  finishedAt?: string;
+  durationSeconds?: number;
+  detail?: string;
+};
+type CheckEntry = {
+  id: string;
+  criteria: string[];
+  command: string[];
+  status: string;
+  exitCode: number | null;
+  durationSeconds: number;
+  artifactPaths: string[];
 };
 type Report = {
-  schemaVersion: 1; slice: string; runId: string; environment: "isolated-lab"; runtime: string;
-  loopbackPorts: { application: number; postgresql: number }; startedAt: string;
-  candidateSha: string; candidateTree: string; worktreeDirty: boolean; humanReview: "pending";
-  toolVersions: { bun: string; git: string }; stages: Stage[];
-  composeProject?: string; doctor?: Record<string, unknown>; browserResults?: string;
-  checkManifest?: string; observations?: Record<string, Record<string, unknown>>;
-  status?: StageStatus; finishedAt?: string;
+  schemaVersion: 2;
+  slice: string;
+  runId: string;
+  environment: "isolated-lab";
+  runtime: string;
+  loopbackPorts: { application: number; postgresql: number };
+  startedAt: string;
+  candidateSha: string;
+  candidateTree: string;
+  worktreeDirty: boolean;
+  humanReview: "pending";
+  toolVersions: { bun: string; git: string; postgres?: string };
+  stages: Stage[];
+  composeProject?: string;
+  doctor?: Record<string, unknown>;
+  browserResults?: string;
+  checkManifest?: string;
+  checks?: CheckEntry[];
+  observations?: Record<string, Record<string, unknown>>;
+  limitations: string[];
+  status?: StageStatus;
+  finishedAt?: string;
 };
 
 class LabError extends Error {
@@ -91,8 +120,79 @@ async function executable(directory: string, name: string) {
   return path;
 }
 
-function selectFields(data: Record<string, unknown>, keys: string[]) {
-  return Object.fromEntries(keys.filter((key) => key in data).map((key) => [key, data[key]]));
+function renderSummary(report: Report): string {
+  const stageRows = report.stages
+    .map((s) => `| \`${s.id}\` | **${s.status}** | ${s.durationSeconds ?? 0}s | ${s.detail ?? "—"} |`)
+    .join("\n");
+  const checkRows = (report.checks ?? []).length
+    ? (report.checks ?? [])
+        .map(
+          (c) =>
+            `| \`${c.id}\` | ${c.criteria.join(", ") || "—"} | **${c.status}** | ${c.exitCode ?? "null"} | ${c.durationSeconds}s | \`${c.artifactPaths[0] ?? ""}\` |`,
+        )
+        .join("\n")
+    : "| — | — | not-run | — | — | — |";
+
+  const ph42 = report.observations?.ph42Approval as
+    | {
+        status?: string;
+        httpStatuses?: number[];
+        violatedInvariants?: string[];
+        before?: Record<string, unknown>;
+        after?: Record<string, unknown>;
+      }
+    | undefined;
+
+  const ph42Block = ph42
+    ? [
+        `- **Status:** \`${ph42.status ?? "unknown"}\``,
+        `- **HTTP statuses:** \`${JSON.stringify(ph42.httpStatuses ?? [])}\``,
+        `- **Violated invariants:** \`${JSON.stringify(ph42.violatedInvariants ?? [])}\``,
+        `- **Before DB snapshot:** \`${JSON.stringify(ph42.before ?? {})}\``,
+        `- **After DB snapshot:** \`${JSON.stringify(ph42.after ?? {})}\``,
+      ].join("\n")
+    : "- Not captured in this run.";
+
+  return [
+    `# Verification Evidence Summary — ${report.slice} (${report.runId})`,
+    "",
+    `- **Overall verdict:** **${report.status ?? "unknown"}**`,
+    `- **Candidate Git SHA:** \`${report.candidateSha}\``,
+    `- **Candidate Tree SHA:** \`${report.candidateTree}\``,
+    `- **Worktree dirty:** \`${report.worktreeDirty}\``,
+    `- **Environment:** \`${report.environment}\` (${report.runtime})`,
+    `- **Tool versions:** Bun \`${report.toolVersions.bun}\`, PostgreSQL \`${report.toolVersions.postgres ?? "unknown"}\`, \`${report.toolVersions.git}\``,
+    `- **Started / Finished:** ${report.startedAt} -> ${report.finishedAt ?? ""}`,
+    `- **Human review:** \`${report.humanReview}\``,
+    "",
+    "## Lifecycle Stages",
+    "",
+    "| Stage | Status | Duration | Detail |",
+    "| --- | --- | --- | --- |",
+    stageRows,
+    "",
+    "## Executed Checks",
+    "",
+    "| Check ID | Criteria | Status | Exit Code | Duration | Log |",
+    "| --- | --- | --- | --- | --- | --- |",
+    checkRows,
+    "",
+    "## PH-42 Live Concurrent Approval Observation ($7,000 + $7,000 vs $10,000)",
+    "",
+    ph42Block,
+    "",
+    "## Artifacts Retained After Cleanup",
+    "",
+    `- Machine-readable manifest: \`${relativePath(join(dirname(report.checkManifest ? join(root, report.checkManifest) : join(verificationDir, report.slice, report.runId, "attempt-0/manifest.json")), "..", "manifest.json"))}\``,
+    `- Lifecycle manifest: \`artifacts/verification/${report.slice}/${report.runId}/lifecycle/manifest.json\``,
+    ...(report.checkManifest ? [`- Check manifest: \`${report.checkManifest}\``] : []),
+    ...(report.browserResults ? [`- Browser results / traces: \`${report.browserResults}\``] : []),
+    "",
+    "## Known Limitations",
+    "",
+    ...report.limitations.map((item) => `- ${item}`),
+    "",
+  ].join("\n");
 }
 
 class LabRun {
@@ -123,7 +223,10 @@ class LabRun {
     const stages: Stage[] = stageIds.map((id) => ({ id, status: "not-run", commands: [] }));
     this.activeStage = stages[0];
     this.report = {
-      schemaVersion: 1, slice, runId, environment: "isolated-lab",
+      schemaVersion: 2,
+      slice,
+      runId,
+      environment: "isolated-lab",
       runtime: postgresBin ? "standalone-postgres" : "docker-compose",
       loopbackPorts: this.ports,
       startedAt: new Date().toISOString(),
@@ -131,7 +234,13 @@ class LabRun {
       candidateTree: git("rev-parse", "HEAD^{tree}"),
       worktreeDirty: Boolean(git("status", "--porcelain")),
       toolVersions: { bun: Bun.version, git: git("--version") },
-      humanReview: "pending", stages,
+      humanReview: "pending",
+      stages,
+      limitations: [
+        "Isolated loopback synthetic lab environment; not a production load or multi-region test.",
+        "Formal TLA+/TLC model checking runs via `bun run verify:formal` and produces a separate bounded-model manifest.",
+        "Local verification is not a substitute for independent GitHub Actions CI or human PR review.",
+      ],
     };
   }
 
@@ -237,7 +346,10 @@ class LabRun {
     this.report.doctor = {};
     for (const [mode, options] of [["database", ["--db-only"]], ["application", []]] as const) {
       const output = await this.command([bun, "scripts/lab-doctor.ts", ...options], "doctor-" + mode, 20);
-      this.report.doctor[mode] = await lastJson(output);
+      const parsed = await lastJson(output);
+      this.report.doctor[mode] = parsed;
+      const db = parsed.database as { postgresVersion?: string } | undefined;
+      if (db?.postgresVersion) this.report.toolVersions.postgres = db.postgresVersion;
     }
   }
 
@@ -248,15 +360,32 @@ class LabRun {
     const attempt = join(run, "attempt-0");
     const manifest = Bun.file(join(attempt, "manifest.json"));
     if (!(await manifest.exists())) throw new LabError("The check runner did not produce a manifest.");
-    const checks: { candidateSha: string; worktreeDirty: boolean } = await manifest.json();
+    const checks: { candidateSha: string; worktreeDirty: boolean; checks: CheckEntry[] } = await manifest.json();
     if (checks.candidateSha !== this.report.candidateSha) throw new LabError("The revision changed between launch and verification.", "fail");
     this.report.checkManifest = relativePath(join(attempt, "manifest.json"));
+    this.report.checks = checks.checks;
     this.report.worktreeDirty ||= checks.worktreeDirty;
-    const keys = ["status", "httpStatuses", "sameRequest", "requestCount", "creationEventCount"];
-    const live = await lastJson(join(attempt, "ph42-live-invariant.log"));
-    this.report.observations = { liveApi: selectFields(live, keys) };
-    const fixture = await this.command([bun, "scripts/verify-ph42-fixture.ts"], "fixture-observation", 15, 1);
-    this.report.observations.syntheticSnapshot = selectFields(await lastJson(fixture), ["source", ...keys]);
+
+    const submissionLog = join(attempt, "submission-concurrency.log");
+    const observations: Record<string, Record<string, unknown>> = {};
+    if (await Bun.file(submissionLog).exists()) {
+      observations.submissionConcurrency = await lastJson(submissionLog);
+    }
+
+    const expectFailure = this.slice === "starter" || this.slice === "VS-04";
+    const ph42Log = await this.command(
+      [bun, "scripts/reproduce-ph42.ts", "--isolated"],
+      "ph42-observation",
+      35,
+      expectFailure ? 1 : 0,
+      "fail",
+    );
+    const ph42Text = await Bun.file(ph42Log).text();
+    const jsonStart = ph42Text.indexOf("{");
+    if (jsonStart >= 0) {
+      observations.ph42Approval = JSON.parse(ph42Text.slice(jsonStart)) as Record<string, unknown>;
+    }
+    this.report.observations = observations;
   }
 
   async cleanup() {
@@ -276,7 +405,7 @@ class LabRun {
     try {
       if (await this.stage("launch", () => this.launch()) && await this.stage("doctor", () => this.doctor())) {
         await this.stage("drive", async () => {
-          await this.command([bun, "engineering/check-slice.ts", this.slice, this.runId], "drive", 450, 0, "fail");
+          await this.command([bun, "engineering/check-slice.ts", this.slice, this.runId], "drive", 600, 0, "fail");
         });
         await this.stage("evidence", () => this.capture());
       }
@@ -285,12 +414,22 @@ class LabRun {
     }
     this.report.worktreeDirty ||= Boolean(git("status", "--porcelain")) || git("rev-parse", "HEAD") !== this.report.candidateSha;
     const states = this.report.stages.map(({ status }) => status);
-    this.report.status = states.includes("blocked") ? "blocked"
-      : states.every((status) => status === "pass") && !this.report.worktreeDirty ? "pass" : "fail";
+    this.report.status = states.includes("blocked")
+      ? "blocked"
+      : states.every((status) => status === "pass") && !this.report.worktreeDirty
+        ? "pass"
+        : "fail";
     this.report.finishedAt = new Date().toISOString();
-    const output = join(this.path, "manifest.json");
-    await writeManifest(output, this.report);
-    console.log(this.report.status + ": " + relativePath(output));
+
+    const runRoot = dirname(this.path);
+    const lifecycleOutput = join(this.path, "manifest.json");
+    const rootManifest = join(runRoot, "manifest.json");
+    const summaryPath = join(runRoot, "summary.md");
+    await writeManifest(lifecycleOutput, this.report);
+    await writeManifest(rootManifest, this.report);
+    await Bun.write(summaryPath, renderSummary(this.report));
+    console.log(this.report.status + ": " + relativePath(rootManifest));
+    console.log("summary: " + relativePath(summaryPath));
     return { pass: 0, fail: 1, blocked: 2 }[this.report.status];
   }
 }
@@ -298,16 +437,21 @@ class LabRun {
 async function main() {
   const { values } = parseArgs({
     args: Bun.argv.slice(2),
-    options: { slice: { type: "string" }, "run-id": { type: "string" }, "postgres-bin": { type: "string" }, help: { type: "boolean" } },
+    options: {
+      slice: { type: "string" },
+      "run-id": { type: "string" },
+      "postgres-bin": { type: "string" },
+      help: { type: "boolean" },
+    },
   });
   if (values.help) {
-    console.log("Usage: bun engineering/verify-lab.ts [--slice VS-04|VS-05] [--run-id <id>] [--postgres-bin <bin-dir>]");
+    console.log("Usage: bun engineering/verify-lab.ts [--slice starter|solution|VS-04|VS-05] [--run-id <id>] [--postgres-bin <bin-dir>]");
     return 0;
   }
-  const slice = values.slice ?? "VS-04";
+  const slice = values.slice ?? "solution";
   const runId = values["run-id"] ?? new Date().toISOString().slice(0, 19).toLowerCase().replaceAll(":", "") + "-" + randomHex(4);
-  if (!["VS-04", "VS-05"].includes(slice) || !runIdPattern.test(runId)) {
-    throw new Error("Expected VS-04 or VS-05 and a run ID containing lowercase letters, digits or hyphens.");
+  if (!["starter", "solution", "VS-04", "VS-05"].includes(slice) || !runIdPattern.test(runId)) {
+    throw new Error("Expected starter, solution, VS-04 or VS-05 and a run ID containing lowercase letters, digits or hyphens.");
   }
   const sliceDirectory = join(verificationDir, slice);
   const run = join(sliceDirectory, runId);

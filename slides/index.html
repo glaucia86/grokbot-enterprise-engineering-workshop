@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="An advanced Packt workshop on verifying an enterprise engineering change from issue to pull request.">
+  <meta name="description" content="An advanced Packt workshop on verifying an enterprise financial approval incident from issue to verified pull request.">
   <title>GrokBot for Enterprise Engineering Workflows: From Issue to Verified Pull Request</title>
   <link rel="stylesheet" href="./reset.css">
   <link rel="stylesheet" href="./reveal.css">
@@ -26,123 +26,123 @@
 
     <section id="trust" class="frame statement" >
       <div class="stage">
-        <p class="kicker">The reviewer’s question</p><h2 >What would you need to see before approving a pull request written by an agent?</h2>
-        <p class="lead thesis">The challenge is engineering environments where agents can reliably prove that their work is correct.</p>
-        <p class="route">Issue <b>→</b> Invariant <b>→</b> Verification <b>→</b> Human decision</p>
+        <p class="kicker">The reviewer’s question</p><h2>What would you need to see before approving a pull request written by an agent?</h2>
+        <p class="lead thesis">Enterprise agentic engineering is building environments where agents can reliably prove their changes preserve invariants.</p>
+        <p class="route">Incident <b>→</b> Invariants <b>→</b> Verification <b>→</b> Human decision</p>
       </div>
       <!-- speaker:trust -->
     </section>
 
     <section id="trust-pyramid" class="frame pyramid-slide" >
       <div class="stage">
-        <p class="kicker">The Poteto Pyramid · adapted from Lauren Tan</p><h2 >How do we earn trust in an agent’s work?</h2>
+        <p class="kicker">Workshop Trust Pyramid · adapted from Lauren Tan</p><h2>How do we earn trust in an agent’s work?</h2>
         <div class="pyramid-wrap"><span class="cost">Cost increases ↓</span>
           <ol class="pyramid" aria-label="Five layers of an agent’s environment">
-          <li class="fragment tier-1" data-fragment-index="0"><strong>Codebase</strong><span>Architecture and idempotency contract</span></li>
-          <li class="fragment tier-2" data-fragment-index="1"><strong>Static analysis</strong><span>Import boundaries and type checking</span></li>
-          <li class="fragment tier-3" data-fragment-index="2"><strong>Verification</strong><span>Real API · PostgreSQL · bounded model</span></li>
-          <li class="fragment tier-4" data-fragment-index="3"><strong>Prose</strong><span>Issue · AGENTS.md · feature map · skill</span></li>
-          <li class="fragment tier-5" data-fragment-index="4"><strong>Human review</strong><span>Assess the evidence and decide on merge</span></li>
+          <li class="fragment tier-1" data-fragment-index="0"><strong>Codebase &amp; Architecture</strong><span>Modular monolith · MoneyMinor · policies</span></li>
+          <li class="fragment tier-2" data-fragment-index="1"><strong>Deterministic Checks</strong><span>ESLint boundaries · DB CHECK · Vitest · fast-check</span></li>
+          <li class="fragment tier-3" data-fragment-index="2"><strong>Runtime Verification</strong><span>Live Next.js · PostgreSQL 18 · Playwright · skills</span></li>
+          <li class="fragment tier-4" data-fragment-index="3"><strong>Formal Verification</strong><span>Bounded TLA+ / TLC counterexample &amp; state check</span></li>
+          <li class="fragment tier-5" data-fragment-index="4"><strong>Prose, Skills &amp; Review</strong><span>AGENTS.md · Feature Maps · Human PR approval</span></li>
           </ol>
         </div>
-        <p class="footnote"><a href="https://ai.engineer/code/2026/talks/lauren-tan#put-the-strongest-constraints-in-the-code">Lauren Tan · All Code Is Slop (Except Mine)</a></p>
+        <p class="footnote"><a href="https://ai.engineer/talks/O_zcc6Xl12g-all-code-is-slop-except-mine">Lauren Tan · All Code Is Slop (Except Mine)</a> · 5-layer workshop adaptation</p>
       </div>
       <!-- speaker:trust-pyramid -->
     </section>
 
     <section id="procurement-hub" class="frame chapter dark" >
       <div class="stage">
-        <div class="chapter-main"><div><p class="kicker">Pillar 01 / 04</p><h2>Enterprise Codebase Foundations &amp; Enforceable Architecture</h2><p class="lead">Make the safe path explicit and executable.</p></div><figure class="face engineering-lead"><!-- avatar:engineering-lead --><figcaption>Engineering Lead</figcaption></figure></div><p class="chapter-note">Procurement Hub · A synthetic multi-tenant application with purchase approvals and audit history.</p>
+        <div class="chapter-main"><div><p class="kicker">Pillar 01 / 04</p><h2>Enterprise Codebase Foundations &amp; Enforceable Architecture</h2><p class="lead">Encode financial and boundary invariants in code, not prose.</p></div><figure class="face engineering-lead"><!-- avatar:engineering-lead --><figcaption>Engineering Lead</figcaption></figure></div><p class="chapter-note">Procurement Hub · Multi-tenant Cost Centers, approval limits, financial commitments, and audit trails.</p>
       </div>
       <!-- speaker:procurement-hub -->
     </section>
 
     <section id="invariant" class="frame " >
       <div class="stage">
-        <p class="kicker">PH-42 · The business risk</p><h2 >A duplicate purchase can be approved twice</h2>
-        <div class="split"><div><p class="lead">A requester submits a purchase. An approver decides it. An auditor follows the recorded events.</p><p class="callout">One logical purchase → one request ID → one creation event.</p></div>
-        <figure class="capture"><img src="./assets/procurement-hub.webp" alt="Procurement Hub’s Northstar audit trail with CREATED and APPROVED events"><figcaption>Audit view from the synthetic workshop lab</figcaption></figure></div>
+        <p class="kicker">PH-42 · Concurrent financial incident</p><h2>Two $7,000 approvals overspend a $10,000 budget</h2>
+        <div class="split"><div><p class="lead">Northstar Cost Center <code>CC-ENG-01</code> has $10,000 allocated. Requests A and B need $7,000 each. Concurrent approval commits $14,000 (-$4,000 available).</p><p class="callout">INV-01–10: committed ≤ allocated · idempotent retries · tenant isolation · auth on replay.</p></div>
+        <figure class="capture"><img src="./assets/procurement-hub.webp" alt="Procurement Hub showing tenant purchase requests and audit history"><figcaption>Procurement Hub synthetic multi-tenant lab</figcaption></figure></div>
       </div>
       <!-- speaker:invariant -->
     </section>
 
     <section id="boundaries" class="frame " >
       <div class="stage">
-        <p class="kicker">Pyramid · Codebase + static analysis</p><h2 >Follow the invariant to the write boundary</h2>
-        <figure class="diagram wide-diagram"><img src="./assets/architecture.svg" alt="Browser to Next.js server, to procurement service, to PostgreSQL. The server resolves actor and tenant. The service checks role and ownership.">
-          <ol class="diagram-mobile"><li><strong>Browser</strong> · Submit the purchase</li><li><strong>Next.js</strong> · Resolve actor and tenant</li><li><strong>Procurement</strong> · Check role and ownership</li><li><strong>PostgreSQL</strong> · Persist request and audit</li></ol>
-          <figcaption>The purchase and its audit event must stay consistent across app instances.</figcaption></figure>
-        <p class="callout fragment">An executable import rule restricts application code to its own modules and the domain. The regression check exercises the business invariant.</p>
+        <p class="kicker">Layers 01–02 · Architecture + deterministic checks</p><h2>Follow the invariant to the write boundary</h2>
+        <figure class="diagram wide-diagram"><img src="./assets/architecture.svg" alt="Browser to Next.js and Zod, to Domain and Application, to PostgreSQL 18 with FOR UPDATE and CHECK constraints.">
+          <ol class="diagram-mobile"><li><strong>Browser / HTTP</strong> · Idempotency-Key</li><li><strong>Next.js + Zod</strong> · Session and tenant</li><li><strong>Domain &amp; App</strong> · Policy and MoneyMinor</li><li><strong>PostgreSQL 18</strong> · FOR UPDATE and CHECK</li></ol>
+          <figcaption>Locking and database constraints hold across multiple app instances.</figcaption></figure>
+        <p class="callout fragment"><code>bun run verify:architecture</code> proves ESLint rejects forbidden imports across domain, application, infrastructure, and UI layers.</p>
       </div>
       <!-- speaker:boundaries -->
     </section>
 
     <section id="boot-lab" class="frame chapter dark" >
       <div class="stage">
-        <div class="chapter-main"><div><p class="kicker">Pillar 02 / 04</p><h2>Harness Engineering &amp; Reusable Verification Skills</h2><p class="lead">Give the agent a repeatable way to exercise the application.</p></div><figure class="face harness-engineer"><!-- avatar:harness-engineer --><figcaption>Harness Engineer</figcaption></figure></div><ol class="handoff"><li>Issue + criteria</li><li>Feature map + skill</li><li>Launch + doctor</li><li>Drive + collect + clean up</li></ol>
+        <div class="chapter-main"><div><p class="kicker">Pillar 02 / 04</p><h2>Harness Engineering &amp; Reusable Verification Skills</h2><p class="lead">Give agents an executable way to drive the real system.</p></div><figure class="face harness-engineer"><!-- avatar:harness-engineer --><figcaption>Harness Engineer</figcaption></figure></div><ol class="handoff"><li>8 Feature Maps</li><li>verify-procurement skill</li><li>Launch + doctor</li><li>Drive + evidence + cleanup</li></ol>
       </div>
       <!-- speaker:boot-lab -->
     </section>
 
     <section id="try-the-app" class="frame " >
       <div class="stage">
-        <p class="kicker">Live demo · 16 min</p><h2 >Follow one purchase through three roles</h2>
-        <ol class="steps"><li><strong>Requester</strong><span>Submit a synthetic purchase and keep its ID.</span></li><li><strong>Approver</strong><span>Find that purchase and record a decision.</span></li><li><strong>Auditor</strong><span>Inspect its creation and decision events.</span></li></ol>
-        <p class="footnote"><a href="http://127.0.0.1:3000" target="_blank" rel="noopener noreferrer">Open Procurement Hub on your device</a> · requires the running local lab</p>
+        <p class="kicker">Live demo · 12–20 min</p><h2>Exercise budgets, limits, audit, and isolation</h2>
+        <ol class="steps"><li><strong>Cost Centers</strong><span>Inspect $10,000 CC-ENG-01 budget and submit a request as Northstar Requester.</span></li><li><strong>Approver Policy</strong><span>Junior ($5k limit) blocked with 403; Senior ($25k) commits funds atomically.</span></li><li><strong>Audit &amp; Isolation</strong><span>Northstar Auditor traces 1:1 events; Meridian gets 404 on foreign IDs.</span></li></ol>
+        <p class="footnote"><a href="http://127.0.0.1:3000" target="_blank" rel="noopener noreferrer">Open Procurement Hub locally</a> · run <code>bun run lab:doctor</code> first</p>
       </div>
       <!-- speaker:try-the-app -->
     </section>
 
     <section id="runtime" class="frame chapter dark" >
       <div class="stage">
-        <div class="chapter-main"><div><p class="kicker">Pillar 03 / 04</p><h2>Runtime Verification &amp; Self-Correcting Agent Loops</h2><p class="lead">Find the first failed observation and use it to guide the next decision.</p></div><figure class="face typescript-fde"><!-- avatar:typescript-fde --><figcaption>TypeScript FDE</figcaption></figure></div><p class="chapter-note">PH-42 · Concurrent submissions with the same idempotency key</p>
+        <div class="chapter-main"><div><p class="kicker">Pillar 03 / 04</p><h2>Runtime Verification &amp; Self-Correcting Agent Loops</h2><p class="lead">Reproduce live, diagnose root cause, fix, and falsify claims.</p></div><figure class="face typescript-fde"><!-- avatar:typescript-fde --><figcaption>TypeScript FDE</figcaption></figure></div><p class="chapter-note">PH-42 · Bounded loop with anti-spin hypothesis guard &amp; real PostgreSQL feedback</p>
       </div>
       <!-- speaker:runtime -->
     </section>
 
     <section id="reproduce" class="frame evidence snapshot" >
       <div class="stage">
-        <p class="kicker source">Synthetic historical snapshot · 20 min</p><h2>Read the PH-42 failure recorded in PostgreSQL</h2>
-        <pre class="command"><code>bun run verify:ph42-fixture</code></pre>
+        <p class="kicker source">Live Starter Reproduction · 20 min</p><h2>Observe the real PostgreSQL budget overrun</h2>
+        <pre class="command"><code>bun run ph42:reproduce</code></pre>
         <dl class="metrics">
-          <div><dt>201 + 201</dt><dd>Simulated HTTP responses</dd></div>
-          <div><dt>2</dt><dd>Requests with different IDs</dd></div>
-          <div><dt>2</dt><dd>Persisted CREATED events</dd></div>
+          <div><dt>200 + 200</dt><dd>Concurrent approvals</dd></div>
+          <div><dt>$14,000</dt><dd>Committed vs $10,000</dd></div>
+          <div><dt>-$4,000</dt><dd>INV-01 &amp; INV-02 violated</dd></div>
         </dl>
-        <p class="evidence-note">Read-only fixture check · expected exit 1</p>
+        <p class="evidence-note">Real Next.js + PostgreSQL 18 on workshop/starter · expected exit 1</p>
       </div>
       <!-- speaker:reproduce -->
     </section>
 
     <section id="agent-loop" class="frame loop" >
       <div class="stage">
-        <p class="kicker">Live demo · 24 min</p><h2 >Let the first failed check drive the next action</h2>
+        <p class="kicker">Live GrokBot Loop · 24–36 min</p><h2>Bounded self-correction driven by real feedback</h2>
         <div class="loop-layout">
-          <figure class="diagram wide-diagram"><img src="./assets/verification-loop.svg" alt="Issue and reproduction, root cause and scoped change, then deterministic and runtime checks. A failing check routes back to investigation or escalates when its budget is exhausted.">
-            <ol class="diagram-mobile"><li>Understand the issue and reproduce it</li><li>Investigate the cause and scope the change</li><li>Verify the running app and collect evidence</li><li>On failure, investigate again or escalate</li></ol>
-            <figcaption>Keep failure evidence. Allow two correction attempts after the initial run, within the timebox.</figcaption></figure>
+          <figure class="diagram wide-diagram"><img src="./assets/verification-loop.svg" alt="Reproduce, root cause and hypothesis, minimal fix, deterministic and runtime checks, self-correct within budget or escalate.">
+            <ol class="diagram-mobile"><li>Reproduce live against PostgreSQL</li><li>Formulate hypothesis and scope change</li><li>Run deterministic and runtime gates</li><li>Revise hypothesis or escalate on budget</li></ol>
+            <figcaption><code>loop-runner.ts</code> persists state/handoff, enforces 2-retry cap, anti-spin, and scope guard.</figcaption></figure>
           <figure class="expression">
             <img src="./assets/bloub-cycle-still.webp" data-animation="./assets/bloub-default-cycle.gif" alt="" width="140" height="140">
             <figcaption>Illustrative avatar expressions</figcaption>
             <button type="button" hidden>Play avatar animation</button>
           </figure>
         </div>
-        <p class="callout fragment">State the hypothesis, verify the real behavior and stop on scope or access blockers.</p>
+        <p class="callout fragment">Root fix: <code>SELECT ... FOR UPDATE</code> + DB <code>CHECK</code> + <code>decision_idempotency_keys</code> + auth-before-replay.</p>
       </div>
       <!-- speaker:agent-loop -->
     </section>
 
     <section id="verify-live" class="frame evidence runtime" >
       <div class="stage">
-        <p class="kicker source">Live HTTP API + PostgreSQL · 34 min</p><h2>One logical purchase. One record.</h2>
-        <pre class="command"><code>bun run verify:concurrency</code></pre>
+        <p class="kicker source">Live Solution Proof · 36 min</p><h2>One approval commits. The second rejects cleanly.</h2>
+        <pre class="command"><code>bun run ph42:reproduce</code></pre>
         <dl class="metrics">
-          <div><dt>200 + 201</dt><dd>Live HTTP responses</dd></div>
-          <div><dt>1</dt><dd>Request with a shared response ID</dd></div>
-          <div><dt>1</dt><dd>Persisted CREATED event</dd></div>
+          <div><dt>200 + 409</dt><dd>INSUFFICIENT_BUDGET</dd></div>
+          <div><dt>$7,000</dt><dd>Committed ($3,000 left)</dd></div>
+          <div><dt>1 + 1</dt><dd>Commitment &amp; APPROVED audit</dd></div>
         </dl>
-        <div class="verification-role"><figure class="face qa-engineer"><!-- avatar:qa-engineer --><figcaption>QA Engineer</figcaption></figure> <span>Expected exit 0</span>
-          <div class="mini-pyramid" role="img" aria-label="Pyramid layer three: Verification"><i></i><i></i><i class="active"></i><i></i><i></i></div>
+        <div class="verification-role"><figure class="face qa-engineer"><!-- avatar:qa-engineer --><figcaption>QA Engineer</figcaption></figure> <span>Expected exit 0 · + concurrency &amp; security suites</span>
+          <div class="mini-pyramid" role="img" aria-label="Pyramid layer three: Runtime Verification"><i></i><i></i><i class="active"></i><i></i><i></i></div>
         </div>
       </div>
       <!-- speaker:verify-live -->
@@ -150,27 +150,27 @@
 
     <section id="optional-extension" class="frame " >
       <div class="stage">
-        <p class="kicker">What the checks establish</p><h2 >Test the contract. Observe the run. Explore the model.</h2>
-        <dl class="checks"><div><dt>Contract tests</dt><dd>Exercise replay, conflicts, actor and tenant scope, and rollback.</dd></div>
-        <div><dt>Runtime verification</dt><dd>Exercise the running API and browser. Inspect persisted requests and events.</dd></div>
-        <div><dt>Bounded model checking</dt><dd>Explore the interleavings in a finite TLA+ model under explicit assumptions.</dd></div></dl>
+        <p class="kicker">Layer 04 · Prepared Formal Verification (48–53 min)</p><h2>Check the contract. Run the app. Model-check the race.</h2>
+        <dl class="checks"><div><dt>Property-based (fast-check)</dt><dd>400 randomized multi-tenant budget &amp; retry cases (pinned seed 4207). Not formal proof.</dd></div>
+        <div><dt>TLA+ counterexample (exit 12)</dt><dd><code>defective-read-commit.cfg</code>: 7-step trace violates <code>BudgetNotExceeded</code> ($14k &gt; $10k).</dd></div>
+        <div><dt>TLA+ exhaustive check (exit 0)</dt><dd><code>locked-atomic.cfg</code>: 473 generated / 225 distinct states, 0 queued, all 6 invariants hold.</dd></div></dl>
       </div>
       <!-- speaker:optional-extension -->
     </section>
 
     <section id="run-harness" class="frame chapter dark" >
       <div class="stage">
-        <div class="chapter-main"><div><p class="kicker">Pillar 04 / 04</p><h2>Evidence-Based Software Delivery &amp; Enterprise Governance</h2><p class="lead">Make the claim traceable to the exact candidate.</p></div><figure class="face devops-engineer"><!-- avatar:devops-engineer --><figcaption>DevOps Engineer</figcaption></figure></div><ol class="handoff"><li>Acceptance criterion</li><li>Command + observation</li><li>Artifact + candidate SHA</li><li>Independent CI</li></ol>
+        <div class="chapter-main"><div><p class="kicker">Pillar 04 / 04</p><h2>Evidence-Based Software Delivery &amp; Enterprise Governance</h2><p class="lead">Bind every claim to an exact revision and independent gate.</p></div><figure class="face devops-engineer"><!-- avatar:devops-engineer --><figcaption>DevOps Engineer</figcaption></figure></div><ol class="handoff"><li>6 split CI jobs</li><li>governance-guard</li><li>summary.md + manifest</li><li>Human approval</li></ol>
       </div>
       <!-- speaker:run-harness -->
     </section>
 
     <section id="review" class="frame " >
       <div class="stage">
-        <p class="kicker">Live demo · 47 min · Pyramid / human review</p><h2 >Would you approve this exact revision?</h2>
-        <ol class="steps"><li><strong>Start with PH-42</strong><span>Trace a criterion to the check that observes it.</span></li><li><strong>Match the PR head</strong><span>Check the candidate SHA in the independent Actions run.</span></li><li><strong>Open the evidence</strong><span>Read the counts, failures, limitations and the checks still pending.</span></li></ol>
+        <p class="kicker">Live demo · 40–48 min · Layer 05 Governance</p><h2>Would you approve this exact revision?</h2>
+        <ol class="steps"><li><strong>Match the SHA</strong><span>Compare PR head against <code>summary.md</code>, <code>manifest.json</code>, and 6 CI jobs.</span></li><li><strong>Audit governance-guard</strong><span>Confirm acceptance criteria, ESLint rules, and tests were not weakened.</span></li><li><strong>Own the merge</strong><span>Agents investigate and verify; authorized humans approve and merge.</span></li></ol>
         <div class="review-note"><div class="presenter"><img src="./assets/glaucia-lemos.jpg" alt="" width="64" height="64"><div><strong>Glaucia Lemos</strong><span>Human Reviewer · Owns the merge decision</span></div></div>
-          <div class="mini-pyramid" role="img" aria-label="Pyramid layer five: Human review"><i></i><i></i><i></i><i></i><i class="active"></i></div>
+          <div class="mini-pyramid" role="img" aria-label="Pyramid layer five: Prose, Skills and Human Review"><i></i><i></i><i></i><i></i><i class="active"></i></div>
         </div>
       </div>
       <!-- speaker:review -->
@@ -178,10 +178,10 @@
 
     <section id="takeaways" class="frame " >
       <div class="stage">
-        <p class="kicker">Apply this to your repository</p><h2 >Leave with a verification pattern you can reuse</h2>
-        <div class="split"><figure class="diagram"><img src="./assets/concurrency.svg" alt="Two equivalent submissions with the same tenant, actor and key converge on one persisted request and one creation event."><figcaption>Start with one invariant in your own system.</figcaption></figure>
-        <dl class="checks compact"><div><dt>Verification skill</dt><dd>Feature map, commands and expected observations</dd></div><div><dt>Engineering harness</dt><dd>Readiness, real execution, sanitized evidence and cleanup</dd></div><div><dt>Reviewable PR</dt><dd>Acceptance criteria → checks → artifacts → reviewer</dd></div></dl></div>
-        <p class="footnote"><a href="https://github.com/cursor/plugins/tree/main/pstack">Lauren Tan’s pstack</a> · reusable verification and sequencing patterns</p>
+        <p class="kicker">Reusable Enterprise Starter Kit · 53 min</p><h2>Leave with an engineering system you can adopt incrementally</h2>
+        <div class="split"><figure class="diagram"><img src="./assets/concurrency.svg" alt="Concurrent $7,000 approvals against a $10,000 cost center produce one 200 APPROVED ($7,000 committed, $3,000 left) and one 409 INSUFFICIENT_BUDGET."><figcaption>Start with one high-risk invariant in your brownfield repo.</figcaption></figure>
+        <dl class="checks compact"><div><dt>12 Starter Kit templates</dt><dd>Architecture checklist, AGENTS.md, Feature Maps, Verification Skill, TLA+ starter</dd></div><div><dt>Harness &amp; Loop</dt><dd>Isolated lifecycle, DB snapshots, anti-spin loop, persisted handoffs</dd></div><div><dt>Governance</dt><dd>6-job least-privilege CI, governance-guard, 11-section PR template</dd></div></dl></div>
+        <p class="footnote"><a href="https://github.com/cursor/plugins/tree/main/pstack">Lauren Tan’s pstack</a> · portable adaptation in <code>starter-kit/</code></p>
       </div>
       <!-- speaker:takeaways -->
     </section>
@@ -189,7 +189,7 @@
     <section id="questions" class="frame cover dark" >
       <div class="stage">
         <div class="cover-layout"><div>
-        <p class="kicker">Q&A</p><h2 >Don't just build better agents. <em>Engineer better environments for agents.</em></h2>
+        <p class="kicker">Q&amp;A · 53–60 min</p><h2>Don't just build better agents. <em>Engineer better environments for agents.</em></h2>
         <div class="presenter"><img src="./assets/glaucia-lemos.jpg" alt="Glaucia Lemos" width="64" height="64"><div><strong>Glaucia Lemos</strong><span>Human Reviewer <b>·</b> <a href="https://github.com/glaucia86">GitHub</a> <b>·</b> <a href="https://www.linkedin.com/in/glaucialemos/">LinkedIn</a></span></div></div>
         <p class="footnote"><a href="#/start">Back to the first slide</a></p></div><div class="cast" aria-label="Workshop bot team"><figure class="face engineering-lead"><!-- avatar:engineering-lead --><figcaption>Engineering Lead</figcaption></figure><figure class="face harness-engineer"><!-- avatar:harness-engineer --><figcaption>Harness Engineer</figcaption></figure><figure class="face typescript-fde"><!-- avatar:typescript-fde --><figcaption>TypeScript FDE</figcaption></figure><figure class="face qa-engineer"><!-- avatar:qa-engineer --><figcaption>QA Engineer</figcaption></figure><figure class="face devops-engineer"><!-- avatar:devops-engineer --><figcaption>DevOps Engineer</figcaption></figure></div></div>
       </div>

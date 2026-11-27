@@ -3,6 +3,8 @@ import { labConnectionString } from "../src/server/db/lab-config";
 import { evaluateConcurrency, type PersistedCounts } from "./concurrency-observation";
 import { labOrigin } from "./lab-origin";
 
+const CC_OPS_01_ID = "30000000-0000-4000-8000-000000000002";
+
 type CallOptions = { body?: Record<string, unknown>; headers?: Record<string, string> };
 
 async function call(origin: string, path: string, { body, headers }: CallOptions = {}) {
@@ -37,7 +39,13 @@ async function verify() {
     const cookie = await createLabSession(origin);
     const key = crypto.randomUUID();
     const submission = {
-      body: { title: "Warehouse safety gloves", justification: "Workshop procurement exercise", amountMinor: 1250, currency: "USD" },
+      body: {
+        costCenterId: CC_OPS_01_ID,
+        title: "Warehouse safety gloves",
+        justification: "Workshop procurement exercise",
+        amountMinor: 1250,
+        currency: "USD",
+      },
       headers: { Cookie: cookie, "Idempotency-Key": key },
     };
     const responses = await Promise.all([

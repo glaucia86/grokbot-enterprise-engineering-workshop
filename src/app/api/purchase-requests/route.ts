@@ -23,6 +23,7 @@ export function POST(request: Request) {
 
     const result = await requests.create(actor, submission.data, key.data);
     if (result.kind === "forbidden") return apiError("FORBIDDEN");
+    if (result.kind === "not-found") return apiError("NOT_FOUND");
     if (result.kind === "conflict") return apiError("IDEMPOTENCY_CONFLICT");
     return labJson(result.request, result.kind === "created" ? 201 : 200);
   });

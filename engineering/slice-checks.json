@@ -2,410 +2,129 @@
   "PREP": [
     {
       "id": "skills-integrity",
-      "argv": [
-        "{bun}",
-        "engineering/bootstrap-skills.ts",
-        "--verify"
-      ],
+      "argv": ["{bun}", "engineering/bootstrap-skills.ts", "--verify"],
       "timeoutSeconds": 30
     },
     {
       "id": "specification-links",
-      "argv": [
-        "{bun}",
-        "engineering/verify-specifications.ts"
-      ],
+      "argv": ["{bun}", "engineering/verify-specifications.ts"],
       "timeoutSeconds": 15
     },
     {
       "id": "engineering-test",
-      "argv": [
-        "{bun}",
-        "test",
-        "engineering/tests"
-      ],
-      "timeoutSeconds": 30
+      "argv": ["{bun}", "--bun", "vitest", "run", "engineering/tests"],
+      "timeoutSeconds": 40
     }
   ],
-  "VS-00": [
+  "starter": [
     {
       "id": "static",
-      "criteria": [
-        "FR-10"
-      ],
+      "criteria": ["AC-10"],
       "argv": [
         "{bun}",
         "--bun",
         "node_modules/eslint/bin/eslint.js",
-        "."
+        "src",
+        "scripts",
+        "engineering",
+        "tests",
+        "eslint.config.ts",
+        "vitest.config.ts",
+        "playwright.config.ts",
+        "drizzle.config.ts"
       ],
-      "timeoutSeconds": 45
+      "timeoutSeconds": 90
     },
     {
       "id": "typecheck",
-      "criteria": [
-        "FR-10"
-      ],
-      "argv": [
-        "{bun}",
-        "--bun",
-        "node_modules/typescript/bin/tsc",
-        "--noEmit"
-      ],
+      "criteria": ["AC-10"],
+      "argv": ["{bun}", "--bun", "node_modules/typescript/bin/tsc", "--noEmit"],
       "timeoutSeconds": 45
     },
     {
-      "id": "http-postgres",
-      "criteria": [
-        "FR-10"
-      ],
-      "argv": [
-        "{bun}",
-        "test",
-        "tests/smoke/health.test.ts"
-      ],
-      "timeoutSeconds": 20
-    },
-    {
-      "id": "browser",
-      "criteria": [
-        "FR-10"
-      ],
-      "argv": [
-        "{bun}",
-        "--bun",
-        "node_modules/@playwright/test/cli.js",
-        "test"
-      ],
-      "timeoutSeconds": 50
-    }
-  ],
-  "VS-01": [
-    {
-      "id": "static",
-      "criteria": [
-        "EG-02"
-      ],
-      "argv": [
-        "{bun}",
-        "--bun",
-        "node_modules/eslint/bin/eslint.js",
-        "."
-      ],
-      "timeoutSeconds": 45
-    },
-    {
-      "id": "typecheck",
-      "criteria": [
-        "EG-02"
-      ],
-      "argv": [
-        "{bun}",
-        "--bun",
-        "node_modules/typescript/bin/tsc",
-        "--noEmit"
-      ],
+      "id": "architecture",
+      "criteria": ["AC-10"],
+      "argv": ["{bun}", "scripts/verify-architecture.ts"],
       "timeoutSeconds": 45
     },
     {
       "id": "unit",
-      "criteria": [
-        "AC-08",
-        "EG-02"
-      ],
-      "argv": [
-        "{bun}",
-        "test",
-        "tests/unit"
-      ],
-      "timeoutSeconds": 40
-    },
-    {
-      "id": "http-postgres",
-      "criteria": [
-        "FR-01",
-        "FR-02",
-        "FR-03",
-        "FR-05",
-        "FR-06",
-        "AC-04",
-        "AC-05",
-        "AC-08"
-      ],
-      "argv": [
-        "{bun}",
-        "test",
-        "tests/integration/procurement.test.ts"
-      ],
-      "timeoutSeconds": 75
-    },
-    {
-      "id": "vs-00-http-smoke",
-      "criteria": [
-        "FR-10"
-      ],
-      "argv": [
-        "{bun}",
-        "test",
-        "tests/smoke/health.test.ts"
-      ],
-      "timeoutSeconds": 20
-    },
-    {
-      "id": "browser",
-      "criteria": [
-        "FR-01",
-        "FR-02",
-        "FR-03",
-        "FR-05",
-        "FR-06"
-      ],
-      "argv": [
-        "{bun}",
-        "--bun",
-        "node_modules/@playwright/test/cli.js",
-        "test"
-      ],
-      "timeoutSeconds": 60
-    }
-  ],
-  "VS-02": [
-    {
-      "id": "static",
-      "criteria": [
-        "EG-02"
-      ],
-      "argv": [
-        "{bun}",
-        "--bun",
-        "node_modules/eslint/bin/eslint.js",
-        "."
-      ],
+      "criteria": ["AC-08", "AC-10"],
+      "argv": ["{bun}", "--bun", "vitest", "run", "tests/unit"],
       "timeoutSeconds": 45
     },
     {
-      "id": "typecheck",
-      "criteria": [
-        "EG-02"
-      ],
-      "argv": [
-        "{bun}",
-        "--bun",
-        "node_modules/typescript/bin/tsc",
-        "--noEmit"
-      ],
+      "id": "properties",
+      "criteria": ["AC-08"],
+      "argv": ["{bun}", "--bun", "vitest", "run", "tests/properties"],
       "timeoutSeconds": 45
     },
     {
-      "id": "unit",
-      "criteria": [
-        "AC-08",
-        "EG-02"
-      ],
-      "argv": [
-        "{bun}",
-        "test",
-        "tests/unit"
-      ],
-      "timeoutSeconds": 40
-    },
-    {
-      "id": "http-postgres",
-      "criteria": [
-        "AC-02",
-        "AC-03",
-        "AC-04",
-        "AC-05",
-        "AC-06",
-        "AC-08"
-      ],
-      "argv": [
-        "{bun}",
-        "test",
-        "tests/integration/procurement.test.ts"
-      ],
-      "timeoutSeconds": 75
-    },
-    {
-      "id": "vs-00-http-smoke",
-      "criteria": [
-        "FR-10"
-      ],
-      "argv": [
-        "{bun}",
-        "test",
-        "tests/smoke/health.test.ts"
-      ],
-      "timeoutSeconds": 20
-    },
-    {
-      "id": "browser",
-      "criteria": [
-        "AC-07",
-        "FR-03",
-        "FR-04",
-        "FR-05",
-        "FR-06"
-      ],
-      "argv": [
-        "{bun}",
-        "--bun",
-        "node_modules/@playwright/test/cli.js",
-        "test"
-      ],
-      "timeoutSeconds": 60
-    }
-  ],
-  "VS-03": [
-    {
-      "id": "static",
-      "criteria": [
-        "EG-02"
-      ],
-      "argv": [
-        "{bun}",
-        "--bun",
-        "node_modules/eslint/bin/eslint.js",
-        "."
-      ],
+      "id": "harness-contract",
+      "criteria": ["AC-12"],
+      "argv": ["{bun}", "--bun", "vitest", "run", "engineering/tests"],
       "timeoutSeconds": 45
     },
     {
-      "id": "typecheck",
-      "criteria": [
-        "EG-02"
-      ],
-      "argv": [
-        "{bun}",
-        "--bun",
-        "node_modules/typescript/bin/tsc",
-        "--noEmit"
-      ],
-      "timeoutSeconds": 45
+      "id": "http-smoke",
+      "criteria": ["AC-12"],
+      "argv": ["{bun}", "--bun", "vitest", "run", "tests/smoke/health.test.ts"],
+      "timeoutSeconds": 25
     },
     {
-      "id": "unit",
-      "criteria": [
-        "AC-08",
-        "EG-02"
-      ],
-      "argv": [
-        "{bun}",
-        "test",
-        "tests/unit"
-      ],
-      "timeoutSeconds": 40
+      "id": "http-postgres-baseline",
+      "criteria": ["AC-08"],
+      "argv": ["{bun}", "--bun", "vitest", "run", "tests/integration/procurement.test.ts"],
+      "timeoutSeconds": 90
     },
     {
-      "id": "http-postgres",
-      "criteria": [
-        "AC-02",
-        "AC-03",
-        "AC-04",
-        "AC-05",
-        "AC-06",
-        "AC-08"
-      ],
-      "argv": [
-        "{bun}",
-        "test",
-        "tests/integration/procurement.test.ts"
-      ],
-      "timeoutSeconds": 75
-    },
-    {
-      "id": "vs-00-http-smoke",
-      "criteria": [
-        "FR-10"
-      ],
-      "argv": [
-        "{bun}",
-        "test",
-        "tests/smoke/health.test.ts"
-      ],
-      "timeoutSeconds": 20
-    },
-    {
-      "id": "browser",
-      "criteria": [
-        "AC-07",
-        "FR-03",
-        "FR-04",
-        "FR-05",
-        "FR-06"
-      ],
-      "argv": [
-        "{bun}",
-        "--bun",
-        "node_modules/@playwright/test/cli.js",
-        "test"
-      ],
-      "timeoutSeconds": 60
-    },
-    {
-      "id": "ph42-fixture",
-      "criteria": [
-        "AC-01",
-        "AC-05"
-      ],
-      "argv": [
-        "{bun}",
-        "test",
-        "tests/verification/concurrency-observation.test.ts",
-        "tests/verification/ph42-fixture.test.ts"
-      ],
+      "id": "submission-concurrency",
+      "criteria": ["AC-08"],
+      "argv": ["{bun}", "scripts/verify-concurrency.ts"],
       "timeoutSeconds": 30
     },
     {
-      "id": "ph42-live-invariant",
-      "criteria": [
-        "AC-01",
-        "AC-05"
-      ],
-      "argv": [
-        "{bun}",
-        "scripts/verify-concurrency.ts"
-      ],
-      "timeoutSeconds": 30
+      "id": "browser",
+      "criteria": ["AC-09"],
+      "argv": ["{bun}", "--bun", "node_modules/@playwright/test/cli.js", "test"],
+      "timeoutSeconds": 90
     }
   ],
-  "VS-04": {
-    "base": "VS-03",
+  "solution": {
+    "base": "starter",
     "checks": [
       {
-        "id": "harness-contract",
-        "criteria": [
-          "FR-10",
-          "AC-09"
-        ],
-        "argv": [
-          "{bun}",
-          "test",
-          "engineering/tests"
-        ],
-        "timeoutSeconds": 30
-      }
-    ]
-  },
-  "VS-05": {
-    "base": "VS-04",
-    "checks": [
+        "id": "approval-concurrency",
+        "criteria": ["AC-01", "AC-02", "AC-04"],
+        "argv": ["{bun}", "--bun", "vitest", "run", "tests/concurrency"],
+        "timeoutSeconds": 90
+      },
       {
-        "id": "idempotency-migration",
-        "criteria": [
-          "FR-07",
-          "FR-08",
-          "FR-09",
-          "AC-04",
-          "AC-05"
-        ],
-        "argv": [
-          "{bun}",
-          "test",
-          "tests/integration/idempotency-migration.test.ts"
-        ],
+        "id": "security-regressions",
+        "criteria": ["AC-03", "AC-05", "AC-06"],
+        "argv": ["{bun}", "--bun", "vitest", "run", "tests/security"],
+        "timeoutSeconds": 90
+      },
+      {
+        "id": "migrations",
+        "criteria": ["AC-07", "AC-08"],
+        "argv": ["{bun}", "--bun", "vitest", "run", "tests/integration/idempotency-migration.test.ts", "tests/integration/approval-migration.test.ts"],
+        "timeoutSeconds": 60
+      },
+      {
+        "id": "ph42-live-approval",
+        "criteria": ["AC-01", "AC-02"],
+        "argv": ["{bun}", "scripts/reproduce-ph42.ts", "--isolated"],
         "timeoutSeconds": 35
       }
     ]
+  },
+  "VS-04": {
+    "base": "starter",
+    "checks": []
+  },
+  "VS-05": {
+    "base": "solution",
+    "checks": []
   }
 }

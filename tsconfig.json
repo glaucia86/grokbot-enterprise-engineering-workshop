@@ -28,6 +28,7 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     "playwright.config.ts",
+    "vitest.config.ts",
     "eslint.config.ts",
     "drizzle.config.ts",
     "scripts/**/*.ts",
@@ -38,6 +39,7 @@
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "starter-kit"
   ]
 }

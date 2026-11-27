@@ -1,10 +1,11 @@
 import assert from "node:assert/strict";
-import { test } from "bun:test";
+import { spawnSync } from "node:child_process";
+import { test } from "vitest";
 
-test("PH-42 reports a failing synthetic observation with scoped duplicate counts", () => {
-  const result = Bun.spawnSync([process.execPath, "scripts/verify-ph42-fixture.ts"], { timeout: 12_000 });
-  assert.equal(result.exitCode, 1, result.stdout.toString());
-  assert.deepEqual(JSON.parse(result.stdout.toString()), {
+test("legacy fixture check still reports expected snapshot schema", () => {
+  const result = spawnSync(process.execPath, ["scripts/verify-ph42-fixture.ts"], { encoding: "utf8", timeout: 12_000 });
+  assert.equal(result.status, 1, result.stdout);
+  assert.deepEqual(JSON.parse(result.stdout), {
     source: "synthetic-snapshot",
     status: "fail",
     httpStatuses: [201, 201],
