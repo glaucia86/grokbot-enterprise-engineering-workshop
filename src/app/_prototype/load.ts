@@ -1,4 +1,4 @@
-/* PROTOTYPE server loaders: read-only calls to the existing services only. */
+/* Workspace server loaders: read-only calls to the existing services only. */
 import type { CostCenter, PurchaseRequest } from "../../modules/procurement/domain/procurement";
 import { requests } from "../../server/procurement/requests";
 import { approverQueue, type DashboardData, type Session } from "./data";
@@ -12,19 +12,13 @@ async function selectedRequest(session: Session, id: string): Promise<DashboardD
 }
 
 export async function dashboardExtras(session: Session, purchases: PurchaseRequest[], costCenters: CostCenter[], select: string | string[] | undefined) {
-  const recent = session.role === "REQUESTER" ? [] : purchases.toSorted((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime()).slice(0, 5);
-  const recentTrails = await Promise.all(recent.map(async (request) => {
-    const audit = await requests.audit(session, request.id);
-    return { request, events: audit.kind === "found" ? audit.events : [] };
-  }));
-
   const wanted = Array.isArray(select) ? select[0] : select;
   const fallback = session.role === "APPROVER"
     ? approverQueue(purchases, costCenters, session.approvalLimitMinor).flatMap((group) => group.items)[0] ?? purchases[0]
     : purchases.find((p) => p.status === "PENDING") ?? purchases[0];
   const selectedId = purchases.some((p) => p.id === wanted) ? wanted : fallback?.id;
   const selected = selectedId ? await selectedRequest(session, selectedId) : undefined;
-  return { recentTrails, selected };
+  return { selected };
 }
 
 export async function nextPendingFor(session: Session, currentId: string) {

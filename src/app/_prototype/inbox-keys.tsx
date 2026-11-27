@@ -1,6 +1,6 @@
 "use client";
 
-/* PROTOTYPE: j / k move through the inbox list (arrow keys belong to the variant switcher). */
+/* Optional j / k navigation through the inbox; native form input stays untouched. */
 import { useEffect } from "react";
 
 export function InboxKeys() {

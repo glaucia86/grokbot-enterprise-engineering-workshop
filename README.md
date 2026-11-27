@@ -67,6 +67,18 @@ bun run lab:bootstrap
 bun run dev                     # Terminal 2: http://127.0.0.1:3000
 ```
 
+The selected workspace design is the default in both development and production. Open
+[`/home`](http://localhost:3000/home) for the product introduction and choose a synthetic
+lab identity to enter [`/dashboard`](http://localhost:3000/dashboard). The root `/` shows
+the product home before identity selection and the workspace afterwards. No design
+selector, variant query parameter, or prototype environment flag is needed.
+
+Requesters submit purchases from **New purchase request**. Approvers select a request
+in the inbox, review its financial impact, and use **Record decision** to save an
+approval or rejection through the existing API. The scrolling phone on the home page
+is explicitly illustrative; workspace requests, decisions, budgets, and audit events
+come from the lab database.
+
 ### Core Engineering Commands
 
 | Goal | Command |

@@ -1,12 +1,17 @@
 import type { Metadata } from "next";
-import Overview from "../overview/page";
+import { listLabIdentities, readLabSession } from "../../server/auth/lab-session";
+import { isLabEnabled } from "../../server/db/lab-config";
+import { HomeB } from "../_prototype/home-b.prototype";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Procurement Hub — Financial operations" };
 
-/** Prototype entry: choose B unless the reviewer explicitly requests another variant. */
-export default function ProductHome({ searchParams }: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
-  return <Overview searchParams={searchParams.then((params) => ({ ...params, variant: params.variant ?? "B" }))} />;
+export default async function ProductHome() {
+  const enabled = isLabEnabled();
+  const [identities, session] = await Promise.all([
+    enabled ? listLabIdentities() : Promise.resolve([]),
+    enabled ? readLabSession() : Promise.resolve(undefined),
+  ]);
+
+  return <HomeB data={{ identities: [...identities], session, enabled }} />;
 }

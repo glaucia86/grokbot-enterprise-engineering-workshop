@@ -1,10 +1,11 @@
-/* PROTOTYPE Variant B — Approval-First Workspace: inbox master-detail; the selected request is reviewed in place. */
+/* Approval workspace: real requests, live decisions, and a contextual review pane. */
 import Link from "next/link";
-import type { PurchaseRequest } from "../../modules/procurement/domain/procurement";
+import { purchaseStatuses, type PurchaseRequest } from "../../modules/procurement/domain/procurement";
 import { integrityStatus } from "../_components/dashboard-metrics";
 import { ArrowRightIcon, TrayIcon, WalletIcon } from "../_components/icons";
 import { cn } from "../_components/ui";
 import { formatUsd, formatUtcShortDate } from "../format-purchase";
+import { PurchaseRequestForm } from "../purchase-request-form";
 import { approverQueue, asOfLabel, plural, references, statusLabel, waitingDays, type DashboardData } from "./data";
 import { ReviewPaneB } from "./review-b.prototype";
 import { InboxKeys } from "./inbox-keys";
@@ -16,27 +17,30 @@ const tone = (status: PurchaseRequest["status"]) =>
   status === "APPROVED" ? "text-(--p-approved)" : status === "REJECTED" ? "text-(--p-violation)" : "text-(--p-pending)";
 
 export function DashboardB({ data }: { data: DashboardData }) {
-  const { session, purchases, costCenters, metrics, asOf, selected } = data;
+  const { session, purchases, costCenters, metrics, asOf, selected, activeFilter } = data;
   const ref = references(purchases.map((p) => p.id));
   const approver = session.role === "APPROVER";
   const decided = purchases.filter((p) => p.status !== "PENDING").toSorted((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
   const groups: Group[] = approver
-    ? [...approverQueue(purchases, costCenters, session.approvalLimitMinor), { key: "decided", title: "Recently decided", items: decided.slice(0, 6) }]
+    ? [...approverQueue(purchases, costCenters, session.approvalLimitMinor), { key: "decided", title: activeFilter ? "Decided" : "Recently decided", items: activeFilter ? decided : decided.slice(0, 6) }]
     : session.role === "REQUESTER"
       ? [{ key: "pending", title: "Waiting for a decision", items: purchases.filter((p) => p.status === "PENDING") }, { key: "decided", title: "Decided", items: decided }]
       : [{ key: "decided", title: "Decided", items: decided }, { key: "pending", title: "Pending", items: purchases.filter((p) => p.status === "PENDING") }];
   const selectedId = selected?.detail.purchase.id;
   const integrity = integrityStatus(metrics);
-  const readyTotal = approver ? groups[0].items.reduce((s, p) => s + p.amountMinor, 0) : 0;
-  const next = approver ? groups.find((group) => group.key === "ready")?.items[0] ?? metrics.queue[0] : undefined;
+  const approvalQueue = approver ? approverQueue(metrics.queue, costCenters, session.approvalLimitMinor) : [];
+  const readyRequests = approvalQueue.find((group) => group.key === "ready")?.items ?? [];
+  const readyTotal = readyRequests.reduce((total, purchase) => total + purchase.amountMinor, 0);
+  const next = approver ? readyRequests[0] ?? metrics.queue[0] : undefined;
+  const filterQuery = activeFilter ? `status=${activeFilter}&` : "";
 
   return (
     <ShellB
       session={session}
       identities={data.identities}
       nav={[
-        { href: "/dashboard?variant=B", label: approver ? "Inbox" : "Requests", icon: <TrayIcon size={20} />, current: true, count: approver ? metrics.queue.length : undefined },
-        { href: "/dashboard?variant=B#ledger", label: "Budgets", icon: <WalletIcon size={20} /> },
+        { href: "/dashboard", label: approver ? "Inbox" : "Requests", icon: <TrayIcon size={20} />, current: true, count: approver ? metrics.queue.length : undefined },
+        { href: "/dashboard#ledger", label: "Budgets", icon: <WalletIcon size={20} /> },
       ]}
     >
       <InboxKeys />
@@ -46,13 +50,13 @@ export function DashboardB({ data }: { data: DashboardData }) {
             {approver ? "Approval workspace" : session.role === "REQUESTER" ? "Your purchase requests" : "Requests and outcomes"}
           </h1>
           <p className="p-figures mt-0.5 text-sm text-(--p-ink-3)">
-            {approver && <>{plural(metrics.queue.length, "request")} awaiting review · {formatUsd(readyTotal)} within current budget and limit · </>}
+            {approver && <>{plural(metrics.queue.length, "request")} awaiting review · {formatUsd(readyTotal)} ready for individual review · </>}
             As of {asOfLabel(asOf)}
           </p>
         </div>
-        {next && <Link href={`/requests/${next.id}?variant=B`} className="ph-workspace-action">Review next request <ArrowRightIcon size={18} aria-hidden="true" /></Link>}
+        {next && <Link href={`/requests/${next.id}`} className="ph-workspace-action">Review next request <ArrowRightIcon size={18} aria-hidden="true" /></Link>}
         {session.role === "REQUESTER" && (
-          <Link href="/?variant=0#new-request" className="inline-flex min-h-10 items-center rounded-md bg-(--p-accent) px-4 text-sm font-semibold text-white hover:bg-(--p-accent-hover)">New purchase request</Link>
+          <a href="#new-request" className="ph-workspace-action">New purchase request <ArrowRightIcon size={18} aria-hidden="true" /></a>
         )}
       </header>
 
@@ -71,10 +75,20 @@ export function DashboardB({ data }: { data: DashboardData }) {
       </dl>
       <div className="ph-inbox-frame grid xl:grid-cols-[minmax(18rem,21rem)_minmax(0,1fr)]">
         <section aria-label="Inbox" className="min-w-0 border-b border-(--p-line) bg-(--p-surface) xl:border-r xl:border-b-0 xl:max-h-[42rem] xl:overflow-y-auto">
-          <div className="ph-queue-head">Purchase requests</div>
+          <div className="ph-queue-head">
+            <h2>{session.role === "REQUESTER" ? "My requests" : "Tenant requests"}</h2>
+            <nav className="ph-status-filters" aria-label="Filter requests by status">
+              <Link href="/dashboard" aria-current={!activeFilter ? "page" : undefined}>All <span>{metrics.byStatus.PENDING.count + metrics.byStatus.APPROVED.count + metrics.byStatus.REJECTED.count}</span></Link>
+              {purchaseStatuses.map((status) => (
+                <Link key={status} href={`/dashboard?status=${status}`} aria-current={activeFilter === status ? "page" : undefined}>
+                  {status[0] + status.slice(1).toLowerCase()} <span>{metrics.byStatus[status].count}</span>
+                </Link>
+              ))}
+            </nav>
+          </div>
           {groups.filter((g) => g.items.length).map((group) => (
             <div key={group.key}>
-              <h2 className="sticky top-0 z-10 border-b border-(--p-line) bg-(--p-canvas) px-4 py-2 text-xs font-semibold text-(--p-ink-2)">
+              <h2 className="z-10 border-b border-(--p-line) bg-(--p-canvas) px-4 py-2 text-xs font-semibold text-(--p-ink-2) xl:sticky xl:top-0">
                 {group.title} <span className="p-figures font-normal text-(--p-ink-3)">{group.items.length}</span>
                 {group.note && <span className="block font-normal text-(--p-ink-3)">{group.note}</span>}
               </h2>
@@ -84,7 +98,7 @@ export function DashboardB({ data }: { data: DashboardData }) {
                   return (
                     <li key={p.id}>
                       <Link
-                        href={`/dashboard?variant=B&select=${p.id}#selected-request`}
+                        href={`/dashboard?${filterQuery}select=${p.id}#selected-request`}
                         scroll={false}
                         data-inbox-item
                         aria-current={current ? "true" : undefined}
@@ -106,19 +120,19 @@ export function DashboardB({ data }: { data: DashboardData }) {
               </ul>
             </div>
           ))}
-          {purchases.length === 0 && <p className="p-6 text-sm text-(--p-ink-3)">Nothing here yet.</p>}
+          {purchases.length === 0 && <p className="p-6 text-sm text-(--p-ink-3)">{activeFilter ? `No ${activeFilter.toLowerCase()} requests.` : "Nothing here yet."}</p>}
         </section>
 
         <section id="selected-request" aria-label="Selected request" className="ph-selected-heading min-w-0">
           {selected ? <ReviewPaneB session={session} detail={selected.detail} events={selected.events} asOf={asOf} /> : (
-            <div className="grid h-full place-items-center p-10 text-center text-sm text-(--p-ink-3)">Select a request to review it here.</div>
+            <div className="grid place-items-center p-10 text-center text-sm text-(--p-ink-3)">Select a request to review it here.</div>
           )}
           <div id="ledger" className="border-t border-(--p-line) px-6 py-5">
             <h2 className="text-sm font-semibold">Budgets</h2>
             <ul className="p-figures mt-3 grid gap-4 text-sm sm:grid-cols-2">
               {costCenters.map((c) => (
-                <li key={c.id}>
-                  <span className="block text-(--p-ink-2)">{c.name}</span>
+                <li key={c.id} data-cost-center-code={c.code}>
+                  <span className="block text-(--p-ink-2)"><strong>{c.code}</strong> · {c.name}</span>
                   <span className={cn("block text-lg font-semibold", c.availableBudgetMinor < 0 && "text-(--p-violation)")}>{formatUsd(c.availableBudgetMinor)}</span>
                   <span className="block text-xs text-(--p-ink-3)">available of {formatUsd(c.allocatedBudgetMinor)}</span>
                   <div className="mt-2 h-2 overflow-hidden rounded-sm bg-(--p-track)" aria-hidden="true"><div className={cn("h-full", c.availableBudgetMinor < 0 ? "bg-(--p-violation)" : "bg-(--p-accent)")} style={{ width: Math.min(100, Math.max(0, c.allocatedBudgetMinor > 0 ? c.committedBudgetMinor / c.allocatedBudgetMinor * 100 : c.committedBudgetMinor > 0 ? 100 : 0)) + "%" }} /></div>
@@ -128,6 +142,15 @@ export function DashboardB({ data }: { data: DashboardData }) {
           </div>
         </section>
       </div>
+      {session.role === "REQUESTER" && (
+        <section id="new-request" className="ph-request-creation" aria-labelledby="new-request-heading">
+          <div>
+            <h2 id="new-request-heading">New purchase request</h2>
+            <p>Explain the business need and select the budget it belongs to. Submission sends it for review; the budget is committed only after approval.</p>
+          </div>
+          <PurchaseRequestForm costCenters={costCenters} />
+        </section>
+      )}
     </ShellB>
   );
 }

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { ShieldCheckIcon, ArrowUpRightIcon } from "../_components/icons";
-import { roleLabel, type Identity, type Session } from "./data";
+import { ShieldCheckIcon, ArrowUpRightIcon, PulseIcon } from "../_components/icons";
+import type { Identity, Session } from "./data";
 import { LabSelect } from "./lab-switch";
 import "./experience-b.css";
 
@@ -14,7 +14,7 @@ export function ShellB({ session, identities, nav, children }: {
   return (
     <div className="pb ph-workspace">
       <aside className="ph-sidebar">
-        <Link href="/home?variant=B" className="ph-sidebar-brand"><span className="ph-brand-icon"><ShieldCheckIcon size={22} /></span>Procurement Hub</Link>
+        <Link href="/home" className="ph-sidebar-brand"><span className="ph-brand-icon"><ShieldCheckIcon size={22} /></span>Procurement Hub</Link>
         <span className="ph-sidebar-label">OPERATIONS</span>
         <nav aria-label="Workspace" className="flex flex-wrap gap-1 md:flex-col">
           {nav.map((item) => (
@@ -23,13 +23,13 @@ export function ShellB({ session, identities, nav, children }: {
               {item.count !== undefined && item.count > 0 && <span className="ph-sidebar-count">{item.count}</span>}
             </Link>
           ))}
-          <Link href="/home?variant=B" className="ph-sidebar-link"><ArrowUpRightIcon size={18} aria-hidden="true" /> Product home</Link>
+          <Link href="/home" className="ph-sidebar-link"><ArrowUpRightIcon size={18} aria-hidden="true" /> Product home</Link>
         </nav>
-        <div className="ph-sidebar-foot"><p className="ph-sidebar-label">DESIGN PROTOTYPE</p><Link className="ph-sidebar-link" href="/?variant=0">Open working UI <ArrowUpRightIcon size={16} aria-hidden="true" /></Link></div>
+        <div className="ph-sidebar-foot"><a className="ph-sidebar-link" href="/api/health"><PulseIcon size={18} aria-hidden="true" /> Check lab readiness</a></div>
       </aside>
       <div className="ph-workspace-main">
         <header className="ph-topbar">
-          <div className="ph-topbar-meta"><strong translate="no">{session.tenantName}</strong><span>{session.displayName} · {roleLabel[session.role]}</span></div>
+          <div className="ph-topbar-meta"><p className="session-state"><strong translate="no">{session.tenantName}</strong> · {session.displayName} · {session.role}</p></div>
           <LabSelect identities={identities} current={session.key} className="flex items-center gap-2"
             selectClassName="min-h-9 min-w-0 max-w-full rounded-md border border-(--p-line-strong) bg-(--p-surface) px-2 text-xs"
             buttonClassName="min-h-9 rounded-md border border-(--p-line-strong) px-3 text-xs font-semibold hover:bg-(--p-track)" />

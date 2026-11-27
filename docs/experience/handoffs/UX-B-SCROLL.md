@@ -4,7 +4,7 @@
 
 The owner selected **Variant B** and requested a home experience inspired by the product sequence at [Decade](https://decade.com/): a persistent device view, financial values revealed in context, and transitions tied to the visitor's scroll.
 
-This slice evolves `/home` on `prototype/ux-variants`. It keeps B's navy, petroleum, mint, IBM Plex typography, existing entry points, and role selection. The primary home route already defaults to B. The working application and the other comparison variants retain their existing contracts.
+This slice evolves `/home` on `prototype/ux-variants`. It keeps B's navy, petroleum, mint, IBM Plex typography, existing entry points, and role selection. Following the owner's acceptance, B is now the normal home, workspace, and review experience; comparison controls and unselected variants have been removed. The real submission and decision forms are reused in the workspace. The home walkthrough remains illustrative.
 
 Design reading: an institutional financial product home with a more expressive narrative. Design variance 6, motion intensity 7 within the story, visual density 4. This is a targeted evolution of the approved B design, using the existing native CSS and React foundation. The reference informs the interaction pattern; no Decade copy, assets, or source code is incorporated.
 
@@ -23,7 +23,7 @@ All amounts originate in one presentation-only fixture, use integer minor units,
 
 ## Interaction and accessibility contract
 
-- On supported desktop viewports (at least 1024 CSS px wide and 700 px high), the device remains visible beside the chapters. Native CSS timelines move the device and value panels; `IntersectionObserver` selects a discrete chapter.
+- On supported desktop viewports (at least 1024 CSS px wide and 700 px high), the device remains visible beside the chapters. The frame, camera, header, and clipped viewport stay fixed; native CSS timelines move the four-panel app document inside the screen. `IntersectionObserver` selects a discrete chapter.
 - Ordinary forward and backward scrolling works. There are no wheel cancellations, custom scroll containers, continuous React scroll state, or new animation dependencies.
 - Four native buttons provide direct chapter selection. A **Skip walkthrough** link reaches the financial controls section.
 - Direct chapter fragments are restored once after the progressively enhanced layout and fonts settle. That restoration is canceled on unmount and does not override an explicit chapter selection or a changed fragment.
@@ -45,19 +45,19 @@ This implements the home-specific intent of **TC-03, TC-04, TC-07, XR-13, XR-14,
 
 ## Reproducing verification
 
-Use the repository-pinned Bun and dependencies and an initialized, isolated local workshop database. Set `WORKSHOP_PROTOTYPES=enabled` for **both** the app process and the Playwright process. Production previews require this explicit opt-in; the normal working-application verification must retain its existing prototype gate.
+Use the repository-pinned Bun and dependencies and an initialized, isolated local workshop database. B is the normal application experience in development and production; no `WORKSHOP_PROTOTYPES` flag is needed. The full harness includes the normal financial journeys and the home motion suite.
 
 ```sh
 bun run check:static
 bun run verify:architecture
 bun run test:unit
 bun run build
-# In the app process, with WORKSHOP_PROTOTYPES=enabled and the normal lab environment:
+# In the app process, with the normal lab environment:
 bun run start
-# In a second process with the same prototype flag and WORKSHOP_BASE_URL:
+# In a second process with WORKSHOP_BASE_URL:
 bun run test:e2e tests/e2e/experience/home-b-motion.spec.ts --project=experience --no-deps
 ```
 
-The motion spec explicitly skips when the prototype flag is absent, matching the app's opt-in contract. Its assertions are not a replacement for the legacy working-UI journeys. Browser errors and API writes are checked during the illustrative interactions.
+The motion spec now runs without a prototype flag because B is the public experience. Its assertions complement the financial journeys on the same B workspace. Browser errors and API writes are checked during the illustrative interactions.
 
-Final evidence must name the exact candidate SHA, clean worktree status, browser/runtime versions, executed checks, and any blocked or unrun release gates. Performance measurements are local lab observations, not field Core Web Vitals. Review phone clipping, value-panel overlap, and the fixed comparison dock in screenshots at 1440x900, 1280x720, 1024x700, 390x844, and 320x720.
+Final evidence must name the exact candidate SHA, clean worktree status, browser/runtime versions, executed checks, and any blocked or unrun release gates. Performance measurements are local lab observations, not field Core Web Vitals. Review phone clipping, value-panel overlap, and the absence of comparison controls or reserved footer space in screenshots at 1440x900, 1280x720, 1024x700, 390x844, and 320x720.

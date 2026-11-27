@@ -1,4 +1,4 @@
-/* PROTOTYPE B: institutional product narrative, with an explicitly illustrative interactive walkthrough. */
+/* Product home: institutional narrative with an explicitly illustrative walkthrough. */
 import Link from "next/link";
 import { ArrowRightIcon, ArrowUpRightIcon, ShieldCheckIcon, TrayIcon, WalletIcon, ReceiptIcon } from "../_components/icons";
 import { formatUsd } from "../format-purchase";
@@ -11,12 +11,12 @@ import "./experience-b.css";
 const roles = ["APPROVER", "REQUESTER", "AUDITOR"] as const;
 
 export function HomeB({ data }: { data: HomeData }) {
-  const destination = "/dashboard?variant=B";
+  const destination = "/dashboard";
   return (
     <div className="pb ph-product min-h-dvh">
       <header className="ph-site-header">
         <div className="ph-site-nav">
-          <Link href="/home?variant=B" className="ph-wordmark"><span className="ph-brand-icon"><ShieldCheckIcon size={24} weight="duotone" /></span><span>Procurement<span className="ph-wordmark-light"> Hub</span></span></Link>
+          <Link href="/home" className="ph-wordmark"><span className="ph-brand-icon"><ShieldCheckIcon size={24} weight="duotone" /></span><span>Procurement<span className="ph-wordmark-light"> Hub</span></span></Link>
           <nav aria-label="Product navigation" className="ph-site-links"><a href="#workflow">How it works</a><a href="#controls">Financial controls</a><a href="#enter">Explore roles</a></nav>
           <Link className="ph-primary ph-nav-cta" href={data.session ? destination : "#enter"}>Open workspace <ArrowUpRightIcon size={17} aria-hidden="true" /></Link>
         </div>
@@ -73,7 +73,7 @@ export function HomeB({ data }: { data: HomeData }) {
           {data.session && <Link href={destination} className="ph-primary">Return to your workspace <ArrowRightIcon size={18} aria-hidden="true" /></Link>}
         </section>
       </main>
-      <footer className="ph-site-footer"><span>Procurement Hub · Enterprise engineering lab</span><Link href="/?variant=0">Open working application ↗</Link></footer>
+      <footer className="ph-site-footer"><span>Procurement Hub · Enterprise engineering lab</span><a href="/api/health">Check lab readiness ↗</a></footer>
     </div>
   );
 }

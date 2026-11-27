@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test("an attendee opens the lab and checks its readiness", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Procurement Hub" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: /Clarity before\s+money moves\./ })).toBeVisible();
 
   const [response] = await Promise.all([
     page.waitForResponse((event) => new URL(event.url()).pathname === "/api/health"),

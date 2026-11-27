@@ -33,6 +33,35 @@ Assertions are never removed to make a run pass. Server-side guarantees remain c
 
 ## Planned changes (proposed, pending approval)
 
+### Selected B promotion — implemented for owner-requested PR review
+
+The owner approved B and requested it as the normal experience, removal of A/B/C
+comparison controls, and removal of the empty footer space. This is the explicit
+scope of the current promotion; the broader proposals below remain proposals.
+
+| Previous locator / navigation | Selected B replacement | Business assertion retained |
+| --- | --- | --- |
+| Anonymous heading `Procurement Hub` | B heading `Clarity before money moves.` on `/`, `/home`, and `/overview` | A fresh session opens the product home; readiness still calls `GET /api/health` and asserts HTTP 200 plus the same JSON |
+| Anonymous `Lab identity` select | Role-card persona button with identity name and tenant | The synthetic session still goes through `/api/lab/session`; workspace identity select and session text remain |
+| Request list title link goes directly to detail | Inbox selection followed by `Open full review` when a full page is needed | Same title, status, tenant visibility, audit events, and foreign-detail HTTP 404 |
+| `tr[data-cost-center-code]` | Budget list item with the same `data-cost-center-code` | Same cost-center code, allocated/available/committed amounts and financial outcome |
+| Status filter on `/` | Canonical `/dashboard?status=APPROVED` | Same accessible filter navigation and same visible approved request |
+| Motion tests require `WORKSHOP_PROTOTYPES` | Motion tests run on the public B home with the normal lab environment | All existing motion/fallback assertions plus continuous internal scroll, reversibility and clipping |
+
+The five existing financial browser journeys continue to exercise actual API writes
+and persisted outcomes. No journey is diverted to an old `variant=0` screen. B uses
+the existing `PurchaseRequestForm` and `DecisionForm`; status transitions, actor and
+reason checks, audit event counts, limit refusal, and commitment assertions remain.
+
+Additional regression coverage requires the default B home without comparison
+controls, including old variant URLs, and checks the workspace's final content at
+the bottom of the viewport after removing the dock's reserved padding.
+
+These locator changes are called out in the PR for human review; `INV-01`–`INV-10`
+and `AC-01`–`AC-12` are unchanged.
+
+### Earlier proposals, not all implemented
+
 | Contract | Proposed replacement | Slice | Parity requirement |
 | --- | --- | --- | --- |
 | `goto("/")` dashboard | `/` redirects to `/dashboard` (session) or `/home` (anonymous) | UX-VS-01 | Same journeys reach the same surfaces; redirect asserted explicitly |

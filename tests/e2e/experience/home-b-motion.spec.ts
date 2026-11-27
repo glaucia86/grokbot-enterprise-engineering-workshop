@@ -1,11 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
-// Start the lab server with WORKSHOP_PROTOTYPES=enabled, then run:
-// WORKSHOP_PROTOTYPES=enabled bun --bun playwright test tests/e2e/experience/home-b-motion.spec.ts --project experience --no-deps
-test.skip(
-  process.env.WORKSHOP_PROTOTYPES !== "enabled",
-  "Set WORKSHOP_PROTOTYPES=enabled for the server and this test process to verify the gated prototype home.",
-);
+// The approved B home is public and runs in the regular verification suite.
 
 const chapters = [
   { id: "story-submit", title: "A request, with context.", control: "Submit request", status: "Pending decision" },

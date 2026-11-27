@@ -1,28 +1,25 @@
-/* PROTOTYPE: shared, layout-free data helpers for the throwaway variants. */
+/* Presentation data for the selected procurement experience. */
 import type { AuditEvent, CostCenter, PurchaseRequest, PurchaseStatus } from "../../modules/procurement/domain/procurement";
 import type { listLabIdentities, readLabSession } from "../../server/auth/lab-session";
 import type { requests } from "../../server/procurement/requests";
 import type { DashboardMetrics } from "../_components/dashboard-metrics";
-import type { VariantKey } from "./flag";
 
 export type Session = NonNullable<Awaited<ReturnType<typeof readLabSession>>>;
 export type Identity = Awaited<ReturnType<typeof listLabIdentities>>[number];
 export type Detail = NonNullable<Awaited<ReturnType<typeof requests.detail>>>;
 
 export type DashboardData = {
-  variant: VariantKey;
   session: Session;
   identities: Identity[];
   purchases: PurchaseRequest[];
   costCenters: CostCenter[];
   metrics: DashboardMetrics;
-  recentTrails: { request: PurchaseRequest; events: AuditEvent[] }[];
+  activeFilter?: PurchaseStatus;
   selected?: { detail: Detail; events: AuditEvent[] | null };
   asOf: Date;
 };
 
 export type ReviewData = {
-  variant: VariantKey;
   session: Session;
   identities: Identity[];
   detail: Detail;
@@ -31,7 +28,7 @@ export type ReviewData = {
   asOf: Date;
 };
 
-export type HomeData = { variant: VariantKey; identities: Identity[]; session?: Session; enabled: boolean };
+export type HomeData = { identities: Identity[]; session?: Session; enabled: boolean };
 
 export const statusLabel: Record<PurchaseStatus, string> = {
   PENDING: "Pending decision",
