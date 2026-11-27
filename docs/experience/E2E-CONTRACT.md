@@ -44,4 +44,4 @@ Assertions are never removed to make a run pass. Server-side guarantees remain c
 
 ## Observational capture
 
-`tests/e2e/experience/baseline.spec.ts` captures screenshots and metrics only when `WORKSHOP_UX_CAPTURE=1`. It never replaces an AC-09 assertion. It spends only `CC-OPS-01`, so it cannot change the outcome of specs that approve against `CC-ENG-01`.
+`tests/e2e/experience/baseline.spec.ts` captures screenshots and metrics only when `WORKSHOP_UX_CAPTURE=1`. It never replaces an AC-09 assertion. It runs in the `experience` Playwright project, which depends on the `journeys` project, so it starts only after the AC-09 specs finish. All its data lives in a disposable cost center that is deleted afterwards, so it never spends the seeded budgets that the journeys and the security suite rely on.

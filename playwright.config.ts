@@ -10,4 +10,9 @@ export default defineConfig({
     launchOptions: { executablePath: process.env.WORKSHOP_CHROMIUM_PATH },
     trace: "retain-on-failure",
   },
+  projects: [
+    { name: "journeys", testIgnore: "experience/**" },
+    // Opt-in observational capture; runs only after the journeys so it never competes with them.
+    { name: "experience", testMatch: "experience/**/*.spec.ts", dependencies: ["journeys"] },
+  ],
 });

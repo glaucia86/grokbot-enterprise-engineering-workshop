@@ -2,18 +2,24 @@ import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
 import { relative } from "node:path";
 import { expect, test, type APIRequestContext, type Page, type TestInfo } from "@playwright/test";
+import postgres, { type Sql } from "postgres";
+import { labConnectionString } from "../../../src/server/db/lab-config";
 
 /*
  * UX-VS-00 experience baseline: captures the current UI per role, state and viewport, plus console,
  * network, overflow, fold and interaction-count observations. Opt-in so the AC-09 suite is unchanged:
  *   WORKSHOP_UX_CAPTURE=1 bun run verify:all --run-id <id>
- * It spends only CC-OPS-01, so it never competes with the CC-ENG-01 budget other specs approve against.
+ * All data goes into a disposable cost center that is deleted afterwards, so seeded budgets used by
+ * the journeys and the security suite are never spent.
  */
 
 test.skip(process.env.WORKSHOP_UX_CAPTURE !== "1", "Set WORKSHOP_UX_CAPTURE=1 to capture the experience baseline.");
 test.describe.configure({ mode: "serial" });
 
-const CC_OPS_01_ID = "30000000-0000-4000-8000-000000000002";
+const NORTHSTAR_TENANT_ID = "10000000-0000-4000-8000-000000000001";
+const costCenter = { id: crypto.randomUUID(), code: "", name: "Facilities Maintenance Q4", allocatedBudgetMinor: 2_500_000 };
+costCenter.code = "CC-FAC-" + costCenter.id.slice(0, 4).toUpperCase();
+let database: Sql | undefined;
 
 const viewports = [
   { name: "1920x1080", width: 1920, height: 1080, fullPage: false },
@@ -65,7 +71,7 @@ async function selectIdentity(request: APIRequestContext, identity: string) {
 async function submit(request: APIRequestContext, title: string, justification: string, amountMinor: number) {
   const response = await request.post("/api/purchase-requests", {
     headers: { "Idempotency-Key": crypto.randomUUID() },
-    data: { costCenterId: CC_OPS_01_ID, title, justification, amountMinor, currency: "USD" },
+    data: { costCenterId: costCenter.id, title, justification, amountMinor, currency: "USD" },
   });
   expect(response.status(), `submit ${title}`).toBe(201);
   return ((await response.json()) as { id: string }).id;
@@ -120,6 +126,11 @@ async function capture(page: Page, testInfo: TestInfo, surface: string, identity
 }
 
 test.beforeAll(async ({ playwright }, testInfo) => {
+  database = postgres(labConnectionString(), { max: 1, connect_timeout: 3 });
+  await database`
+    insert into cost_centers (id, tenant_id, code, name, currency, allocated_budget_minor, committed_budget_minor)
+    values (${costCenter.id}, ${NORTHSTAR_TENANT_ID}, ${costCenter.code}, ${costCenter.name}, 'USD', ${costCenter.allocatedBudgetMinor}, 0)
+  `;
   const request = await playwright.request.newContext({ baseURL: testInfo.project.use.baseURL });
   try {
     await selectIdentity(request, "northstar-requester");
@@ -136,6 +147,23 @@ test.beforeAll(async ({ playwright }, testInfo) => {
   } finally {
     await request.dispose();
   }
+});
+
+test.afterAll(async () => {
+  if (!database) return;
+  await database.begin(async (sql) => {
+    const [{ exists: hasDecisionKeys }] = await sql<{ exists: boolean }[]>`
+      select to_regclass('public.decision_idempotency_keys') is not null as exists
+    `;
+    if (hasDecisionKeys) {
+      await sql`delete from decision_idempotency_keys where request_id in (select id from purchase_requests where cost_center_id = ${costCenter.id})`;
+    }
+    await sql`delete from financial_commitments where cost_center_id = ${costCenter.id}`;
+    await sql`delete from audit_events where request_id in (select id from purchase_requests where cost_center_id = ${costCenter.id})`;
+    await sql`delete from purchase_requests where cost_center_id = ${costCenter.id}`;
+    await sql`delete from cost_centers where id = ${costCenter.id}`;
+  });
+  await database.end({ timeout: 3 });
 });
 
 test("landing (anonymous)", async ({ page }, testInfo) => {
@@ -200,7 +228,7 @@ test("journey: requester submits a purchase request from the landing page", asyn
   await page.getByRole("button", { name: "Switch identity" }).click();
   steps.push("switch identity");
   await expect(page.getByRole("heading", { name: "My requests" })).toBeVisible();
-  await page.getByLabel("Cost center", { exact: true }).selectOption(CC_OPS_01_ID);
+  await page.getByLabel("Cost center", { exact: true }).selectOption(costCenter.id);
   steps.push("choose cost center");
   await page.getByLabel("Title").fill("Thermal label printer ribbons");
   steps.push("enter title");
@@ -253,7 +281,7 @@ test("write capture index", async () => {
     journeys,
     issues,
     limitations: [
-      "Northstar dashboards include rows created concurrently by the other E2E specs, so row counts vary between runs.",
+      "Northstar dashboards also show rows left by the journey specs, which run first (Playwright project dependency).",
       "The PH-42 overspend state cannot exist on the solution schema (CHECK constraint); capture it from a starter-edition rehearsal.",
       "Screenshots are taken with CSS animations disabled; motion is not evaluated here.",
       "HTTP 403 and 409 issues from the decision-refused captures are the expected server refusals.",
