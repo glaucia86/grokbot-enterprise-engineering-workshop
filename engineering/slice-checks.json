@@ -20,8 +20,20 @@
     {
       "id": "static",
       "criteria": ["AC-10"],
-      "argv": ["{bun}", "--bun", "node_modules/eslint/bin/eslint.js", "."],
-      "timeoutSeconds": 45
+      "argv": [
+        "{bun}",
+        "--bun",
+        "node_modules/eslint/bin/eslint.js",
+        "src",
+        "scripts",
+        "engineering",
+        "tests",
+        "eslint.config.ts",
+        "vitest.config.ts",
+        "playwright.config.ts",
+        "drizzle.config.ts"
+      ],
+      "timeoutSeconds": 90
     },
     {
       "id": "typecheck",

@@ -185,7 +185,7 @@ try {
 
   if (values["create-local-refs"]) {
     for (const item of [starter, guided, solution]) {
-      invokeGit(root, ["fetch", item.bundlePath, `${item.branch}:${item.branch}`]);
+      invokeGit(root, ["fetch", item.bundlePath, `+${item.branch}:${item.branch}`]);
     }
   }
 
