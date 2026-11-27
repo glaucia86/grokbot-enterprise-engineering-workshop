@@ -99,3 +99,115 @@ export function LockIcon({ size = 16, className }: IconProps) {
     </svg>
   );
 }
+
+export function ArrowRightIcon({ size = 16, className }: IconProps) {
+  return (
+    <svg {...baseProps(size, className)}>
+      <path d="M5 12h14" />
+      <path d="M12 5l7 7-7 7" />
+    </svg>
+  );
+}
+
+export function LayersIcon({ size = 18, className }: IconProps) {
+  return (
+    <svg {...baseProps(size, className)}>
+      <path d="M12 3l9 5-9 5-9-5 9-5z" />
+      <path d="M3 13l9 5 9-5" />
+      <path d="M3 17.5l9 5 9-5" />
+    </svg>
+  );
+}
+
+export function DatabaseIcon({ size = 18, className }: IconProps) {
+  return (
+    <svg {...baseProps(size, className)}>
+      <ellipse cx="12" cy="5.5" rx="8" ry="3" />
+      <path d="M4 5.5v13c0 1.7 3.6 3 8 3s8-1.3 8-3v-13" />
+      <path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3" />
+    </svg>
+  );
+}
+
+export function UsersIcon({ size = 18, className }: IconProps) {
+  return (
+    <svg {...baseProps(size, className)}>
+      <circle cx="9" cy="8" r="3.5" />
+      <path d="M2.5 20a6.5 6.5 0 0 1 13 0" />
+      <path d="M16 4.6a3.5 3.5 0 0 1 0 6.8" />
+      <path d="M18.5 14.2A6.5 6.5 0 0 1 21.5 20" />
+    </svg>
+  );
+}
+
+export function GitPullRequestIcon({ size = 18, className }: IconProps) {
+  return (
+    <svg {...baseProps(size, className)}>
+      <circle cx="6" cy="6" r="2.5" />
+      <circle cx="6" cy="18" r="2.5" />
+      <circle cx="18" cy="18" r="2.5" />
+      <path d="M6 8.5v7" />
+      <path d="M18 15.5V9a3 3 0 0 0-3-3h-4" />
+      <path d="M13 3.5L10.5 6 13 8.5" />
+    </svg>
+  );
+}
+
+export function CheckCircleIcon({ size = 18, className }: IconProps) {
+  return (
+    <svg {...baseProps(size, className)}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M8.5 12.2l2.4 2.4 4.6-4.8" />
+    </svg>
+  );
+}
+
+export function XCircleIcon({ size = 18, className }: IconProps) {
+  return (
+    <svg {...baseProps(size, className)}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M9.2 9.2l5.6 5.6M14.8 9.2l-5.6 5.6" />
+    </svg>
+  );
+}
+
+export function SparklesIcon({ size = 16, className }: IconProps) {
+  return (
+    <svg {...baseProps(size, className)}>
+      <path d="M12 3l1.8 4.9L18.7 9.7l-4.9 1.8L12 16.4l-1.8-4.9L5.3 9.7l4.9-1.8L12 3z" />
+      <path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8L19 15z" />
+    </svg>
+  );
+}
+
+export function ScaleIcon({ size = 18, className }: IconProps) {
+  return (
+    <svg {...baseProps(size, className)}>
+      <path d="M12 3v18" />
+      <path d="M7 21h10" />
+      <path d="M5 7h14" />
+      <path d="M5 7l-3 7a3.5 3.5 0 0 0 6 0L5 7z" />
+      <path d="M19 7l-3 7a3.5 3.5 0 0 0 6 0l-3-7z" />
+    </svg>
+  );
+}
+
+export function LogInIcon({ size = 16, className }: IconProps) {
+  return (
+    <svg {...baseProps(size, className)}>
+      <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+      <path d="M10 17l5-5-5-5" />
+      <path d="M15 12H3" />
+    </svg>
+  );
+}
+
+export function TerminalIcon({ size = 16, className }: IconProps) {
+  return (
+    <svg {...baseProps(size, className)}>
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="M7 9l3 3-3 3" />
+      <path d="M13 15h4" />
+    </svg>
+  );
+}

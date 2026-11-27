@@ -2,10 +2,18 @@
 
 import { useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { formatUsd } from "./format-purchase";
+import { utilizationTone } from "./_components/utilization-ring";
+import { computeUtilizationPercent, formatUsd } from "./format-purchase";
 
 type Attempt = { payload: string; key: string };
-type CostCenterOption = { id: string; code: string; name: string; availableBudgetMinor: number };
+type CostCenterOption = {
+  id: string;
+  code: string;
+  name: string;
+  allocatedBudgetMinor: number;
+  committedBudgetMinor: number;
+  availableBudgetMinor: number;
+};
 
 export function PurchaseRequestForm({ costCenters }: { costCenters: CostCenterOption[] }) {
   const router = useRouter();
@@ -19,6 +27,14 @@ export function PurchaseRequestForm({ costCenters }: { costCenters: CostCenterOp
   const parsedAmount = Number(amountInput);
   const validPreview = amountInput.trim() !== "" && Number.isSafeInteger(parsedAmount) && parsedAmount >= 1;
   const exceedsAvailable = validPreview && selectedCenter !== undefined && parsedAmount > selectedCenter.availableBudgetMinor;
+  const currentPct = selectedCenter
+    ? computeUtilizationPercent(selectedCenter.allocatedBudgetMinor, selectedCenter.committedBudgetMinor)
+    : 0;
+  const projectedPct = selectedCenter && validPreview
+    ? computeUtilizationPercent(selectedCenter.allocatedBudgetMinor, selectedCenter.committedBudgetMinor + parsedAmount)
+    : currentPct;
+  const projectedTone = utilizationTone(projectedPct, exceedsAvailable);
+  const clampPct = (value: number) => Math.min(100, Math.max(0, value));
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -116,13 +132,31 @@ export function PurchaseRequestForm({ costCenters }: { costCenters: CostCenterOp
             </span>
           )}
         </div>
-        <p className="field-hint">
+        {selectedCenter && (
+          <div className="projection">
+            <div className="meter-header">
+              <span>{validPreview ? "Projected utilization if approved" : `${selectedCenter.code} current utilization`}</span>
+              <span className="mono">{validPreview ? `${currentPct}% → ${projectedPct}%` : `${currentPct}%`}</span>
+            </div>
+            <div className="meter-track meter-track-lg" aria-hidden="true">
+              <div className={"meter-fill meter-fill-" + utilizationTone(currentPct, selectedCenter.availableBudgetMinor < 0)} style={{ width: `${clampPct(currentPct)}%` }} />
+              {validPreview && projectedPct > currentPct && (
+                <div
+                  className={"meter-projected meter-projected-" + projectedTone}
+                  style={{ left: `${clampPct(currentPct)}%`, width: `${clampPct(projectedPct) - clampPct(currentPct)}%` }}
+                />
+              )}
+              <span className="meter-threshold" />
+            </div>
+          </div>
+        )}
+        <p className={exceedsAvailable ? "field-hint field-hint-warn" : "field-hint"}>
           {exceedsAvailable && selectedCenter
             ? `Exceeds current available budget for ${selectedCenter.code} (${formatUsd(selectedCenter.availableBudgetMinor)}). Approval will require sufficient remaining funds.`
             : "Stored in exact integer minor units (100 cents = $1.00). Idempotency key is retained automatically on retry."}
         </p>
       </div>
-      <button type="submit" disabled={pending || costCenters.length === 0}>
+      <button type="submit" className="btn-block" disabled={pending || costCenters.length === 0}>
         {pending ? "Submitting…" : "Submit request"}
       </button>
       {error && <p className="error" role="alert">{error}</p>}

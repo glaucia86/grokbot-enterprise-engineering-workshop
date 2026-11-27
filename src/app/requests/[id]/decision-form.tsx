@@ -102,10 +102,10 @@ export function DecisionForm({ requestId }: { requestId: string }) {
           />
         </div>
       )}
-      <p className="field-hint">
+      <p className="field-hint field-hint-secure">
         Protected by an automatic idempotency key and ACID PostgreSQL budget lock.
       </p>
-      <button type="submit" disabled={busy} className={decision === "REJECT" ? "btn-danger" : undefined}>
+      <button type="submit" disabled={busy} className={decision === "REJECT" ? "btn-block btn-danger" : "btn-block"}>
         {busy ? "Saving…" : "Save decision"}
       </button>
       {error && <p className="error" role="alert">{error}</p>}

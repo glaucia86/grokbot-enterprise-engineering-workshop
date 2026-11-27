@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import type { FormEvent } from "react";
 import type { listLabIdentities } from "../server/auth/lab-session";
+import { useLabIdentitySwitch } from "./_components/use-lab-identity-switch";
 
 type Identity = Awaited<ReturnType<typeof listLabIdentities>>[number];
 
@@ -9,30 +10,15 @@ export function LabIdentityForm({ identities, selected }: {
   identities: Identity[];
   selected?: string;
 }) {
-  const [error, setError] = useState("");
-  const [pending, setPending] = useState(false);
+  const { error, pending, switchTo } = useLabIdentitySwitch();
 
-  async function switchIdentity(event: FormEvent<HTMLFormElement>) {
+  function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const identity = new FormData(event.currentTarget).get("identity");
-    setError("");
-    setPending(true);
-    try {
-      const response = await fetch("/api/lab/session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ identity }),
-      });
-      if (!response.ok) throw new Error("Identity selection failed");
-      window.location.replace("/");
-    } catch {
-      setError("Could not start the lab session. Check lab readiness and try again.");
-      setPending(false);
-    }
+    void switchTo(String(new FormData(event.currentTarget).get("identity")));
   }
 
   return (
-    <form className="identity-form" onSubmit={switchIdentity} autoComplete="off">
+    <form className="identity-form" onSubmit={submit} autoComplete="off">
       <div className="field">
         <label htmlFor="identity">Lab identity</label>
         <select id="identity" name="identity" defaultValue={selected ?? ""} required disabled={pending}>
