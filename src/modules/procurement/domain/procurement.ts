@@ -132,18 +132,8 @@ export function canTransitionStatus(current: PurchaseStatus, next: DecisionStatu
   return current === "PENDING" && (next === "APPROVED" || next === "REJECTED");
 }
 
-export function canDecidePurchase(
-  actor: TenantActor,
-  requesterId: string,
-  status: PurchaseStatus,
-  amountMinor?: number,
-): boolean {
-  if (status !== "PENDING") return false;
-  if (actor.role !== "APPROVER" || actor.userId === requesterId) return false;
-  if (amountMinor !== undefined && actor.approvalLimitMinor !== null && amountMinor > actor.approvalLimitMinor) {
-    return true;
-  }
-  return true;
+export function canDecidePurchase(actor: TenantActor, requesterId: string, status: PurchaseStatus): boolean {
+  return status === "PENDING" && actor.role === "APPROVER" && actor.userId !== requesterId;
 }
 
 export function canApproveAmount(actor: TenantActor, requesterId: string, status: PurchaseStatus, amountMinor: number): boolean {

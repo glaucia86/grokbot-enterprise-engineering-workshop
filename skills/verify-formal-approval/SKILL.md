@@ -18,7 +18,7 @@ Portable, repository-local formal verification skill (independent adaptation of 
   - `src/modules/procurement/domain/procurement.ts` (`canCommitAmount`, `canTransitionStatus`, `addCommittedAmount`)
   - `src/modules/procurement/infrastructure/postgres-requests.ts` (`decide()`)
   - `drizzle/0003_approval_integrity_constraints.sql` (`cost_centers_budget_bounds_check`, `financial_commitments_tenant_request_unique`, `decision_idempotency_keys`)
-- **Last confirmed sync commit:** Updated upon Phase 06 solution verification (see `artifacts/formal/<run-id>/manifest.json`).
+- **Last confirmed sync commit:** `6ba0bed6cae2e11118d8808ec49ad9ddaf0212e6` (verified via `artifacts/formal/phase06-tlc-verified/manifest.json` — `defective-read-commit.cfg` exit `12` `BudgetNotExceeded`, `locked-atomic.cfg` exit `0` 473 generated / 225 distinct / 0 queued states).
 - **Sync rule:** If `git diff <sync-commit>..HEAD -- src/modules/procurement/ drizzle/` changes approval locking, budget updates, or idempotency semantics, re-check correspondence between `formal/ProcurementApproval.tla` actions and the TypeScript/SQL implementation before moving the sync commit forward.
 
 ## Run One Command (No Host Java Required)

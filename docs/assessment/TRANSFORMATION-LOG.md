@@ -108,3 +108,18 @@
   - `bun run verify:formal` via `docker:eclipse-temurin:21-jre-alpine`: `defective-read-commit.cfg` exit `12` (`BudgetNotExceeded` counterexample, 282 generated / 186 distinct states); `locked-atomic.cfg` exit `0` (473 generated / 225 distinct states, 0 queued).
   - Full clean-SHA `bun run verify:all --slice solution` and `verify:formal` run immediately on commit.
 - **Next executable phase:** Phase 07 — Independent Review (`clean-code`, `code-review-and-quality`, Security/QA falsification), Multi-Job Least-Privilege CI + Governance Guard, and 11-Section Enterprise PR Template.
+
+---
+
+## Phase 07 — Independent Review, Multi-Job Least-Privilege CI/CD & Governance
+
+- **Status:** COMPLETED & VERIFIED LOCALLY (remote GitHub Actions execution remains `IMPLEMENTED BUT NOT VERIFIED` until pushed)
+- **What changed:**
+  - Applied `clean-code`, `code-review-and-quality`, and Security/QA falsification checklists to Phase 06 candidate `6ba0bed`: simplified dead branch in `canDecidePurchase()`, updated `skills/verify-formal-approval/SKILL.md` sync commit, verified zero cookie/credential leakage in evidence artifacts.
+  - Upgraded `.github/workflows/workshop-verification.yml` into 6 independent least-privilege (`contents: read`, SHA-pinned actions) jobs: `static-and-architecture`, `unit-and-properties`, `integration-concurrency-security`, `runtime-e2e-and-evidence`, `formal-verification`, and `governance-guard`.
+  - Upgraded `.github/pull_request_template.md` with all 11 enterprise governance sections and Human Approval Checklist.
+  - Authored `docs/governance/ENTERPRISE-GOVERNANCE.md` distinguishing committed workflow controls from administrative GitHub Rulesets and recording Phase 07 review findings.
+- **Why it changed:** Established Pillar 04 evidence-based delivery governance and protected acceptance criteria / verifiers against silent weakening.
+- **Requirements addressed:** `AC-12`, Golden Prompt §§16–17.
+- **What was verified:** `bun run check:static`, `bun run verify:architecture`, `bun run test:unit`, `bun run test:harness`, and full CI command parity locally. Remote GitHub Actions not yet executed (local branch not pushed).
+- **Next executable phase:** Phase 08 — Update `engineering/package-workshop.ts`, generate & verify clean local `workshop/starter`, `workshop/guided`, `workshop/solution` branches and 6 local recovery checkpoint tags.

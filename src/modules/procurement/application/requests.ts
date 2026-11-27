@@ -77,7 +77,7 @@ export function purchaseRequestService(repository: PurchaseRequestRepository) {
         purchase: record.request,
         costCenter: record.costCenter,
         commitment: record.commitment,
-        canDecide: canDecidePurchase(actor, record.requesterId, record.request.status, record.request.amountMinor),
+        canDecide: canDecidePurchase(actor, record.requesterId, record.request.status),
         canApprove: canApproveAmount(actor, record.requesterId, record.request.status, record.request.amountMinor),
       };
     },
