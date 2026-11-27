@@ -85,3 +85,10 @@ Evidence: `artifacts/verification/<run-id>/browser-results/**/ux-baseline-index.
 ## 7. Pending sections
 
 Navigation contract, design system, interaction contracts, motion, responsive behaviour and performance budgets are *pending* tickets 04–20 of the decision map. The [approved plan](TRANSFORMATION-PLAN.md) §D–§K hold the current proposals.
+
+## 8. Delivery log
+
+| Slice | Requirements delivered | Evidence |
+| --- | --- | --- |
+| UX-VS-00 | Baseline captured (no UI change) | `verify:all` `ux-vs-00-6402d32`, [handoff](handoffs/UX-VS-00.md) |
+| UX-VS-00B | XR-16; TC-01, TC-02, TC-03, TC-05, TC-06 | `verify:all` `ux-vs-00b-67d5f4e` and a starter rehearsal, [handoff](handoffs/UX-VS-00B.md) |

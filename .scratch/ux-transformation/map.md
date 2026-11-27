@@ -15,6 +15,7 @@ An approved enterprise product experience specification (PH-UXS-001), supported 
 ## Decisions so far
 
 - [Capture revision-bound UX baseline](issues/01-capture-ux-baseline.md): clean-SHA baseline `6402d32` (52 captures). Requester and mobile review actions sit below the fold; no overflow at 320 px; F-01 and F-02 need a starter-edition rehearsal.
+- [Verify audit findings at runtime](issues/02-verify-audit-findings.md): 12 findings confirmed and 6 left source-only or not evaluable. F-01 to F-03 fixed in UX-VS-00B and proven on a live starter overspend. New: F-19 (table overflow at 1280×720) and F-20 (pre-hydration decision input loss).
 
 ## Not yet specified
 
