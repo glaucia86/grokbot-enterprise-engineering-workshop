@@ -27,6 +27,15 @@ import { card, cardHeader, cardTitle, chip, cn } from "./_components/ui";
 import { computeUtilizationPercent, formatUsd, formatUtcShortDate } from "./format-purchase";
 import { LabIdentityForm } from "./lab-identity-form";
 import { PurchaseRequestForm } from "./purchase-request-form";
+import { DashboardA } from "./_prototype/dashboard-a.prototype";
+import { DashboardB } from "./_prototype/dashboard-b.prototype";
+import { DashboardC } from "./_prototype/dashboard-c.prototype";
+import { parseVariant, prototypesEnabled } from "./_prototype/flag";
+import { HomeA } from "./_prototype/home-a.prototype";
+import { HomeB } from "./_prototype/home-b.prototype";
+import { HomeC } from "./_prototype/home-c.prototype";
+import { dashboardExtras } from "./_prototype/load";
+import { PrototypeSwitcher } from "./_prototype/switcher";
 
 export const dynamic = "force-dynamic";
 
@@ -89,8 +98,18 @@ export default async function Home({
     enabled ? readLabSession() : Promise.resolve(undefined),
   ]);
 
+  const prototypes = prototypesEnabled();
+  const variant = prototypes ? parseVariant(resolvedParams.variant) : "0";
+  const switcher = prototypes ? <PrototypeSwitcher current={variant} /> : null;
+
   if (!session) {
-    return <Landing enabled={enabled} identities={[...identities]} />;
+    const home = { variant, identities: [...identities], enabled };
+    return (
+      <>
+        {variant === "A" ? <HomeA data={home} /> : variant === "B" ? <HomeB data={home} /> : variant === "C" ? <HomeC data={home} /> : <Landing enabled={enabled} identities={[...identities]} />}
+        {switcher}
+      </>
+    );
   }
 
   const activeFilter = parseStatusFilter(resolvedParams.status);
@@ -100,6 +119,17 @@ export default async function Home({
   ]);
 
   const metrics = dashboardMetrics(allPurchases, costCenters, session.approvalLimitMinor);
+
+  if (variant !== "0") {
+    const extras = await dashboardExtras(session, allPurchases, costCenters, resolvedParams.select);
+    const data = { variant, session, identities: [...identities], purchases: allPurchases, costCenters, metrics, asOf: new Date(), ...extras };
+    return (
+      <>
+        {variant === "A" ? <DashboardA data={data} /> : variant === "B" ? <DashboardB data={data} /> : <DashboardC data={data} />}
+        {switcher}
+      </>
+    );
+  }
   const purchases = activeFilter ? allPurchases.filter((p) => p.status === activeFilter) : allPurchases;
   const counts = {
     ALL: allPurchases.length,
@@ -112,6 +142,7 @@ export default async function Home({
   const isRequester = session.role === "REQUESTER";
 
   return (
+    <>
     <AppShell session={session} section="dashboard">
       <header className="flex flex-wrap items-end justify-between gap-x-8 gap-y-5">
         <div className="min-w-0 flex-1">
@@ -432,5 +463,7 @@ export default async function Home({
         </aside>
       </div>
     </AppShell>
+    {switcher}
+    </>
   );
 }

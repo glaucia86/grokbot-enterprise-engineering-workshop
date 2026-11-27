@@ -1,7 +1,7 @@
 # Workspace variants A, B and C
 
 Type: prototype
-Status: open
+Status: claimed
 Blocked by: 01, 06
 
 ## Question

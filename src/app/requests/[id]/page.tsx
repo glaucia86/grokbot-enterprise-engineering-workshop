@@ -2,7 +2,13 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { z } from "zod";
 import type { PurchaseStatus } from "../../../modules/procurement/domain/procurement";
-import { readLabSession } from "../../../server/auth/lab-session";
+import { listLabIdentities, readLabSession } from "../../../server/auth/lab-session";
+import { parseVariant, prototypesEnabled } from "../../_prototype/flag";
+import { nextPendingFor } from "../../_prototype/load";
+import { ReviewA } from "../../_prototype/review-a.prototype";
+import { ReviewB } from "../../_prototype/review-b.prototype";
+import { ReviewC } from "../../_prototype/review-c.prototype";
+import { PrototypeSwitcher } from "../../_prototype/switcher";
 import { requests } from "../../../server/procurement/requests";
 import { AppShell } from "../../_components/app-shell";
 import { BudgetBar } from "../../_components/budget-bar";
@@ -59,7 +65,10 @@ const auditTone = {
   REJECTED: { marker: "border-danger-line bg-danger-soft text-danger", icon: <XCircleIcon size={14} /> },
 } as const;
 
-export default async function RequestDetail({ params }: { params: Promise<{ id: string }> }) {
+export default async function RequestDetail({ params, searchParams }: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const session = await readLabSession();
   if (!session) redirect("/");
   const id = z.uuid().safeParse((await params).id);
@@ -70,6 +79,20 @@ export default async function RequestDetail({ params }: { params: Promise<{ id: 
     session.role === "REQUESTER" ? Promise.resolve(undefined) : requests.audit(session, id.data),
   ]);
   if (!detail) notFound();
+
+  const prototypes = prototypesEnabled();
+  const variant = prototypes ? parseVariant((await searchParams).variant) : "0";
+  const switcher = prototypes ? <PrototypeSwitcher current={variant} /> : null;
+  if (variant !== "0") {
+    const [identities, nextPending] = await Promise.all([listLabIdentities(), nextPendingFor(session, detail.purchase.id)]);
+    const data = { variant, session, identities: [...identities], detail, events: audit?.kind === "found" ? audit.events : null, nextPending, asOf: new Date() };
+    return (
+      <>
+        {variant === "A" ? <ReviewA data={data} /> : variant === "B" ? <ReviewB data={data} /> : <ReviewC data={data} />}
+        {switcher}
+      </>
+    );
+  }
 
   const { purchase, costCenter, commitment, canDecide, canApprove } = detail;
   const utilPct = computeUtilizationPercent(costCenter.allocatedBudgetMinor, costCenter.committedBudgetMinor);
@@ -83,6 +106,7 @@ export default async function RequestDetail({ params }: { params: Promise<{ id: 
   const steps = workflowSteps(purchase.status);
 
   return (
+    <>
     <AppShell session={session} section="detail">
       <Link
         className="inline-flex min-h-9 items-center gap-1.5 rounded-lg pr-3 text-sm font-medium text-ink-2 transition-colors duration-150 hover:text-accent"
@@ -320,5 +344,7 @@ export default async function RequestDetail({ params }: { params: Promise<{ id: 
         </aside>
       </div>
     </AppShell>
+    {switcher}
+    </>
   );
 }
