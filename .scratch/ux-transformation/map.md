@@ -14,6 +14,8 @@ An approved enterprise product experience specification (PH-UXS-001), supported 
 
 ## Decisions so far
 
+- [Capture revision-bound UX baseline](issues/01-capture-ux-baseline.md): clean-SHA baseline `6402d32` (52 captures). Requester and mobile review actions sit below the fold; no overflow at 320 px; F-01 and F-02 need a starter-edition rehearsal.
+
 ## Not yet specified
 
 - Dark mode after v1.
