@@ -32,11 +32,11 @@ export function LabIdentityForm({ identities, selected }: {
   }
 
   return (
-    <form className="identity-form" onSubmit={switchIdentity}>
+    <form className="identity-form" onSubmit={switchIdentity} autoComplete="off">
       <div className="field">
         <label htmlFor="identity">Lab identity</label>
         <select id="identity" name="identity" defaultValue={selected ?? ""} required disabled={pending}>
-          <option value="" disabled>Choose a synthetic identity</option>
+          <option value="" disabled>Choose a synthetic identity…</option>
           {identities.map(({ key, tenantName, displayName }) => key && (
             <option key={key} value={key}>{tenantName} · {displayName}</option>
           ))}

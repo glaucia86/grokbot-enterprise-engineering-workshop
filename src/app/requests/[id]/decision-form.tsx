@@ -70,14 +70,20 @@ export function DecisionForm({ requestId }: { requestId: string }) {
   }
 
   return (
-    <form className="request-form" onSubmit={submit} aria-busy={busy}>
+    <form className="request-form" onSubmit={submit} aria-busy={busy} autoComplete="off">
       <div className="field">
         <label htmlFor="decision">Decision</label>
-        <select id="decision" required disabled={busy} value={decision} onChange={(event) => {
-          setDecision(event.target.value);
-          setError("");
-        }}>
-          <option value="" disabled>Choose a decision</option>
+        <select
+          id="decision"
+          required
+          disabled={busy}
+          value={decision}
+          onChange={(event) => {
+            setDecision(event.target.value);
+            setError("");
+          }}
+        >
+          <option value="" disabled>Choose a decision…</option>
           <option value="APPROVE">Approve</option>
           <option value="REJECT">Reject</option>
         </select>
@@ -85,10 +91,23 @@ export function DecisionForm({ requestId }: { requestId: string }) {
       {decision === "REJECT" && (
         <div className="field">
           <label htmlFor="rejection-reason">Rejection reason</label>
-          <textarea id="rejection-reason" name="reason" required maxLength={2_000} rows={3} disabled={busy} />
+          <textarea
+            id="rejection-reason"
+            name="reason"
+            required
+            maxLength={2_000}
+            rows={3}
+            placeholder="Document why this purchase request cannot be approved…"
+            disabled={busy}
+          />
         </div>
       )}
-      <button type="submit" disabled={busy}>{busy ? "Saving…" : "Save decision"}</button>
+      <p className="field-hint">
+        Protected by an automatic idempotency key and ACID PostgreSQL budget lock.
+      </p>
+      <button type="submit" disabled={busy} className={decision === "REJECT" ? "btn-danger" : undefined}>
+        {busy ? "Saving…" : "Save decision"}
+      </button>
       {error && <p className="error" role="alert">{error}</p>}
     </form>
   );

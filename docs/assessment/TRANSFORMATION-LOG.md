@@ -174,3 +174,16 @@
   - Remote GitHub Actions execution (`workshop-verification.yml`, `workshop-slides.yml`) and administrative GitHub Branch Rulesets cannot be verified until authorized human pushes and configures the destination GitHub repository.
   - Live GrokBot CLI execution was not run locally because `grokbot` is not installed in this environment; all prompts, skills, harnesses, and role handoffs are verified agent-independently.
 - **Next executable phase:** Human review, optional remote push of approved refs, and live workshop delivery.
+
+---
+
+## Phase 11 — Enterprise UI/UX Redesign (Light Corporate Fintech)
+
+- **Status:** COMPLETED & VISUALLY VERIFIED
+- **Skills applied:** `ui-taste` (anti-slop laws, single locked accent, visual screenshot verification), `ui-ux-pro-max` (financial corporate B2B dashboard density, typography `IBM Plex Sans` + `IBM Plex Mono`, budget progress meters, filter chips, responsive tables), `web-design-guidelines` (skip-link, `themeColor`, `Intl.DateTimeFormat` UTC, `translate="no"`, `prefers-reduced-motion`, `touch-action: manipulation`, `autoComplete="off"`, `inputMode="numeric"`), `vercel-react-best-practices` (eliminated SSR waterfall on `/requests/[id]` via `Promise.all` for `detail` + `audit`).
+- **What changed:**
+  - Upgraded `src/app/layout.tsx`, `src/app/styles.css`, `src/app/_components/icons.tsx`, `src/app/format-purchase.ts`.
+  - Redesigned `src/app/page.tsx`, `src/app/lab-identity-form.tsx`, `src/app/purchase-request-form.tsx`: Enterprise App Shell Topbar, single-row Session Strip, PH-42 critical overspent invariant alert banner (`INV-01 / INV-02`), 4-card KPI Summary Strip, Cost Center budget utilization progress bars, URL-synced `?status=` filter chips with counts, responsive `.table-wrap`, right-aligned `tabular-nums` money columns, and live USD currency preview.
+  - Redesigned `src/app/requests/[id]/page.tsx` & `decision-form.tsx`: parallel SSR fetch, 2-column executive layout, 2×2 metadata grid, vertical chronological Audit Timeline, Cost Center Ledger with simulated "Projected if approved" impact, and Financial Commitment card.
+  - Refreshed `docs/media/procurement-hub.webp` from the live redesigned dashboard and expanded `tests/e2e/procurement-budget.spec.ts` (live USD preview, `?status=APPROVED` filter, `390x844` mobile zero-overflow check).
+- **What was verified:** Visual inspection of desktop `1280x840` dashboard & detail renders + mobile `390x844` render, ESLint/architecture boundaries, clean-SHA `verify:all --slice solution`, `slides:verify`, re-packaged `workshop/starter`, `workshop/guided`, `workshop/solution`, and pushed update to PR #16.

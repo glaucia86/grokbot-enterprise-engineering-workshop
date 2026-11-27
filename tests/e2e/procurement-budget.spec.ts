@@ -22,6 +22,7 @@ test("cost center budget commits on approval and blocks over-limit junior approv
   await page.getByLabel("Title").fill(title);
   await page.getByLabel("Justification").fill("Q4 enterprise security compliance verification");
   await page.getByLabel("Amount (USD cents)").fill("600000");
+  await expect(page.getByText("= $6,000.00 USD")).toBeVisible();
   await page.getByRole("button", { name: "Submit request" }).click();
   await expect(page.getByRole("heading", { name: title })).toBeVisible();
   await expect(page.getByText("$6,000.00")).toBeVisible();
@@ -49,5 +50,13 @@ test("cost center budget commits on approval and blocks over-limit junior approv
 
   await page.getByRole("link", { name: "Back to purchase requests" }).click();
   await expect(page.locator('tr[data-cost-center-code="CC-ENG-01"]')).toContainText("CC-ENG-01");
+  await page.getByRole("navigation", { name: "Filter requests by status" }).getByRole("link", { name: /Approved/ }).click();
+  await expect(page).toHaveURL(/\?status=APPROVED$/);
+  await expect(page.getByRole("link", { name: title })).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath("cost-center-budgets-dashboard.png"), fullPage: true });
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(overflow).toBeLessThanOrEqual(1);
+  await page.screenshot({ path: testInfo.outputPath("mobile-dashboard.png"), fullPage: true });
 });
