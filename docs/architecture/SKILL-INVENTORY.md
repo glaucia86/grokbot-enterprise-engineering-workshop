@@ -1,8 +1,8 @@
 # Skill Inventory, Provenance & Execution Audit
 
-This inventory documents all 24 pinned third-party skills installed via `engineering/skills-lock.json` (`bun engineering/bootstrap-skills.ts --verify`) plus the repository-local verification skills authored for Procurement Hub.
+This inventory documents all 28 pinned third-party skills installed via `engineering/skills-lock.json` (`bun engineering/bootstrap-skills.ts --verify`) plus the repository-local verification skills authored for Procurement Hub.
 
-> **Security & Supply-Chain Policy:** No unreviewed forks or external install scripts were added during this transformation. All 24 third-party skills are verified offline byte-for-byte against their SHA-256 digests in `engineering/skills-lock.json`. Skills that assume external issue publishing (e.g., `to-prd`, `to-spec`, `to-tickets`, `implement-spec`) are adapted strictly to local repository artifacts.
+> **Security & Supply-Chain Policy:** No unreviewed forks or external install scripts were added during this transformation. All 28 third-party skills are verified offline byte-for-byte against their SHA-256 digests in `engineering/skills-lock.json`. Skills that assume external issue publishing (e.g., `to-prd`, `to-spec`, `to-tickets`, `implement-spec`) are adapted strictly to local repository artifacts.
 
 ---
 
@@ -17,7 +17,7 @@ This inventory documents all 24 pinned third-party skills installed via `enginee
 
 ## 2. Installed Pinned Third-Party Skills (`.agents/skills/` via `engineering/skills-lock.json`)
 
-All 24 packages passed `bun engineering/bootstrap-skills.ts --verify` on 2026-11-26.
+All 28 packages passed `bun engineering/bootstrap-skills.ts --verify` on 2026-11-27 (UX-VS-00). The original 24 passed on 2026-11-26.
 
 | Skill | Upstream Source | Pinned Revision | License | Audit Status | Compatibility & Local Adaptation | Applied in Transformation? |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -41,15 +41,26 @@ All 24 packages passed `bun engineering/bootstrap-skills.ts --verify` on 2026-11
 | `playwright-cli` | `microsoft/playwright-cli` | `dc5f4d56` | Apache-2.0 | Verified SHA-256 | Playwright `@playwright/test` + Chromium traces/screenshots | **Yes** — applied to E2E tests and screenshot evidence capture (Phase 06) |
 | `web-design-guidelines` | `vercel-labs/agent-skills` | `5a37a632` | Upstream license unconfirmed | Verified SHA-256 | Authoring-only (excluded from public starter packaging pending license confirmation) | **Yes** — applied for semantic accessible labels/tables in Procurement Hub UI |
 | `ui-taste` | `uizze.sh` | `uizze-design-v14` | Apache-2.0 | Verified publisher checksums | Offline reference only; optional external Uizze services unused | **Reference only** — visual hierarchy & clean financial UI craft |
-| `ui-ux-pro-max` | `nextlevelbuilder/ui-ux-pro-max-skill` | `bde080f4` | MIT | Verified SHA-256 | Static reference only; bundled Python scripts not executed | **Reference only** — financial dashboard readability |
+| `ui-ux-pro-max` | `nextlevelbuilder/ui-ux-pro-max-skill` | `bde080f4` | MIT | Verified SHA-256 | Static reference. Its bundled Python helpers were executed during the local `feat/ui-ledger-indigo` redesign; the generated `scripts/__pycache__` failed `--verify` and was removed on 2026-11-27. Read its data files directly; run a helper only with explicit approval and `PYTHONDONTWRITEBYTECODE=1`. | **Reference only** — financial dashboard readability |
 | `github-actions-templates` | `wshobson/agents` | `c96b5f65` | MIT | Verified SHA-256 | Scoped strictly to lab CI gates with SHA-pinned actions & `contents: read` | **Yes** — applied to multi-job CI workflow (Phase 07) |
 | `clean-code` | `sickn33/agentic-awesome-skills` | `166f581c` | CC BY 4.0 / MIT | Verified SHA-256 | Adapted to TypeScript/repository conventions | **Yes** — invoked & applied across code slices and Phase 07 review |
 | `code-review-and-quality` | `addyosmani/agent-skills` | `e997ac5b` | MIT | Verified SHA-256 | Full multi-axis review checklist (correctness, security, maintainability) | **Yes** — invoked & applied during Phase 07 independent review |
+| `wayfinder` | `mattpocock/skills` | `7739eaed` | MIT | Verified SHA-256 | User-invoked only. Local Markdown map under `.scratch/` ([tracker conventions](../workflows/WAYFINDER-LOCAL-TRACKER.md)); no issue publishing, no pushed research branches | **Yes** — UX transformation decision map (UX-VS-00) |
+| `prototype` | `mattpocock/skills` | `32165827` | MIT | Verified SHA-256 | Read-only variants on a local throwaway branch; never merged or packaged | **Planned** — UX prototype phase |
+| `grilling` | `mattpocock/skills` | `7739eaed` | MIT | Verified SHA-256 | Wayfinder dependency for HITL decision tickets | **Planned** — UX decision tickets |
+| `research` | `mattpocock/skills` | `7739eaed` | MIT | Verified SHA-256 | Wayfinder dependency; findings saved under `.scratch/<effort>/research/` | **Planned** — UX research tickets |
 
 ---
+
+Each new pin is the latest upstream commit that changed the skill and is at least seven days old; its bytes equal the 2026-11-25 `6f7f7831` snapshot. An earlier CLI installation (CRLF copies plus a root `skills-lock.json`) was replaced by this audited installation.
+
+### Discovery
+
+Devin lists packages from `.agents/skills/` in its skill registry, but `wayfinder` stays hidden because it sets `disable-model-invocation: true`. Repository-local `skills/verify-*` are not discovered and must be read by path. A user-global skill with the same name can shadow a pinned copy: a global `to-prd` did so on 2026-11-27. Slice handoffs therefore list every skill file read, by path and SHA-256.
 
 ## 3. Redistribution & Packaging Guardrails
 
 - `drizzle` (LobeHub Community License) and `web-design-guidelines` (unconfirmed license) remain **outside** `workshop/starter`, `workshop/guided`, and `workshop/solution` release packaging.
+- `.scratch/` (Wayfinder maps and tickets) and `.agents/` are authoring-only and excluded from every edition by `engineering/package-workshop.ts`.
 - `.agents/skills/` stays gitignored (`.agents/skills/.gitignore`); only `engineering/skills-lock.json` and `engineering/bootstrap-skills.ts` are tracked in authoring branches.
 - Repository-local workshop skills (`skills/verify-procurement/` and `skills/verify-formal-approval/`) are original workshop assets included cleanly in participant/solution editions.

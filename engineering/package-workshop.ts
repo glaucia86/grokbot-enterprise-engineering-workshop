@@ -26,13 +26,14 @@ const solutionOnlyPaths = new Set([
   "tests/integration/approval-migration.test.ts",
 ]);
 
+const authoringOnly = [/^release\//, /^\.agents\//, /^\.scratch\//];
+
 const excludedFromParticipant = [
-  /^release\//,
+  ...authoringOnly,
   /^slides\//,
   /^docs\/assessment\//,
   /^doc-specs\/handoffs\//,
   /^doc-specs\/adr\//,
-  /^\.agents\//,
 ];
 
 function invokeGit(cwd: string, args: string[], input?: Uint8Array, env?: NodeJS.ProcessEnv) {
@@ -61,7 +62,7 @@ function selectPaths(edition: Edition, revision: string): string[] {
     if (path === "README.md") return false; // replaced by edition-specific README
     if (edition !== "solution" && solutionOnlyPaths.has(path)) return false;
     if (edition !== "solution" && excludedFromParticipant.some((pattern) => pattern.test(path))) return false;
-    if (edition === "solution" && (/^release\//.test(path) || /^\.agents\//.test(path))) return false;
+    if (edition === "solution" && authoringOnly.some((pattern) => pattern.test(path))) return false;
     return true;
   });
 }

@@ -20,6 +20,7 @@ artifacts/loop/
 artifacts/.cache/
 artifacts/slides/
 artifacts/slides-presenter/
+artifacts/ui-review/
 playwright-report/
 test-results/
 playwright/.auth/
