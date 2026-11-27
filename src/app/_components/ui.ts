@@ -14,7 +14,7 @@ const buttonBase =
   "inline-flex min-h-10 cursor-pointer touch-manipulation items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold whitespace-nowrap transition-[background-color,border-color,color,box-shadow,transform] duration-150 ease-out active:scale-[0.97] disabled:cursor-wait disabled:opacity-60 disabled:active:scale-100";
 
 export const button = {
-  primary: cn(buttonBase, "bg-accent-solid text-white shadow-card hover:bg-accent-hover dark:hover:bg-[#3d68ea]"),
+  primary: cn(buttonBase, "bg-accent-solid text-white shadow-card hover:bg-accent-solid-hover"),
   secondary: cn(buttonBase, "border border-line-strong bg-surface text-ink hover:border-ink-3 hover:bg-subtle"),
   quiet: cn(buttonBase, "text-accent hover:bg-accent-soft"),
   danger: cn(buttonBase, "bg-danger-solid text-white shadow-card hover:brightness-110"),
@@ -23,11 +23,11 @@ export const button = {
 export const field = "grid min-w-0 gap-1.5";
 export const label = "text-[0.8125rem] font-medium text-ink-2";
 export const control =
-  "min-h-10 w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm text-ink shadow-[inset_0_1px_1px_rgb(13_20_33/0.04)] transition-[border-color,box-shadow] duration-150 placeholder:text-ink-3/80 hover:border-ink-3 focus-visible:border-accent focus-visible:shadow-[0_0_0_3px_var(--accent-line)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60";
+  "min-h-10 w-full rounded-lg border border-line-strong bg-surface px-3 py-2 text-sm text-ink shadow-[inset_0_1px_1px_rgb(28_25_23/0.04)] transition-[border-color,box-shadow] duration-150 placeholder:text-ink-3/80 hover:border-ink-3 focus-visible:border-accent focus-visible:shadow-[0_0_0_3px_var(--accent-line)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60";
 
 export const labelNight = "text-[0.8125rem] font-medium text-night-muted";
 export const controlNight =
-  "min-h-11 w-full rounded-lg border border-night-line bg-night-raised px-3 py-2 text-sm text-night-ink transition-[border-color,box-shadow] duration-150 hover:border-white/20 focus-visible:border-night-accent focus-visible:shadow-[0_0_0_3px_rgb(124_157_255/0.3)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 [&>option]:bg-night-surface [&>option]:text-night-ink";
+  "min-h-11 w-full rounded-lg border border-night-line bg-night-raised px-3 py-2 text-sm text-night-ink transition-[border-color,box-shadow] duration-150 hover:border-white/20 focus-visible:border-night-accent focus-visible:shadow-[0_0_0_3px_rgb(251_146_60/0.3)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60 [&>option]:bg-night-surface [&>option]:text-night-ink";
 
 export const chip = "inline-flex items-center rounded-md border border-line bg-muted px-1.5 py-0.5 font-mono text-xs text-ink-2 whitespace-nowrap";
 

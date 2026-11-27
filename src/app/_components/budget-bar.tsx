@@ -9,13 +9,13 @@ export function budgetTone(percent: number, overspent: boolean): BudgetTone {
 }
 
 const fillTone: Record<BudgetTone, string> = {
-  healthy: "bg-accent-solid",
+  healthy: "bg-ink-2",
   warning: "bg-warning-solid",
   danger: "bg-danger-solid",
 };
 
 const hatchTone: Record<BudgetTone, string> = {
-  healthy: "text-accent/45",
+  healthy: "text-ink-3/50",
   warning: "text-warning-solid/55",
   danger: "text-danger-solid/60",
 };

@@ -15,13 +15,13 @@ type Session = NonNullable<Awaited<ReturnType<typeof readLabSession>>>;
 const depth = (value: number, drift = 0): CSSProperties => ({ "--depth": value, "--drift": drift }) as CSSProperties;
 const rise = (value: number): CSSProperties => ({ "--rise": value }) as CSSProperties;
 
-/* Base of the pyramid is the strongest guarantee, so it carries the most saturated blue. */
+/* The base is the strongest guarantee, so it is the one layer that carries the accent. */
 const pyramidTone: Record<string, string> = {
   "05": "w-full sm:w-[60%] border border-night-line bg-white/[0.06] text-night-ink",
-  "04": "w-full sm:w-[70%] bg-[#1c3274] text-white",
-  "03": "w-full sm:w-[80%] bg-[#233f9c] text-white",
-  "02": "w-full sm:w-[90%] bg-[#2a4ec4] text-white",
-  "01": "w-full bg-[#2f5be0] text-white",
+  "04": "w-full sm:w-[70%] bg-[#2f2c29] text-white",
+  "03": "w-full sm:w-[80%] bg-[#3a3733] text-white",
+  "02": "w-full sm:w-[90%] bg-[#44403c] text-white",
+  "01": "w-full bg-accent-solid text-white",
 };
 
 /** Real UI fragments floating over ruled ledger paper, each at its own depth. */
@@ -51,7 +51,7 @@ function LedgerComposition() {
         <p className="mt-3 text-xs text-ink-3">Available headroom</p>
         <p className="font-mono text-xl font-semibold tracking-[-0.03em] tabular-nums text-ink">$3,000.00</p>
         <div className="mt-2.5 h-2 overflow-hidden rounded-full bg-muted">
-          <div className="h-full w-[70%] rounded-full bg-accent-solid" />
+          <div className="h-full w-[70%] rounded-full bg-ink-2" />
         </div>
       </div>
 

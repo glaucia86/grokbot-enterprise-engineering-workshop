@@ -1,101 +1,101 @@
 @import "tailwindcss";
 
 /* ==========================================================================
-   Procurement Hub design system — "Ledger"
-   - One accent (ledger blue) for brand, links, focus and primary actions.
-   - Green / amber / red carry status meaning only.
-   - One cool grey family. Shape lock: cards 12px, controls 8px, chips 6px,
-     status badges are pills. No decorative gradients, no glass on content.
+   Palette "Graphite + Orange" — warm graphite neutrals, white surfaces, one
+   burnt-orange accent. Orange = brand + primary action + focus; yellow =
+   pending/warning; red = violation; green = approved. One warm grey family.
    ========================================================================== */
 
 :root {
-  --canvas: #eef1f6;
+  --canvas: #f5f5f4;
   --surface: #ffffff;
-  --subtle: #f8fafc;
-  --muted: #eef1f5;
-  --line: #e2e7ee;
-  --line-strong: #cbd3de;
-  --ink: #0d1421;
-  --ink-2: #2b3547;
-  --ink-3: #5b6779;
+  --subtle: #fafaf9;
+  --muted: #f0efed;
+  --line: #e7e5e4;
+  --line-strong: #d6d3d1;
+  --ink: #1c1917;
+  --ink-2: #44403c;
+  --ink-3: #6b6560;
 
-  --accent: #1f4fd8;
-  --accent-hover: #1a3fb0;
-  --accent-solid: #1f4fd8;
-  --accent-soft: #edf2ff;
-  --accent-line: #c5d3fb;
-  --accent-ink: #1a3a9e;
+  --brand: #ea580c;
+  --accent: #c2410c;
+  --accent-hover: #9a3412;
+  --accent-solid: #c2410c;
+  --accent-solid-hover: #9a3412;
+  --accent-soft: #fff4ed;
+  --accent-line: #fed7aa;
+  --accent-ink: #9a3412;
 
   --success: #067647;
   --success-soft: #ecfdf3;
   --success-line: #abefc6;
   --success-solid: #17b26a;
 
-  --warning: #b54708;
-  --warning-soft: #fffaeb;
-  --warning-line: #fedf89;
-  --warning-solid: #f79009;
+  --warning: #a15c07;
+  --warning-soft: #fef7c3;
+  --warning-line: #fde68a;
+  --warning-solid: #eaaa08;
 
   --danger: #b42318;
   --danger-soft: #fef3f2;
   --danger-line: #fecdca;
   --danger-solid: #d92d20;
 
-  --ledger-rule: rgba(31, 79, 216, 0.07);
-  --ledger-margin: rgba(217, 45, 32, 0.18);
+  --ledger-rule: rgba(28, 25, 23, 0.06);
+  --ledger-margin: rgba(234, 88, 12, 0.3);
 
-  /* Night: solid navy blocks (hero, proof, footer, sidebar). Same role in both appearances. */
-  --night: #0b1220;
-  --night-surface: #111a2e;
-  --night-raised: #16213a;
-  --night-line: rgba(255, 255, 255, 0.09);
-  --night-ink: #e8ecf4;
-  --night-muted: #9aa6bd;
-  --night-accent: #7c9dff;
+  /* Graphite blocks: hero, proof, footer, sidebar. */
+  --night: #1a1917;
+  --night-surface: #23211f;
+  --night-raised: #2c2a27;
+  --night-line: rgba(255, 255, 255, 0.08);
+  --night-ink: #f5f5f4;
+  --night-muted: #a8a29e;
+  --night-accent: #fb923c;
 
   color-scheme: light dark;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --canvas: #0b0f17;
-    --surface: #121826;
-    --subtle: #161d2d;
-    --muted: #1c2436;
-    --line: #253047;
-    --line-strong: #34415c;
-    --ink: #e7ebf3;
-    --ink-2: #c1c9d8;
-    --ink-3: #8d98ad;
+    --canvas: #0f0e0d;
+    --surface: #1c1917;
+    --subtle: #211e1b;
+    --muted: #292524;
+    --line: #322e2a;
+    --line-strong: #44403c;
+    --ink: #f5f5f4;
+    --ink-2: #d6d3d1;
+    --ink-3: #a8a29e;
 
-    --accent: #7c9dff;
-    --accent-hover: #a3bbff;
-    --accent-solid: #2f5be0;
-    --accent-soft: rgba(124, 157, 255, 0.12);
-    --accent-line: rgba(124, 157, 255, 0.34);
-    --accent-ink: #bfd0ff;
+    --accent: #fb923c;
+    --accent-hover: #fdba74;
+    --accent-solid: #c2410c;
+    --accent-soft: rgba(251, 146, 60, 0.12);
+    --accent-line: rgba(251, 146, 60, 0.32);
+    --accent-ink: #fdba74;
 
     --success: #75e0a7;
     --success-soft: rgba(23, 178, 106, 0.12);
     --success-line: rgba(23, 178, 106, 0.36);
     --success-solid: #17b26a;
 
-    --warning: #fec84b;
-    --warning-soft: rgba(247, 144, 9, 0.12);
-    --warning-line: rgba(247, 144, 9, 0.36);
-    --warning-solid: #f79009;
+    --warning: #fde272;
+    --warning-soft: rgba(234, 170, 8, 0.12);
+    --warning-line: rgba(234, 170, 8, 0.36);
+    --warning-solid: #eaaa08;
 
     --danger: #fda29b;
     --danger-soft: rgba(240, 68, 56, 0.12);
     --danger-line: rgba(240, 68, 56, 0.4);
     --danger-solid: #f04438;
 
-    --ledger-rule: rgba(124, 157, 255, 0.07);
-    --ledger-margin: rgba(240, 68, 56, 0.22);
+    --ledger-rule: rgba(255, 255, 255, 0.05);
+    --ledger-margin: rgba(251, 146, 60, 0.3);
 
-    --night: #070b14;
-    --night-surface: #0e1524;
-    --night-raised: #141d31;
+    --night: #0a0908;
+    --night-surface: #151311;
+    --night-raised: #1e1b18;
   }
 }
 
@@ -113,9 +113,11 @@
   --color-ink-2: var(--ink-2);
   --color-ink-3: var(--ink-3);
 
+  --color-brand: var(--brand);
   --color-accent: var(--accent);
   --color-accent-hover: var(--accent-hover);
   --color-accent-solid: var(--accent-solid);
+  --color-accent-solid-hover: var(--accent-solid-hover);
   --color-accent-soft: var(--accent-soft);
   --color-accent-line: var(--accent-line);
   --color-accent-ink: var(--accent-ink);
@@ -141,9 +143,9 @@
   --color-night-muted: var(--night-muted);
   --color-night-accent: var(--night-accent);
 
-  --shadow-card: 0 1px 2px rgb(13 20 33 / 0.05), 0 1px 1px rgb(13 20 33 / 0.03);
-  --shadow-raised: 0 1px 2px rgb(13 20 33 / 0.06), 0 8px 24px -12px rgb(13 20 33 / 0.18);
-  --shadow-float: 0 2px 6px rgb(13 20 33 / 0.06), 0 24px 48px -20px rgb(13 20 33 / 0.28);
+  --shadow-card: 0 1px 2px rgb(28 25 23 / 0.05), 0 1px 1px rgb(28 25 23 / 0.03);
+  --shadow-raised: 0 1px 2px rgb(28 25 23 / 0.06), 0 8px 24px -12px rgb(28 25 23 / 0.18);
+  --shadow-float: 0 2px 6px rgb(28 25 23 / 0.08), 0 24px 48px -20px rgb(0 0 0 / 0.45);
 
   --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
 }
@@ -186,7 +188,7 @@
   /* Native select with a consistent chevron; background stays explicit for Windows dark mode. */
   .select-chevron {
     appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 256 256'%3E%3Cpath fill='%235b6779' d='M213.66 101.66l-80 80a8 8 0 0 1-11.32 0l-80-80a8 8 0 0 1 11.32-11.32L128 164.69l74.34-74.35a8 8 0 0 1 11.32 11.32Z'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 256 256'%3E%3Cpath fill='%236b6560' d='M213.66 101.66l-80 80a8 8 0 0 1-11.32 0l-80-80a8 8 0 0 1 11.32-11.32L128 164.69l74.34-74.35a8 8 0 0 1 11.32 11.32Z'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 0.75rem center;
     background-size: 1rem;
@@ -205,7 +207,7 @@
   .ledger-rules-night {
     background-color: var(--night-surface);
     background-image:
-      linear-gradient(to right, transparent 3.25rem, rgba(240, 68, 56, 0.28) 3.25rem, rgba(240, 68, 56, 0.28) calc(3.25rem + 1px), transparent calc(3.25rem + 1px)),
+      linear-gradient(to right, transparent 3.25rem, rgba(251, 146, 60, 0.35) 3.25rem, rgba(251, 146, 60, 0.35) calc(3.25rem + 1px), transparent calc(3.25rem + 1px)),
       repeating-linear-gradient(to bottom, transparent 0, transparent 31px, rgba(255, 255, 255, 0.05) 31px, rgba(255, 255, 255, 0.05) 32px);
   }
 
@@ -259,8 +261,8 @@
 
 @media (prefers-contrast: more) {
   :root {
-    --line: #9aa5b5;
-    --line-strong: #5b6779;
-    --ink-3: #2b3547;
+    --line: #a8a29e;
+    --line-strong: #6b6560;
+    --ink-3: #44403c;
   }
 }

@@ -9,7 +9,7 @@ type Section = "dashboard" | "overview" | "detail";
 
 export function BrandMark() {
   return (
-    <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-accent-solid text-white" aria-hidden="true">
+    <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-brand text-white" aria-hidden="true">
       <ShieldCheckIcon size={18} weight="bold" />
     </span>
   );

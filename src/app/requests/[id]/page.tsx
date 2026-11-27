@@ -254,8 +254,8 @@ export default async function RequestDetail({ params }: { params: Promise<{ id: 
                 </div>
                 {pending && (
                   <div className="flex items-baseline justify-between gap-3 py-1.5">
-                    <dt className="text-accent-ink">Projected if approved ({projectedPct}%)</dt>
-                    <dd className={cn("font-mono font-semibold tabular-nums", projectedRemaining < 0 ? "text-danger" : "text-accent-ink")}>
+                    <dt className="text-ink-2">Projected if approved ({projectedPct}%)</dt>
+                    <dd className={cn("font-mono font-semibold tabular-nums", projectedRemaining < 0 ? "text-danger" : "text-ink")}>
                       {formatUsd(projectedRemaining)}
                     </dd>
                   </div>
