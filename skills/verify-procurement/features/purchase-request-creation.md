@@ -31,7 +31,7 @@ An authenticated `REQUESTER` selects one of their tenant's **Cost Centers**, ent
 
 ## Driving It with the Harness
 
-- **Browser selectors:** `getByLabel("Cost center")`, `getByLabel("Title")`, `getByLabel("Justification")`, `getByLabel("Amount (USD cents)")`, `getByRole("button", { name: "Submit request" })`.
+- **Browser selectors:** `getByLabel("Cost center", { exact: true })`, `getByLabel("Title")`, `getByLabel("Justification")`, `getByLabel("Amount (USD cents)")`, `getByRole("button", { name: "Submit request" })`.
 - **Verification commands:**
 
 ```bash

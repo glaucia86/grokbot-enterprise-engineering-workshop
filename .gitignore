@@ -16,6 +16,8 @@ coverage/
 artifacts/verification/
 artifacts/release/
 artifacts/formal/
+artifacts/loop/
+artifacts/.cache/
 artifacts/slides/
 artifacts/slides-presenter/
 playwright-report/

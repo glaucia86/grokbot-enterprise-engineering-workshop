@@ -18,7 +18,7 @@ test("cost center budget commits on approval and blocks over-limit junior approv
   await expect(ccRow).toBeVisible();
   await expect(ccRow).toContainText("$10,000.00");
 
-  await page.getByLabel("Cost center").selectOption(CC_ENG_01_ID);
+  await page.getByLabel("Cost center", { exact: true }).selectOption(CC_ENG_01_ID);
   await page.getByLabel("Title").fill(title);
   await page.getByLabel("Justification").fill("Q4 enterprise security compliance verification");
   await page.getByLabel("Amount (USD cents)").fill("600000");
