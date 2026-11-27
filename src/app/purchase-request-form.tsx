@@ -2,7 +2,9 @@
 
 import { useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { utilizationTone } from "./_components/utilization-ring";
+import { BudgetBar } from "./_components/budget-bar";
+import { CircleNotchIcon, InfoIcon, WarningIcon } from "./_components/icons";
+import { button, cn, control, field, label } from "./_components/ui";
 import { computeUtilizationPercent, formatUsd } from "./format-purchase";
 
 type Attempt = { payload: string; key: string };
@@ -33,8 +35,6 @@ export function PurchaseRequestForm({ costCenters }: { costCenters: CostCenterOp
   const projectedPct = selectedCenter && validPreview
     ? computeUtilizationPercent(selectedCenter.allocatedBudgetMinor, selectedCenter.committedBudgetMinor + parsedAmount)
     : currentPct;
-  const projectedTone = utilizationTone(projectedPct, exceedsAvailable);
-  const clampPct = (value: number) => Math.min(100, Math.max(0, value));
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -74,15 +74,16 @@ export function PurchaseRequestForm({ costCenters }: { costCenters: CostCenterOp
   }
 
   return (
-    <form className="request-form" onSubmit={submit} autoComplete="off">
-      <div className="field">
-        <label htmlFor="cost-center">Cost center</label>
+    <form className="grid gap-4" onSubmit={submit} autoComplete="off">
+      <div className={field}>
+        <label htmlFor="cost-center" className={label}>Cost center</label>
         <select
           id="cost-center"
           name="costCenterId"
           required
           value={selectedCenterId}
           onChange={(event) => setSelectedCenterId(event.target.value)}
+          className={cn(control, "select-chevron")}
         >
           {costCenters.map((center) => (
             <option key={center.id} value={center.id}>
@@ -91,12 +92,12 @@ export function PurchaseRequestForm({ costCenters }: { costCenters: CostCenterOp
           ))}
         </select>
       </div>
-      <div className="field">
-        <label htmlFor="title">Title</label>
-        <input id="title" name="title" maxLength={120} placeholder="e.g. Cloud Security Audit Tooling…" required />
+      <div className={field}>
+        <label htmlFor="title" className={label}>Title</label>
+        <input id="title" name="title" maxLength={120} placeholder="e.g. Cloud Security Audit Tooling…" required className={control} />
       </div>
-      <div className="field">
-        <label htmlFor="justification">Justification</label>
+      <div className={field}>
+        <label htmlFor="justification" className={label}>Justification</label>
         <textarea
           id="justification"
           name="justification"
@@ -104,11 +105,12 @@ export function PurchaseRequestForm({ costCenters }: { costCenters: CostCenterOp
           rows={3}
           placeholder="Business need, vendor scope, and cost-center alignment…"
           required
+          className={cn(control, "resize-y leading-relaxed")}
         />
       </div>
-      <div className="field">
-        <label htmlFor="amount">Amount (USD cents)</label>
-        <div className="amount-input-row">
+      <div className={field}>
+        <label htmlFor="amount" className={label}>Amount (USD cents)</label>
+        <div className="flex flex-wrap items-center gap-2">
           <input
             id="amount"
             name="amountMinor"
@@ -117,49 +119,61 @@ export function PurchaseRequestForm({ costCenters }: { costCenters: CostCenterOp
             min={1}
             max={Number.MAX_SAFE_INTEGER}
             step={1}
-            className="amount-field-input"
             placeholder="700000"
             value={amountInput}
             onChange={(event) => setAmountInput(event.target.value)}
             required
+            className={cn(control, "max-w-44 font-mono tabular-nums")}
           />
           {validPreview && (
             <span
-              className={exceedsAvailable ? "currency-preview currency-preview-warn" : "currency-preview"}
+              className={cn(
+                "inline-flex items-center rounded-md border px-2 py-1 font-mono text-sm font-semibold tabular-nums",
+                exceedsAvailable ? "border-warning-line bg-warning-soft text-warning" : "border-accent-line bg-accent-soft text-accent-ink",
+              )}
               aria-live="polite"
             >
               = {formatUsd(parsedAmount)} USD
             </span>
           )}
         </div>
+
         {selectedCenter && (
-          <div className="projection">
-            <div className="meter-header">
+          <div className="mt-1.5 grid gap-1.5 rounded-lg border border-line bg-subtle px-3 py-2.5">
+            <div className="flex items-baseline justify-between gap-2 text-xs text-ink-3">
               <span>{validPreview ? "Projected utilization if approved" : `${selectedCenter.code} current utilization`}</span>
-              <span className="mono">{validPreview ? `${currentPct}% → ${projectedPct}%` : `${currentPct}%`}</span>
+              <span className="font-mono tabular-nums text-ink-2">
+                {validPreview ? `${currentPct}% → ${projectedPct}%` : `${currentPct}%`}
+              </span>
             </div>
-            <div className="meter-track meter-track-lg" aria-hidden="true">
-              <div className={"meter-fill meter-fill-" + utilizationTone(currentPct, selectedCenter.availableBudgetMinor < 0)} style={{ width: `${clampPct(currentPct)}%` }} />
-              {validPreview && projectedPct > currentPct && (
-                <div
-                  className={"meter-projected meter-projected-" + projectedTone}
-                  style={{ left: `${clampPct(currentPct)}%`, width: `${clampPct(projectedPct) - clampPct(currentPct)}%` }}
-                />
-              )}
-              <span className="meter-threshold" />
-            </div>
+            <BudgetBar
+              allocatedMinor={selectedCenter.allocatedBudgetMinor}
+              committedMinor={selectedCenter.committedBudgetMinor}
+              pendingMinor={validPreview ? parsedAmount : 0}
+            />
           </div>
         )}
-        <p className={exceedsAvailable ? "field-hint field-hint-warn" : "field-hint"}>
-          {exceedsAvailable && selectedCenter
-            ? `Exceeds current available budget for ${selectedCenter.code} (${formatUsd(selectedCenter.availableBudgetMinor)}). Approval will require sufficient remaining funds.`
-            : "Stored in exact integer minor units (100 cents = $1.00). Idempotency key is retained automatically on retry."}
+
+        <p className={cn("flex items-start gap-1.5 text-xs", exceedsAvailable ? "font-medium text-warning" : "text-ink-3")}>
+          {exceedsAvailable
+            ? <WarningIcon size={14} className="mt-px shrink-0" aria-hidden="true" />
+            : <InfoIcon size={14} className="mt-px shrink-0" aria-hidden="true" />}
+          <span>
+            {exceedsAvailable && selectedCenter
+              ? `Exceeds current available budget for ${selectedCenter.code} (${formatUsd(selectedCenter.availableBudgetMinor)}). Approval will require sufficient remaining funds.`
+              : "Stored in exact integer minor units (100 cents = $1.00). Idempotency key is retained automatically on retry."}
+          </span>
         </p>
       </div>
-      <button type="submit" className="btn-block" disabled={pending || costCenters.length === 0}>
+      <button type="submit" disabled={pending || costCenters.length === 0} className={cn(button.primary, "w-full")}>
+        {pending && <CircleNotchIcon size={16} className="animate-spin" aria-hidden="true" />}
         {pending ? "Submitting…" : "Submit request"}
       </button>
-      {error && <p className="error" role="alert">{error}</p>}
+      {error && (
+        <p className="rounded-lg border border-danger-line bg-danger-soft px-3 py-2 text-sm font-medium text-danger" role="alert">
+          {error}
+        </p>
+      )}
     </form>
   );
 }

@@ -2,13 +2,16 @@
 
 import type { FormEvent } from "react";
 import type { listLabIdentities } from "../server/auth/lab-session";
+import { CircleNotchIcon } from "./_components/icons";
+import { button, cn, control, field, label } from "./_components/ui";
 import { useLabIdentitySwitch } from "./_components/use-lab-identity-switch";
 
 type Identity = Awaited<ReturnType<typeof listLabIdentities>>[number];
 
-export function LabIdentityForm({ identities, selected }: {
+export function LabIdentityForm({ identities, selected, layout = "inline" }: {
   identities: Identity[];
   selected?: string;
+  layout?: "inline" | "stacked";
 }) {
   const { error, pending, switchTo } = useLabIdentitySwitch();
 
@@ -18,18 +21,36 @@ export function LabIdentityForm({ identities, selected }: {
   }
 
   return (
-    <form className="identity-form" onSubmit={submit} autoComplete="off">
-      <div className="field">
-        <label htmlFor="identity">Lab identity</label>
-        <select id="identity" name="identity" defaultValue={selected ?? ""} required disabled={pending}>
+    <form
+      className={cn("grid gap-2", layout === "inline" && "sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end")}
+      onSubmit={submit}
+      autoComplete="off"
+    >
+      <div className={field}>
+        <label htmlFor="identity" className={label}>Lab identity</label>
+        <select
+          id="identity"
+          name="identity"
+          defaultValue={selected ?? ""}
+          required
+          disabled={pending}
+          className={cn(control, "select-chevron")}
+        >
           <option value="" disabled>Choose a synthetic identity…</option>
           {identities.map(({ key, tenantName, displayName }) => key && (
             <option key={key} value={key}>{tenantName} · {displayName}</option>
           ))}
         </select>
       </div>
-      <button type="submit" disabled={pending}>{pending ? "Switching…" : "Switch identity"}</button>
-      {error && <p className="error" role="alert">{error}</p>}
+      <button type="submit" disabled={pending} className={cn(button.primary, layout === "stacked" && "w-full")}>
+        {pending && <CircleNotchIcon size={16} className="animate-spin" aria-hidden="true" />}
+        {pending ? "Switching…" : "Switch identity"}
+      </button>
+      {error && (
+        <p className="rounded-lg border border-danger-line bg-danger-soft px-3 py-2 text-sm font-medium text-danger sm:col-span-full" role="alert">
+          {error}
+        </p>
+      )}
     </form>
   );
 }

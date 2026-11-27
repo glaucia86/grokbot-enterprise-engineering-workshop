@@ -6,14 +6,14 @@ import "./styles.css";
 const plexSans = IBM_Plex_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-  variable: "--font-sans",
+  variable: "--font-plex-sans",
   display: "swap",
 });
 
 const plexMono = IBM_Plex_Mono({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
-  variable: "--font-mono",
+  variable: "--font-plex-mono",
   display: "swap",
 });
 
@@ -24,8 +24,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f5f6fa" },
-    { media: "(prefers-color-scheme: dark)", color: "#0a0d18" },
+    { media: "(prefers-color-scheme: light)", color: "#f4f6f9" },
+    { media: "(prefers-color-scheme: dark)", color: "#0b0f17" },
   ],
   colorScheme: "light dark",
 };
@@ -34,7 +34,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${plexSans.variable} ${plexMono.variable}`} data-scroll-behavior="smooth">
       <body suppressHydrationWarning>
-        <a className="skip-link" href="#main-content">Skip to main content</a>
+        <a
+          className="sr-only z-[100] rounded-lg bg-accent-solid px-4 py-2.5 text-sm font-semibold text-white focus:not-sr-only focus:fixed focus:left-3 focus:top-3"
+          href="#main-content"
+        >
+          Skip to main content
+        </a>
         {children}
       </body>
     </html>

@@ -2,6 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition, type FormEvent } from "react";
+import { CircleNotchIcon, LockSimpleIcon } from "../../_components/icons";
+import { button, cn, control, field, label } from "../../_components/ui";
 
 type Attempt = { payload: string; key: string };
 
@@ -70,9 +72,9 @@ export function DecisionForm({ requestId }: { requestId: string }) {
   }
 
   return (
-    <form className="request-form" onSubmit={submit} aria-busy={busy} autoComplete="off">
-      <div className="field">
-        <label htmlFor="decision">Decision</label>
+    <form className="grid gap-4" onSubmit={submit} aria-busy={busy} autoComplete="off">
+      <div className={field}>
+        <label htmlFor="decision" className={label}>Decision</label>
         <select
           id="decision"
           required
@@ -82,6 +84,7 @@ export function DecisionForm({ requestId }: { requestId: string }) {
             setDecision(event.target.value);
             setError("");
           }}
+          className={cn(control, "select-chevron")}
         >
           <option value="" disabled>Choose a decision…</option>
           <option value="APPROVE">Approve</option>
@@ -89,8 +92,8 @@ export function DecisionForm({ requestId }: { requestId: string }) {
         </select>
       </div>
       {decision === "REJECT" && (
-        <div className="field">
-          <label htmlFor="rejection-reason">Rejection reason</label>
+        <div className={field}>
+          <label htmlFor="rejection-reason" className={label}>Rejection reason</label>
           <textarea
             id="rejection-reason"
             name="reason"
@@ -99,16 +102,23 @@ export function DecisionForm({ requestId }: { requestId: string }) {
             rows={3}
             placeholder="Document why this purchase request cannot be approved…"
             disabled={busy}
+            className={cn(control, "resize-y leading-relaxed")}
           />
         </div>
       )}
-      <p className="field-hint field-hint-secure">
+      <p className="flex items-start gap-1.5 text-xs text-ink-3">
+        <LockSimpleIcon size={14} className="mt-px shrink-0 text-accent" aria-hidden="true" />
         Protected by an automatic idempotency key and ACID PostgreSQL budget lock.
       </p>
-      <button type="submit" disabled={busy} className={decision === "REJECT" ? "btn-block btn-danger" : "btn-block"}>
+      <button type="submit" disabled={busy} className={cn(decision === "REJECT" ? button.danger : button.primary, "w-full")}>
+        {busy && <CircleNotchIcon size={16} className="animate-spin" aria-hidden="true" />}
         {busy ? "Saving…" : "Save decision"}
       </button>
-      {error && <p className="error" role="alert">{error}</p>}
+      {error && (
+        <p className="rounded-lg border border-danger-line bg-danger-soft px-3 py-2 text-sm font-medium text-danger" role="alert">
+          {error}
+        </p>
+      )}
     </form>
   );
 }

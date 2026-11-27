@@ -8,6 +8,16 @@ const utcDateFormatter = new Intl.DateTimeFormat("en-US", {
   timeZone: "UTC",
 });
 
+const utcShortDateFormatter = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  timeZone: "UTC",
+});
+
+export function formatUtcShortDate(date: Date) {
+  return utcShortDateFormatter.format(date);
+}
+
 export function formatUsd(amountMinor: number) {
   const negative = amountMinor < 0;
   const cents = BigInt(Math.abs(Math.trunc(amountMinor)));
