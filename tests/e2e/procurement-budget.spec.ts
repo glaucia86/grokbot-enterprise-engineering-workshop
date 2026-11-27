@@ -34,7 +34,7 @@ test("cost center budget commits on approval and blocks over-limit junior approv
   const decision = page.getByRole("region", { name: "Record decision" });
   await decision.getByLabel("Decision").selectOption({ label: "Approve" });
   await decision.getByRole("button", { name: "Save decision" }).click();
-  await expect(page.getByRole("alert")).toContainText("exceeds your organizational approval limit");
+  await expect(decision.getByRole("alert")).toContainText("exceeds your organizational approval limit");
 
   // Senior approver approves $6,000 -> Financial commitment panel appears and budget updates
   await page.getByRole("link", { name: "Back to purchase requests" }).click();
