@@ -22,6 +22,13 @@
       "when": 1795782400000,
       "tag": "0002_cost_centers_and_commitments",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1795868800000,
+      "tag": "0003_approval_integrity_constraints",
+      "breakpoints": true
     }
   ]
 }

@@ -489,6 +489,39 @@ test("an audit write failure rolls back a decision before a retry succeeds", asy
 
   const retry = await decide(created.id, approver, approval, decisionKey);
   assert.equal(retry.status, 200);
-  assert.equal((await retry.json()).status, "APPROVED");
+  const committed = await retry.json();
+  assert.equal(committed.status, "APPROVED");
+  assert.equal(committed.replayed, false);
+  assert.deepEqual(await persistedCounts(key), { requests: 1, events: 2 });
+});
+
+test("INV-03 / INV-10: lost-response approval retry with the same Idempotency-Key replays cleanly without double committing", async () => {
+  const requester = await selectIdentity("northstar-requester");
+  const approver = await selectIdentity("northstar-approver");
+  const key = crypto.randomUUID();
+  const created = await createRequest(requester, key);
+  const decisionKey = crypto.randomUUID();
+
+  const [beforeCenter] = await labDatabase()<{ committed: string }[]>`
+    select committed_budget_minor::text as committed from cost_centers where id = ${CC_OPS_01_ID}
+  `;
+
+  const first = await decide(created.id, approver, { decision: "APPROVE", reason: "Approved for Q4" }, decisionKey);
+  assert.equal(first.status, 200);
+  const firstBody = await first.json();
+  assert.equal(firstBody.status, "APPROVED");
+  assert.equal(firstBody.replayed, false);
+
+  const replay = await decide(created.id, approver, { decision: "APPROVE", reason: "  Approved for Q4  " }, decisionKey);
+  assert.equal(replay.status, 200);
+  const replayBody = await replay.json();
+  assert.equal(replayBody.id, firstBody.id);
+  assert.equal(replayBody.status, "APPROVED");
+  assert.equal(replayBody.replayed, true);
+
+  const [afterCenter] = await labDatabase()<{ committed: string }[]>`
+    select committed_budget_minor::text as committed from cost_centers where id = ${CC_OPS_01_ID}
+  `;
+  assert.equal(Number(afterCenter.committed) - Number(beforeCenter.committed), created.amountMinor);
   assert.deepEqual(await persistedCounts(key), { requests: 1, events: 2 });
 });

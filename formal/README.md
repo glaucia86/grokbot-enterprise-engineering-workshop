@@ -1,35 +1,45 @@
-# Optional PH-42 model check
+# Formal Verification — Bounded TLA+ / TLC Model of PH-42 Concurrent Approvals
 
-This exercise belongs to VS-07. It checks a finite model of identical, authenticated submission attempts. The HTTP and PostgreSQL harness supplies implementation evidence.
+This directory contains the Layer 04 Trust Pyramid formal model for **Procurement Hub**'s concurrent financial approval protocol ([ADR-0005](../docs/adr/0005-bounded-formal-verification-with-tlaplus.md)).
 
-## Test the TypeScript contracts
+## What Is Modeled
 
-```bash
-bun install --frozen-lockfile
-bun run test:properties
-```
+`ProcurementApproval.tla` models the exact PH-42 scenario under finite bounds:
+- Cost Center `Allocated = 10` (representing `$10,000` in thousands)
+- Two `PENDING` purchase requests `{r1, r2}`, each requiring `Amount = 7` (`$7,000`)
+- Two concurrent approver workers `{w1, w2}` with idempotency keys `{k1, k2}`
+- Lost-response retries (`LoseResponseAndRetry`) and key reuse conflicts
 
-The suite generates 200 examples per property. It checks that presentation-only changes across retries preserve the normalized purchase and request key. It also exercises sequences of same-tenant actors against the domain decision policy. The model for these sequences applies the first permitted decision and checks that later decisions are ineligible.
+### Model-to-Code Correspondence
 
-The default seed is `4207`. Set `PH42_PROPERTY_SEED` to another signed 32-bit integer to replay a run. On a failure, fast-check reports the seed, shrunk input and replay path.
-
-## Run TLC
-
-Use Java 11 or newer and the official [TLA+ v1.7.4 release](https://github.com/tlaplus/tlaplus/releases/tag/v1.7.4). Download its [tla2tools.jar](https://github.com/tlaplus/tlaplus/releases/download/v1.7.4/tla2tools.jar) outside the repository. The Bun driver checks the JAR against the pinned SHA-256 and invokes both configurations with one worker and seed `4207`.
-
-```bash
-bun run verify:formal /path/to/tla2tools.jar ph42-demo
-```
-
-The command writes the model, configuration copies, logs and manifest under `artifacts/formal/ph42-demo/`. Use a new run ID for another trace.
-
-## Read the two results
-
-| Configuration | Expected outcome |
+| TLA+ Action / Invariant | TypeScript / PostgreSQL Implementation |
 | --- | --- |
-| [Stale check](stale-check.cfg) | TLC exits 12 and reports `UniqueRequest`. Two clients observe a miss for the same tenant and key before either commits. Both then create one request and creation event. |
-| [Atomic commit](atomic.cfg) | TLC exits 0 and exhausts the configured states. The second commit for the same tenant and key returns the existing request. A different tenant/key pair has its own scope. |
+| `ReadBudgetUnserialized` -> `CommitUnserialized` (`LockBudget = FALSE`) | Starter `decide()` reading `cost_centers` without `FOR UPDATE` and without `CHECK (committed <= allocated)` |
+| `AtomicLockedApprove` (`LockBudget = TRUE`) | Reference `decide()` in `src/modules/procurement/infrastructure/postgres-requests.ts` using `SELECT ... FOR UPDATE` on `cost_centers` -> `purchase_requests` + `decision_idempotency_keys` + `financial_commitments` + `audit_events` in one transaction |
+| `LoseResponseAndRetry` | Client retrying `POST /api/purchase-requests/:id/decision` with the same `Idempotency-Key` after an HTTP timeout |
+| `BudgetNotExceeded` / `NonNegativeAvailability` | `INV-01` & `INV-02` (`cost_centers_budget_bounds_check` + `canCommitAmount`) |
+| `CommitmentMatchesApprovedSum` / `AuditMatchesApproved` | `INV-08` & `INV-09` (`financial_commitments_tenant_request_unique` + atomic transaction) |
+| `IdempotentReplayConsistent` | `INV-03` (`decision_idempotency_keys` primary key & replay path) |
 
-Both configurations use the same [transition model](PH42.tla) and two clients, two tenants and two keys. Each client performs at most one observation and one commit. The model starts with empty request and audit sets. Insert and creation audit are one transition, so `CreationAuditMatches` requires the sets to agree. `SameScopedReplay` requires every response to identify a committed request in the same tenant/key scope. Terminal states are intentional.
+## Run Locally (No Host Java Required)
 
-The model assumes equal normalized payload and actor within a scope. Request validation, conflicts between different payloads or actors, rollbacks, approvals and database isolation belong to the TypeScript and runtime suites. The finite TLC result applies to the modeled transitions and published bounds.
+```bash
+bun run verify:formal --run-id ph42-formal-demo
+```
+
+`engineering/verify-formal.ts` automatically:
+1. Uses native `java` (11+) if installed, **or** transparently falls back to a pinned Docker container (`eclipse-temurin:21-jre-alpine`) — zero host Java installation required because Docker is already used for PostgreSQL.
+2. Uses a local `--jar` path if supplied, or downloads and caches official TLA+ v1.7.4 `tla2tools.jar` under `artifacts/.cache/` and verifies its exact SHA-256 digest (`936a262061c914694dfd669a543be24573c45d5aa0ff20a8b96b23d01e050e88`).
+3. Runs TLC (`-deadlock`, `-workers 1`, `-seed 4207`) on **both** configurations and writes `manifest.json`, `summary.md`, model copies, and raw logs to `artifacts/formal/<run-id>/`.
+
+## Expected Results
+
+| Configuration | Expected TLC Exit | What It Proves |
+| --- | --- | --- |
+| `defective-read-commit.cfg` (`LockBudget = FALSE`) | **12** (invariant violation) | Produces a concrete counterexample trace where `w1` and `w2` both observe `committed = 0`, pass `0 + 7 <= 10`, and commit `committed = 14 > 10` (`BudgetNotExceeded` violated). |
+| `locked-atomic.cfg` (`LockBudget = TRUE`) | **0** (exhaustive pass) | Explores every reachable state (`0` states left on queue) and confirms all 6 invariants hold across all concurrent approvals, key conflicts, and lost-response retries within the stated bounds. |
+
+## Explicit Scope & Limitations
+
+- **Property-based tests (`fast-check`) are NOT formal verification.** They sample randomized inputs against TypeScript contracts (`bun run test:properties`).
+- **Bounded TLC verification is NOT a proof of the TypeScript/PostgreSQL implementation.** It proves safety properties of the abstract transition model under the finite bounds above. Runtime concurrency, SQL constraints, authorization, and tenant isolation are independently verified by Layers 02 and 03 (`test:concurrency`, `test:security`, `test:migration`, `test:e2e`, `verify:all`).

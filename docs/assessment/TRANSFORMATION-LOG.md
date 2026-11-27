@@ -90,3 +90,21 @@
   - `bun run test:harness`: **6/6 PASS** across 5 Vitest files (caught & fixed a real `git status --porcelain` leading-space trimming bug in `loop-runner.ts` via `loop-runner.test.ts`!)
   - Full isolated `verify:all --slice starter` lifecycle rehearsal executed next on clean commit.
 - **Next executable phase:** Phase 06 — Reference ACID Solution (`0003` migration, `FOR UPDATE` + `CHECK` + `decision_idempotency_keys` + auth-before-replay), full Vitest integration/concurrency/security/`fast-check`/Playwright E2E suites, and real TLA+/TLC model checking via Docker JRE fallback.
+
+---
+
+## Phase 06 — Reference ACID Solution, Concurrency/Security/Migration/E2E Suites & TLA+/TLC Formal Verification
+
+- **Status:** COMPLETED & LIVE-VERIFIED
+- **What changed:**
+  - Authored `drizzle/0003_approval_integrity_constraints.sql` (locked preflight rejecting overspent `cost_centers` with `23514` and duplicate `financial_commitments` with `23505`, installing `cost_centers_budget_bounds_check`, `financial_commitments_tenant_request_unique`, and `decision_idempotency_keys`).
+  - Implemented reference ACID transactional `decide()` in `src/modules/procurement/infrastructure/postgres-requests.ts`: deadlock-free lock order (`cost_centers FOR UPDATE` -> `purchase_requests FOR UPDATE`), atomic `decision_idempotency_keys` reservation with `ON CONFLICT DO NOTHING` + fresh `READ COMMITTED` re-read, mandatory auth-before-replay (`INV-06`), `RollbackDecision` clean rollback on any non-success, and zero lab sync barrier code in the solution.
+  - Authored full Vitest suites: `tests/concurrency/approval-concurrency.test.ts` (multi-connection `$7k+$7k` vs `$10k`, 6-way `$3k` burst, same-key retries, key collisions, terminal transitions), `tests/security/isolation-and-auth.test.ts` (cross-tenant `404`, key independence, approval limit `403`, auth revocation on replay `403`, generic `409` without disclosure), `tests/integration/approval-migration.test.ts` (clean + dirty refusal + idempotent rerun), and Playwright `tests/e2e/procurement-budget.spec.ts` (with verification screenshots).
+  - Authored `formal/ProcurementApproval.tla`, `formal/defective-read-commit.cfg`, `formal/locked-atomic.cfg`, `formal/README.md`, and upgraded `engineering/verify-formal.ts` with automatic pinned Docker JRE fallback (`eclipse-temurin:21-jre-alpine`) and SHA-256-verified `tla2tools.jar`.
+- **Why it changed:** Eliminated the PH-42 race condition at the root cause across domain, authorization, locking, and database constraints, and verified all 10 invariants across Layers 1–4 of the Trust Pyramid.
+- **Requirements addressed:** `INV-01`–`INV-10`, `AC-01`–`AC-11`, Golden Prompt §§6–9, 12.
+- **What was verified:**
+  - `bun run check:static` (zero errors, zero warnings).
+  - `bun run verify:formal` via `docker:eclipse-temurin:21-jre-alpine`: `defective-read-commit.cfg` exit `12` (`BudgetNotExceeded` counterexample, 282 generated / 186 distinct states); `locked-atomic.cfg` exit `0` (473 generated / 225 distinct states, 0 queued).
+  - Full clean-SHA `bun run verify:all --slice solution` and `verify:formal` run immediately on commit.
+- **Next executable phase:** Phase 07 — Independent Review (`clean-code`, `code-review-and-quality`, Security/QA falsification), Multi-Job Least-Privilege CI + Governance Guard, and 11-Section Enterprise PR Template.

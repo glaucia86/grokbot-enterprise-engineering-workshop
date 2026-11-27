@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { isLabEnabled } from "../../../../../server/db/lab-config";
 import { apiError, authenticated, hasSameOrigin, labJson, readJson } from "../../../../../server/http/lab-responses";
 import { decisionSchema, keySchema } from "../../../../../server/http/purchase-input";
 import { requests } from "../../../../../server/procurement/requests";
@@ -17,10 +16,8 @@ export function POST(request: Request, { params }: { params: Promise<{ id: strin
     const input = decisionSchema.safeParse(await readJson(request));
     if (!input.success) return apiError("INVALID_INPUT");
 
-    const labSyncBarrier = isLabEnabled() ? (request.headers.get("x-workshop-sync-barrier") ?? undefined) : undefined;
     const result = await requests.decide(actor, id.data, input.data, {
       idempotencyKey: idempotencyKey.data,
-      labSyncBarrier,
     });
 
     if (result.kind === "decided") {

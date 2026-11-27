@@ -59,6 +59,10 @@ export const costCenters = pgTable("cost_centers", {
   index("cost_centers_tenant_code_idx").on(table.tenantId, table.code),
   check("cost_centers_currency_check", sql`${table.currency} = 'USD'`),
   check("cost_centers_allocated_check", sql`${table.allocatedBudgetMinor} between 0 and 9007199254740991`),
+  check(
+    "cost_centers_budget_bounds_check",
+    sql`${table.committedBudgetMinor} >= 0 and ${table.committedBudgetMinor} <= ${table.allocatedBudgetMinor}`,
+  ),
 ]);
 
 export const purchaseRequests = pgTable("purchase_requests", {
@@ -106,6 +110,7 @@ export const financialCommitments = pgTable("financial_commitments", {
   committedByActorId: uuid("committed_by_actor_id").notNull(),
   committedAt: timestamp("committed_at", { withTimezone: true }).notNull().defaultNow(),
 }, (table) => [
+  unique("financial_commitments_tenant_request_unique").on(table.tenantId, table.requestId),
   index("financial_commitments_cost_center_idx").on(table.tenantId, table.costCenterId),
   foreignKey({
     name: "financial_commitments_cost_center_fk",
