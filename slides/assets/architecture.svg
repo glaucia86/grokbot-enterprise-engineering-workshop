@@ -7,18 +7,18 @@
   </g>
   <g font-family="Arial, sans-serif" fill="#101831">
     <rect x="22" y="83" width="225" height="104" rx="10" fill="#ebeffb" stroke="#6679a7" stroke-width="2"/>
-    <text x="134.5" y="132" text-anchor="middle" font-weight="700" font-size="26">Browser</text>
-    <text x="134.5" y="157" text-anchor="middle" font-size="20">Submit purchase</text>
+    <text x="134.5" y="130" text-anchor="middle" font-weight="700" font-size="25">Browser / HTTP</text>
+    <text x="134.5" y="157" text-anchor="middle" font-size="18">Idempotency-Key</text>
     <rect x="306" y="83" width="225" height="104" rx="10" fill="#ebeffb" stroke="#6679a7" stroke-width="2"/>
-    <text x="418.5" y="132" text-anchor="middle" font-weight="700" font-size="26">Next.js</text>
-    <text x="418.5" y="157" text-anchor="middle" font-size="20">Actor + tenant</text>
+    <text x="418.5" y="130" text-anchor="middle" font-weight="700" font-size="25">Next.js + Zod</text>
+    <text x="418.5" y="157" text-anchor="middle" font-size="18">Session + tenant</text>
     <rect x="590" y="83" width="225" height="104" rx="10" fill="#ebeffb" stroke="#6679a7" stroke-width="2"/>
-    <text x="702.5" y="132" text-anchor="middle" font-weight="700" font-size="26">Procurement</text>
-    <text x="702.5" y="157" text-anchor="middle" font-size="20">Role + ownership</text>
+    <text x="702.5" y="130" text-anchor="middle" font-weight="700" font-size="25">Domain &amp; App</text>
+    <text x="702.5" y="157" text-anchor="middle" font-size="18">Policy + MoneyMinor</text>
     <rect x="874" y="83" width="244" height="104" rx="10" fill="#bacbff" stroke="#6679a7" stroke-width="2"/>
-    <text x="996" y="132" text-anchor="middle" font-weight="700" font-size="26">PostgreSQL</text>
-    <text x="996" y="157" text-anchor="middle" font-size="20">Request + audit</text>
-    <text x="306" y="48" fill="#354a7e" font-size="15" font-weight="700" letter-spacing="1">SERVER TRUST BOUNDARY</text>
-    <text x="874" y="218" fill="#354a7e" font-size="15" font-weight="700" letter-spacing="1">SHARED PERSISTENCE</text>
+    <text x="996" y="130" text-anchor="middle" font-weight="700" font-size="25">PostgreSQL 18</text>
+    <text x="996" y="157" text-anchor="middle" font-size="18">FOR UPDATE + CHECK</text>
+    <text x="306" y="48" fill="#354a7e" font-size="15" font-weight="700" letter-spacing="1">ENFORCEABLE ESLINT BOUNDARIES</text>
+    <text x="874" y="218" fill="#354a7e" font-size="15" font-weight="700" letter-spacing="1">ACID BUDGET + AUDIT</text>
   </g>
 </svg>

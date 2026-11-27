@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/verification-evidence-v2.schema.json",
+  "title": "Enterprise Verification Evidence Manifest",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "runId",
+    "candidateSha",
+    "worktreeDirty",
+    "environment",
+    "status",
+    "humanReview",
+    "stages",
+    "checks"
+  ],
+  "properties": {
+    "schemaVersion": { "type": "integer", "const": 2 },
+    "runId": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,63}$" },
+    "candidateSha": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+    "candidateTree": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+    "worktreeDirty": { "type": "boolean" },
+    "environment": { "type": "string" },
+    "status": { "enum": ["pass", "fail", "blocked", "not-run"] },
+    "humanReview": { "enum": ["pending", "approved", "changes-requested"] },
+    "toolVersions": { "type": "object" },
+    "stages": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "status"],
+        "properties": {
+          "id": { "enum": ["launch", "doctor", "drive", "evidence", "cleanup"] },
+          "status": { "enum": ["pass", "fail", "blocked", "not-run"] },
+          "durationSeconds": { "type": "number", "minimum": 0 },
+          "detail": { "type": "string" }
+        }
+      }
+    },
+    "checks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "status", "exitCode"],
+        "properties": {
+          "id": { "type": "string" },
+          "criteria": { "type": "array", "items": { "type": "string" } },
+          "status": { "enum": ["pass", "fail", "blocked", "not-run"] },
+          "exitCode": { "type": ["integer", "null"] },
+          "durationSeconds": { "type": "number", "minimum": 0 },
+          "artifactPaths": { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "observations": { "type": "object" },
+    "limitations": { "type": "array", "items": { "type": "string" } }
+  }
+}

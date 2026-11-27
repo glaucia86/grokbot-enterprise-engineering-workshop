@@ -1,0 +1,59 @@
+# 10 — Independent Least-Privilege CI Quality Gates Template
+name: Enterprise Verification Gates
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  static-and-architecture:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # pin exact commit SHA
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - run: echo "Install locked dependencies and run typecheck, lint, and architecture boundary tests"
+
+  unit-and-properties:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - run: echo "Run unit tests and property-based tests with deterministic seed"
+
+  integration-concurrency-security:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - run: echo "Run real database integration, concurrency, migration, and security regressions"
+
+  governance-guard:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Flag edits to protected verifier or policy files
+        run: |
+          CHANGED=$(git diff --name-only "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" | grep -E '^(PRD\.md|SPEC\.md|eslint\.config\.ts|\.github/workflows/|tests/security/|tests/concurrency/)' || true)
+          if [ -n "$CHANGED" ]; then
+            echo "## Protected Verifier / Criteria Files Modified" >> "$GITHUB_STEP_SUMMARY"
+            echo "$CHANGED" >> "$GITHUB_STEP_SUMMARY"
+          fi

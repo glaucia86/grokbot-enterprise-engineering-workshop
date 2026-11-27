@@ -1,25 +1,17 @@
 # Guia da apresentadora — Packt · 11 de dezembro de 2026
 
-Apresentação ao vivo em inglês · 60 minutos · [Instruções de prévia](README.md)
+Apresentação ao vivo em inglês · 60 minutos · [Instruções de prévia](README.md) · [Facilitator Guide (EN)](../docs/workshop/FACILITATOR-GUIDE.md)
 
 ## Antes de compartilhar a tela
 
-1. Abra a versão da apresentadora e pressione **S**. Mantenha a janela de notas fora do compartilhamento. Na janela do público, comece em `#/start`. Use as setas para avançar slides e fragmentos. Teste o projetor e o zoom dos terminais.
-2. Prepare um checkout sintético isolado, Bun 1.4.5, Chromium e Docker Compose local. Instale as dependências com `bun install --frozen-lockfile` e o navegador com `bun run browser:install`. Copie `.env.example` para `.env`. Execute `bun run lab:up` e `bun run lab:doctor --db-only`. Em outro terminal, execute `bun run dev`. Confirme `bun run lab:doctor` e abra `http://127.0.0.1:3000`. Evite mostrar variáveis de ambiente, cookies e traces brutos.
-3. Prepare nesta ordem: slides, Procurement Hub, terminal na raiz, GrokBot autenticado, PR e Actions da mesma revisão. Confirme quais operações o GrokBot pode fazer no checkout e no lab. Use acesso mínimo e uma branch isolada.
-4. Em um ensaio prévio, execute `bun run verify:all --run-id workshop-rehearsal` em checkout limpo e com um ID novo por ensaio. Para o checkout de referência com a suíte de migração, acrescente `--slice VS-05`. Abra os manifestos em `artifacts/verification/<slice>/<run-id>/`. Separe a captura sanitizada da UI, o resultado do snapshot, a checagem real, o PR e o Actions. Identifique-as com origem, data e SHA. As capturas da apresentação são evidência visual do deck.
-5. Passe pelos cinco cortes aos **16**, **20**, **24**, **34** e **47** minutos. Se faltar tempo, reduza a discussão do modelo formal e preserve o runtime e o PR. Reserve os últimos oito minutos para transferência e Q&A.
+1. Abra a versão da apresentadora (`bun run slides:preview:presenter`) e pressione **S**. Mantenha a janela de notas fora do compartilhamento. Na janela do público, comece em `#/start`.
+2. Prepare o checkout demo em `workshop/starter` com Bun 1.4.5, Docker Compose v2 (`postgres:18.7` e `eclipse-temurin:21-jre-alpine` pré-baixados) e Chromium. Copie `.env.example` para `.env`, rode `bun install --frozen-lockfile`, `bun run lab:bootstrap`, `bun run lab:seed:ph42` e `bun run dev`.
+3. Pré-cacheie `artifacts/.cache/tla2tools-1.7.4.jar` executando `bun run verify:formal --run-id preflight` antes da sessão para o demo TLA+ rodar offline em menos de 5 segundos.
+4. Confira os 6 checkpoints de recuperação (`checkpoint-00-starter` até `checkpoint-05-pr-ready`). Nunca apresente artefatos de ensaio como se tivessem sido gerados ao vivo.
 
 ## Brief para GrokBot · 24 min
 
-> Investigate PH-42 in this isolated synthetic checkout. Read the issue, acceptance criteria, repository boundaries and verification skill. Classify the historical fixture and live observations separately. Trace request submission and explain which boundary must preserve the invariant across app instances. Inspect the scoped candidate, preserve the API, tenant isolation and audit contract, and report the first unexpected check with its evidence. Keep at most two correction attempts after the first run, within the timebox. Report the candidate SHA, commands, results, limitations and blockers. Leave merge to the human reviewer.
-
-## Contingência e encerramento
-
-- **GrokBot indisponível.** Mostre o brief, faça a investigação no checkout preparado e execute os mesmos comandos pelo terminal. Identifique o que foi feito manualmente.
-- **Lab ou rede indisponível.** Abra as capturas sanitizadas do ensaio com data, SHA e origem. Identifique o que veio do ensaio e marque o que ficou bloqueado nesta sessão. A build privada pode ser servida localmente durante a apresentação.
-- **Verificação falhou.** Mostre a primeira divergência, guarde a evidência e siga o orçamento de duas correções após a tentativa inicial. Escale bloqueios de escopo, acesso ou tempo.
-- **Após a sessão.** Pare o app manual com Ctrl+C e rode `bun run lab:down`. A execução de ponta a ponta já recolhe seus próprios recursos. Confira o estágio de limpeza e retenha somente a evidência destinada à revisão. Compartilhe os materiais aprovados para participantes.
+> Investigate PH-42 in this isolated Procurement Hub lab checkout. Read AGENTS.md, doc-specs/03-demo-issue-42.md, SPEC.md, and skills/verify-procurement/SKILL.md. Reproduce the concurrent approval overspend with `bun run ph42:reproduce`, state your root-cause hypothesis across PostgreSQL locking, DB constraints, and approval idempotency (INV-01–INV-10), implement the minimal targeted fix preserving all ESLint boundaries, and verify with `bun run check:static`, `bun run ph42:reproduce`, `bun run test:concurrency`, and `bun run test:security`. Allow at most 2 self-correction attempts; never weaken tests or ESLint rules; leave merge to the human reviewer.
 
 ## Talk track por slide
 
@@ -28,15 +20,15 @@ Apresentação ao vivo em inglês · 60 minutos · [Instruções de prévia](REA
 
 **EN**
 
-Welcome. Today we'll take one engineering issue through to a pull request that another person can verify. Our case is a procurement app with tenant boundaries, a database and an audit trail. As we go, each character on this slide will help us focus on a different responsibility. I’ll take the reviewer’s seat at the end.
+Welcome. Over the next 60 minutes we will take a real enterprise financial concurrency incident from live failure reproduction to a verified, reviewable Pull Request. Our reference system is Procurement Hub — a multi-tenant corporate procurement platform with Cost Center budgets, approval limits, financial commitments, and audit trails. Each role on this slide represents a distinct responsibility, and I will hold the Human Reviewer seat at the end.
 
 **PT-BR**
 
-Boas-vindas. Hoje vamos levar uma issue de engenharia até um pull request que outra pessoa consiga verificar. O caso é um app de compras com fronteiras de tenant, banco e trilha de auditoria. Cada personagem deste slide ajuda a destacar uma responsabilidade. No fim eu assumo o papel de revisora.
+Boas-vindas. Nos próximos 60 minutos vamos levar um incidente real de concorrência financeira desde a reprodução ao vivo até um Pull Request verificado e revisável. Nosso sistema de referência é o Procurement Hub, uma plataforma corporativa multi-tenant com orçamentos de Centros de Custo, limites de aprovação, compromissos financeiros e trilha de auditoria. Cada papel neste slide representa uma responsabilidade distinta, e eu fico na cadeira de Human Reviewer no final.
 
 **Palco**
 
-Mostre o elenco. Avance para a pergunta inicial.
+Mostre o elenco de papéis e avance para a pergunta inicial.
 
 
 <!-- slide:trust -->
@@ -44,63 +36,63 @@ Mostre o elenco. Avance para a pergunta inicial.
 
 **EN**
 
-What would you need to see before approving a pull request written by an agent? Take a moment to think of your own repository. We'll write down one rule a purchase must obey, run a check that can observe it, then hand the evidence to a reviewer.
+Ask yourself: what proof would you require before approving an AI-generated pull request that modifies financial budget code? Throughput without verification just generates faster defects. Our goal today is not merely to demo GrokBot, but to engineer a verifiable environment around any coding agent.
 
 **PT-BR**
 
-O que você precisaria ver antes de aprovar um pull request escrito por um agente? Pense por um instante no seu próprio repositório. Vamos explicitar uma regra de compra, rodar uma checagem que consiga observá-la e entregar a evidência a quem revisa.
+Pergunte a si mesmo: que prova você exigiria antes de aprovar um pull request gerado por IA que mexe em código de orçamento financeiro? Vazão sem verificação apenas gera defeitos mais rápido. Nosso objetivo hoje não é só demonstrar o GrokBot, mas construir um ambiente verificável ao redor de qualquer agente.
 
 **Palco**
 
-Colete uma resposta breve. Avance para a pirâmide.
+Dê 15 segundos para reflexão e avance para a Trust Pyramid.
 
 
 <!-- slide:trust-pyramid -->
-### 3. How do we earn trust in an agent’s work? · 03:00–06:00
+### 3. Workshop Trust Pyramid · 03:00–06:00
 
 **EN**
 
-Every time we correct an agent, we can choose where that correction lives. Start with the codebase. An interface can make the safe path easy. Next, make import and type boundaries executable. Verification tells us something about the running system or the model we checked. Written guidance carries context and judgment. Finally, a reviewer decides whether the evidence earns approval. We’ll follow one purchase through all five layers.
+Adapted from Lauren Tan’s talk All Code Is Slop (Except Mine), this five-layer workshop pyramid shows where engineering investment pays off most. Start with codebase design and exact types like MoneyMinor. Enforce module boundaries, database CHECK constraints, Vitest, and fast-check deterministically. Verify against the live app and real PostgreSQL. Model-check critical concurrent protocols in TLA+. Reserve prose rules and skills for judgment — and keep human review as the final delivery gate.
 
 **PT-BR**
 
-Toda vez que corrigimos um agente, podemos escolher onde a correção vai ficar. Comece pelo código. Uma interface pode tornar o caminho seguro mais fácil. Depois, faça as restrições de imports e tipos serem executáveis. A verificação revela algo sobre o sistema em execução ou sobre o modelo checado. A orientação escrita carrega contexto e julgamento. Por fim, uma pessoa decide se a evidência sustenta a aprovação. Vamos seguir uma compra pelas cinco camadas.
+Adaptada da palestra All Code Is Slop (Except Mine) da Lauren Tan, esta pirâmide de cinco camadas mostra onde o investimento de engenharia mais compensa. Comece pela arquitetura e tipos exatos como MoneyMinor. Aplique fronteiras ESLint, restrições CHECK no banco, Vitest e fast-check deterministicamente. Verifique no app e PostgreSQL reais. Cheque protocolos concorrentes críticos em TLA+. Deixe regras em texto para julgamento e mantenha a revisão humana como portão final.
 
 **Palco**
 
-Avance cinco vezes, uma faixa por clique. Aponte a seta de custo e atribua a figura a Lauren Tan. Reserve a discussão sobre automação para a revisão.
+Revele as 5 faixas uma a uma. Destaque que esta decomposição em 5 camadas é uma adaptação do workshop inspirada na Lauren Tan.
 
 
 <!-- slide:procurement-hub -->
-### 4. Enterprise Codebase Foundations & Enforceable Architecture · 06:00–07:00
+### 4. Pillar 01 — Enforceable Architecture · 06:00–07:00
 
 **EN**
 
-Our first pillar is the codebase. Procurement Hub is already running when the issue arrives. It has two synthetic tenants and separate responsibilities for requesting, deciding and auditing a purchase. This is a small brownfield system with rules an agent needs to discover and preserve.
+Pillar one is the codebase itself. Procurement Hub is a brownfield Modular Monolith with two synthetic tenants, three Cost Centers, nine role-scoped identities, and explicit monetary approval limits. Agents learn patterns from the repository, so our boundaries must be structural rather than wishful prose.
 
 **PT-BR**
 
-Nosso primeiro pilar é o código. O Procurement Hub já existe quando chega a issue. Há dois tenants sintéticos e responsabilidades separadas para solicitar, decidir e auditar uma compra. É um pequeno sistema brownfield com regras que o agente precisa descobrir e preservar.
+O primeiro pilar é a própria base de código. O Procurement Hub é um Monólito Modular brownfield com dois tenants sintéticos, três Centros de Custo, nove identidades com papéis e limites explícitos de aprovação. Agentes aprendem padrões do repositório, portanto nossas fronteiras precisam ser estruturais, não apenas texto.
 
 **Palco**
 
-Aponte o Engineering Lead. Passe ao impacto da duplicidade.
+Destaque o Engineering Lead e avance para o incidente PH-42.
 
 
 <!-- slide:invariant -->
-### 5. A duplicate purchase can be approved twice · 07:00–09:00
+### 5. PH-42 — Two $7,000 approvals overspend a $10,000 budget · 07:00–09:00
 
 **EN**
 
-The audit view shows a creation and a decision on one request. Imagine the same submission arriving twice in parallel. Two records can enter two approval paths. Our invariant is concrete. The same logical operation produces one request identifier and one creation event. Equivalent retries give us the same identifier.
+Here is incident PH-42. Northstar Cost Center CC-ENG-01 has $10,000 allocated. Two pending requests require $7,000 each. Under concurrent approval, a stale read lets both succeed, committing $14,000 and driving available budget to minus $4,000. We model ten explicit invariants — INV-01 through INV-10 — covering financial bounds, idempotent retries, payload conflicts, tenant isolation, authorization on replay, state machine integrity, audit consistency, and atomic recovery.
 
 **PT-BR**
 
-A auditoria mostra uma criação e uma decisão na mesma requisição. Imagine o mesmo envio chegando duas vezes em paralelo. Dois registros podem entrar em dois fluxos de aprovação. A invariante é concreta. A mesma operação lógica gera um ID e um evento de criação. Retries equivalentes devolvem o mesmo ID.
+Este é o incidente PH-42. O Centro de Custo CC-ENG-01 da Northstar tem $10.000 alocados. Duas requisições pendentes pedem $7.000 cada. Sob aprovação concorrente, uma leitura obsoleta deixa ambas passarem, comprometendo $14.000 e levando o disponível a menos $4.000. Modelamos dez invariantes explícitas — INV-01 a INV-10 — cobrindo teto orçamentário, retries idempotentes, conflitos de payload, isolamento de tenant, autorização em replay, máquina de estados, auditoria e atomicidade.
 
 **Palco**
 
-Aponte CREATED e APPROVED na captura. Faça a pergunta sobre duas aprovações antes de avançar.
+Mostre rapidamente o dashboard local em http://127.0.0.1:3000 com CC-ENG-01 ($10,000) e as duas requisições de $7,000.
 
 
 <!-- slide:boundaries -->
@@ -108,175 +100,175 @@ Aponte CREATED e APPROVED na captura. Faça a pergunta sobre duas aprovações a
 
 **EN**
 
-Follow the submission. Next.js validates the input and resolves actor and tenant on the server. Application code applies the role and ownership rules. The persistence boundary must preserve the purchase and its audit event together, including when two app instances share a database. On the next click, here's a smaller guarantee. ESLint can reject an application import that crosses the allowed architecture. The business invariant needs its own regression.
+Trace an approval from HTTP to PostgreSQL. Next.js validates strict Zod schemas and resolves server-side sessions. Domain rules stay pure with zero external imports and no floating-point parsing. PostgreSQL owns row-level FOR UPDATE locking, CHECK constraints, and atomic audit writes across multiple app instances. Let’s prove our ESLint boundary rules reject violations right now with bun run verify:architecture.
 
 **PT-BR**
 
-Siga o envio. O Next.js valida a entrada e resolve o ator e o tenant no servidor. A aplicação aplica regras de papel e propriedade. A persistência precisa manter a compra e seu evento coerentes, inclusive quando duas instâncias compartilham o banco. No próximo clique, vemos uma garantia menor. O ESLint pode rejeitar um import que desrespeite a arquitetura. A invariante de negócio precisa da própria regressão.
+Siga a aprovação do HTTP até o PostgreSQL. O Next.js valida esquemas Zod estritos e resolve a sessão no servidor. O domínio permanece puro, sem imports externos nem ponto flutuante. O PostgreSQL garante lock FOR UPDATE, restrições CHECK e escrita atômica de auditoria entre múltiplas instâncias. Vamos provar agora que o ESLint rejeita violações com bun run verify:architecture.
 
 **Palco**
 
-Siga o diagrama da esquerda para a direita e revele a checagem de imports. Ligue requisito, slice e teste.
+Rode `bun run verify:architecture` no terminal (5 fixtures rejeitadas pelo ESLint). Volte ao slide 7.
 
 
 <!-- slide:boot-lab -->
-### 7. Harness Engineering & Reusable Verification Skills · 12:00–16:00
+### 7. Pillar 02 — Harness Engineering & Verification Skills · 12:00–15:00
 
 **EN**
 
-The feature map gives us names for user-visible journeys. The verification skill tells us how to launch the lab, check readiness, drive a scenario, collect evidence and clean up. The same commands serve an engineer, an agent and CI. Readiness is a separate observation from the business result. Once the lab is ready, we can exercise one purchase through the real UI.
+Pillar two makes verification repeatable. Adapted from pstack’s create-verification-skill, our verify-procurement skill defines Launch, Doctor, Drive, Evidence, and Cleanup. Eight user-POV Feature Maps give both humans and agents shared selectors, API endpoints, invariants, and exact commands so nobody has to guess how to test the app.
 
 **PT-BR**
 
-O feature map dá nomes às jornadas que as pessoas usam. A skill explica como iniciar o lab, checar a prontidão, executar um cenário, coletar evidência e limpar. Os mesmos comandos servem à engenharia, ao agente e ao CI. Prontidão e resultado de negócio são observações distintas. Com o lab pronto, vamos acompanhar uma compra pela interface real.
+O segundo pilar torna a verificação repetível. Adaptada da create-verification-skill do pstack, nossa skill verify-procurement define Launch, Doctor, Drive, Evidence e Cleanup. Oito Feature Maps na visão de usuário dão a humanos e agentes seletores estáveis, endpoints, invariantes e comandos exatos.
 
 **Palco**
 
-Mostre a skill e cite lab:doctor. Às 16 min, avance para o slide 8 e abra o app.
+Mostre brevemente `skills/verify-procurement/SKILL.md` e `features/README.md`.
 
 
 <!-- slide:try-the-app -->
-### 8. Follow one purchase through three roles · 16:00–20:00
+### 8. Live walkthrough — budgets, limits, audit & isolation · 15:00–20:00
 
 **EN**
 
-I'll submit a synthetic purchase as the Northstar requester and keep the ID. Then I'll switch to its approver and record a decision. As the auditor, I'll trace both events on the same purchase. The ID connects what we see across the three views. Keep that idea in mind when we compare the concurrent responses.
+Before breaking anything, let’s run lab:doctor to confirm PostgreSQL, seeded Cost Centers, and anonymous 401 checks are healthy. In the browser, watch how a Junior Approver with a $5,000 limit is blocked on a $7,000 request, while a Senior Approver commits funds atomically, Northstar Auditor sees 1:1 audit events, and Meridian gets 404 on foreign IDs.
 
 **PT-BR**
 
-Vou enviar uma compra sintética como solicitante da Northstar e guardar o ID. Depois assumo a identidade responsável pela aprovação e registro a decisão. Como auditora, acompanho os dois eventos na mesma compra. É o ID que conecta as três telas. Guarde essa ideia para a comparação das respostas concorrentes.
+Antes de reproduzir a falha, rodamos lab:doctor para confirmar banco, Centros de Custo e 401 anônimo. No navegador, veja como um Junior Approver com limite de $5.000 é bloqueado em $7.000, enquanto o Senior Approver compromete fundos atomicamente, o Auditor vê eventos 1:1 e a Meridian recebe 404 em IDs de outro tenant.
 
 **Palco**
 
-App local → Northstar Requester → Approver → Auditor. Guarde um único ID. Volte ao slide 9.
+Rode `bun run lab:doctor` e mostre o app em http://127.0.0.1:3000. Atingir slide 9 até 20:00.
 
 
 <!-- slide:runtime -->
-### 9. Runtime Verification & Self-Correcting Agent Loops · 20:00
+### 9. Pillar 03 — Runtime Verification & Self-Correcting Loops · 20:00
 
 **EN**
 
-We’re going to inspect the failure scenario and then test the candidate that is running today. Keep the sources in mind. The first result is a synthetic historical snapshot. The second comes from real requests and the database in the isolated lab.
+Now we enter Pillar three: live failure reproduction and bounded self-correction. Unlike mocked tests or static snapshots, we are going to break the real running Next.js application and inspect real PostgreSQL balances before and after.
 
 **PT-BR**
 
-Vamos inspecionar o cenário de falha e depois verificar o candidato em execução. Guarde a origem de cada resultado. O primeiro vem de um snapshot histórico sintético. O segundo vem de requisições reais e do banco do lab isolado.
+Agora entramos no terceiro pilar: reprodução ao vivo da falha e autocorreção limitada. Diferente de mocks ou snapshots estáticos, vamos quebrar a aplicação Next.js real e inspecionar os saldos reais no PostgreSQL antes e depois.
 
 **Palco**
 
-Passe ao slide 10 e abra o terminal.
+Avance imediatamente para o slide 10 e abra o terminal.
 
 
 <!-- slide:reproduce -->
-### 10. Read the synthetic PH-42 snapshot · 20:00–24:00
+### 10. Reproduce PH-42 live on workshop/starter · 20:00–24:00
 
 **EN**
 
-This command reads a synthetic historical snapshot. Both simulated requests returned Created, but they have different identifiers. PostgreSQL holds two requests and two creation events in this fixture. Exit one is the expected observation. If we only looked at the HTTP success codes, we would miss the defect.
+Running bun run ph42:reproduce sends two real concurrent HTTP approvals for $7,000 each against Northstar’s $10,000 CC-ENG-01 budget. Both return HTTP 200 APPROVED. PostgreSQL now holds $14,000 committed and minus $4,000 available — violating INV-01 and INV-02 with exit code 1. Refreshing the browser shows OVERSPENT in red directly from the database.
 
 **PT-BR**
 
-Esse comando lê um snapshot histórico sintético. As duas requisições simuladas retornaram Created, mas com IDs diferentes. O PostgreSQL registra duas requisições e dois eventos de criação nesse fixture. A saída um é esperada. Só pelos códigos HTTP de sucesso, perderíamos o defeito.
+Executar bun run ph42:reproduce envia duas aprovações HTTP concorrentes reais de $7.000 cada contra o orçamento de $10.000 do CC-ENG-01. Ambas retornam HTTP 200 APPROVED. O PostgreSQL registra $14.000 comprometidos e menos $4.000 disponíveis — violando INV-01 e INV-02 com saída 1. Recarregando o navegador vemos OVERSPENT em vermelho vindo direto do banco.
 
 **Palco**
 
-Execute bun run verify:ph42-fixture. Mostre 201/201, IDs distintos e duas linhas e eventos. Retorne no slide 11.
+Execute `bun run ph42:reproduce` no terminal em `workshop/starter` e recarregue `http://127.0.0.1:3000` para mostrar `-$4,000.00 (OVERSPENT)`.
 
 
 <!-- slide:agent-loop -->
-### 11. Let the first failed check drive the next action · 24:00–34:00
+### 11. Live GrokBot bounded loop · 24:00–36:00
 
 **EN**
 
-I’ll give GrokBot the acceptance criteria and the verification path. I want it to trace submission from the route to persistence and tell me which boundary owns the invariant. We isolate one hypothesis and one scoped change. If a check surprises us, we keep that evidence, revise the hypothesis, and try again within the budget. Once we reach the limit, we hand the blocker to a person.
+Now we hand GrokBot the issue, invariants, and verification skill. Notice our bounded Loop Engineering engine in engineering/loop-runner.ts: it persists state and handoffs outside chat context, enforces a two-correction cap, refuses to re-run identical failing commands without a new hypothesis, and trips a scope guard if protected ESLint rules or security tests are altered. Watch the root fix emerge: row-level FOR UPDATE locking on cost_centers, a database CHECK constraint, unique financial commitments, and tenant-scoped decision_idempotency_keys with authorization re-checked on replay.
 
 **PT-BR**
 
-Vou dar ao GrokBot os critérios de aceite e o caminho de verificação. Quero que ele acompanhe o envio da rota à persistência e diga qual fronteira garante a invariante. Isolamos uma hipótese e uma mudança pequena. Se a checagem surpreender, guardamos a evidência, revemos a hipótese e tentamos de novo dentro do limite. Ao atingir o limite, escalamos o bloqueio.
+Agora entregamos ao GrokBot a issue, invariantes e skill de verificação. Note nosso motor de Loop Engineering em engineering/loop-runner.ts: ele persiste estado e handoffs fora do chat, limita a duas autocorreções, impede repetir o mesmo comando falhando sem nova hipótese e dispara guarda de escopo se regras ESLint ou testes de segurança forem alterados. Veja a correção raiz: lock FOR UPDATE em cost_centers, CHECK no banco, unicidade de commitments e decision_idempotency_keys com revalidação de autorização em replay.
 
 **Palco**
 
-Abra o GrokBot e use o brief acima. Identifique o candidato preparado. Revele o fragmento sobre repetir ou escalar. Volte no slide 12.
+Execute o brief no GrokBot (ou avance para `checkpoint-03-implementation` se atingir 35:00). Revele o fragmento com a correção raiz.
 
 
 <!-- slide:verify-live -->
-### 12. One logical purchase. One record. · 34:00–39:00
+### 12. Live solution verification · 36:00–40:00
 
 **EN**
 
-Now we're exercising the running API. One submission creates the purchase and the equivalent retry returns the existing identifier. We expect a 201 and a 200 in either order. Both responses must agree on the ID. The database also has to agree. It should hold one request and one creation event. This is the verification layer of the pyramid.
+Now we exercise the corrected API and database with the exact same command: bun run ph42:reproduce. One approval commits $7,000 with HTTP 200; the competing approval fails cleanly with HTTP 409 INSUFFICIENT_BUDGET. PostgreSQL holds $7,000 committed, $3,000 available, one financial commitment, and one APPROVED audit event — exit code 0. Then test:concurrency and test:security falsify 6-way bursts, same-key retries, cross-tenant probes, and revoked-role replays.
 
 **PT-BR**
 
-Agora vamos exercitar a API em execução. Um envio cria a compra e o retry equivalente retorna o ID existente. Esperamos um 201 e um 200 em qualquer ordem. As duas respostas precisam concordar no ID. O banco também. Deve haver uma requisição e um evento de criação. Essa é a camada de verificação da pirâmide.
+Agora exercitamos a API e o banco corrigidos com o mesmo comando: bun run ph42:reproduce. Uma aprovação compromete $7.000 com HTTP 200; a concorrente falha limpo com HTTP 409 INSUFFICIENT_BUDGET. O PostgreSQL mantém $7.000 comprometidos, $3.000 disponíveis, um commitment e um evento APPROVED — saída 0. Em seguida test:concurrency e test:security testam rajadas simultâneas, retries com mesma chave, acesso cross-tenant e replay com papel revogado.
 
 **Palco**
 
-Execute bun run verify:concurrency. Aponte status, ID, contagens, origem e saída 0 esperada. Se divergir, informe a falha observada. Volte no slide 13.
+Execute `bun run ph42:reproduce`, `bun run test:concurrency` e `bun run test:security`. Destaque saída 0 e o QA Engineer.
 
 
 <!-- slide:optional-extension -->
-### 13. Test the contract. Observe the run. Explore the model. · 39:00–44:00
+### 13. Formal verification with TLA+ / TLC · 48:00–53:00
 
 **EN**
 
-A contract test checks expected behavior under a defined input. Runtime verification shows what the deployed code path in our local lab actually did. The bounded TLA+ model lets us explore interleavings within its assumptions, including the invariant over creation. We take both results to a review with their scope attached.
+Tests check scenarios we thought to write; formal model checking explores every reachable interleaving in a bounded scope. Running bun run verify:formal uses Dockerized TLC with zero host Java setup. On defective-read-commit.cfg, TLC exits 12 and prints a 7-step counterexample violating BudgetNotExceeded. On locked-atomic.cfg, TLC exhausts 473 generated and 225 distinct states with zero queued and confirms all six invariants hold, including lost-response retries. Remember: fast-check is property testing, not formal verification, and TLA+ verifies the bounded model — not the full TypeScript runtime.
 
 **PT-BR**
 
-Um teste de contrato checa o comportamento esperado sob uma entrada definida. A verificação em runtime mostra o que o código em execução fez no lab. O modelo finito em TLA+ explora entrelaçamentos dentro de suas hipóteses, incluindo a invariante de criação. Levamos os dois resultados à revisão com seus respectivos escopos.
+Testes checam cenários que pensamos em escrever; model checking formal explora todos os entrelaçamentos alcançáveis num escopo limitado. Rodar bun run verify:formal usa TLC em Docker sem instalar Java no host. Em defective-read-commit.cfg, o TLC sai com 12 e gera contraexemplo de 7 passos violando BudgetNotExceeded. Em locked-atomic.cfg, exaure 473 estados gerados e 225 distintos confirmando as seis invariantes, incluindo retries após perda de resposta. Lembre: fast-check não é verificação formal, e TLA+ prova o modelo finito, não o runtime TypeScript inteiro.
 
 **Palco**
 
-Se houver tempo, mostre a evidência preparada do modelo. Se estiver atrasada, use apenas a fala e siga.
+Execute `bun run verify:formal --run-id live-tlc` (4 segundos com imagem em cache) e mostre `artifacts/formal/live-tlc/summary.md`.
 
 
 <!-- slide:run-harness -->
-### 14. Evidence-Based Software Delivery & Enterprise Governance · 44:00–47:00
+### 14. Pillar 04 — Evidence-Based Software Delivery · 40:00–43:00
 
 **EN**
 
-The evidence chain starts at an acceptance criterion. A command produces an observation. The artifact records the revision and check outcomes, including failures, blockers or checks we didn't run. Independent CI repeats the required checks on the exact candidate. This is the package that lets another person review our claim.
+Pillar four turns local proof into enterprise governance. One command — bun run verify:all — launches an isolated stack, runs 14 checks across static, architecture, unit, property, integration, concurrency, security, migration, and Chromium E2E, writes manifest.json and summary.md bound to the exact clean Git SHA, and tears down resources while preserving the evidence. Six independent least-privilege CI jobs repeat those gates, plus a governance-guard that alerts reviewers whenever verifier files change.
 
 **PT-BR**
 
-A cadeia de evidências começa no critério de aceite. Um comando gera uma observação. O artefato registra a revisão e os resultados, incluindo falhas, bloqueios ou checagens que ficaram pendentes. O CI independente repete as verificações exigidas no candidato exato. É esse conjunto que permite a outra pessoa revisar a alegação.
+O quarto pilar transforma prova local em governança corporativa. Um comando — bun run verify:all — sobe o ambiente isolado, executa 14 checagens entre estático, arquitetura, unitário, propriedades, integração, concorrência, segurança, migrações e E2E no Chromium, gera manifest.json e summary.md vinculados ao SHA limpo exato e limpa tudo preservando a evidência. Seis jobs independentes no CI repetem esses portões, além do governance-guard que alerta revisores caso arquivos de verificação sejam alterados.
 
 **Palco**
 
-Abra o manifesto de ensaio se precisar ilustrar o formato. Às 47 min, avance e abra o PR.
+Abra `artifacts/verification/solution/<run-id>/summary.md` e `.github/workflows/workshop-verification.yml`.
 
 
 <!-- slide:review -->
-### 15. Would you approve this exact revision? · 47:00–52:00
+### 15. Would you approve this exact revision? · 43:00–48:00
 
 **EN**
 
-Pick one criterion and follow it from the issue into the check and its artifact. Compare the PR head with the revision in Actions. Read the persisted counts, then look for anything marked failed, blocked or not run. Lauren’s team describes expanding automation once the inner loop is reliable. Here, we use that loop to give the human reviewer a stronger basis for the merge decision.
+As the Human Reviewer, I inspect the 11-section PR template, verify that the PR head SHA matches the independent CI run, check governance-guard to confirm no tests or ESLint boundaries were weakened, and review database counts and limitations. Remember to distinguish committed workflow files from administrative GitHub Branch Rulesets — agents never self-approve or merge to main.
 
 **PT-BR**
 
-Escolha um critério e siga da issue à checagem e ao artefato. Compare o head do PR com a revisão no Actions. Leia as contagens persistidas e procure falhas, bloqueios e verificações que ficaram pendentes. A equipe da Lauren descreve ampliar a automação quando o ciclo interno é confiável. Aqui, esse ciclo dá à pessoa revisora uma base melhor para decidir sobre o merge.
+Como Human Reviewer, inspeciono o template de PR de 11 seções, confirmo que o SHA do PR bate com o CI independente, checo o governance-guard para garantir que testes e fronteiras ESLint não foram enfraquecidos e reviso contagens do banco e limitações. Lembre de distinguir workflows versionados das Branch Rulesets administrativas do GitHub — agentes nunca autoaprovam ou fazem merge na main.
 
 **Palco**
 
-Abra o PR e o Actions do mesmo SHA. Compare os manifestos. Se estiver usando captura, indique revisão e data. Retorne ao slide 16.
+Mostre `.github/pull_request_template.md` e `docs/governance/ENTERPRISE-GOVERNANCE.md`. Avance ao slide 13 (TLA+ às 48:00) ou siga conforme sequência.
 
 
 <!-- slide:takeaways -->
-### 16. Leave with a verification pattern you can reuse · 52:00–55:00
+### 16. Reusable Enterprise Starter Kit · 53:00–55:00
 
 **EN**
 
-Pick an invariant in your own system. Where can you encode the constraint? Which real interface can you exercise to observe it? What could a reviewer open to see the outcome? Start by adapting the verification skill and feature map, then link one acceptance criterion to one check and one artifact in your PR.
+Procurement Hub is the reference case; the real takeaway is the Reusable Enterprise Starter Kit in starter-kit/. Twelve ready-to-adapt templates — from the architecture checklist and AGENTS.md template to Feature Maps, verification skill, TLA+ starter, loop playbook, evidence schema, CI gates, and governance checklist — plus a four-week brownfield adoption guide so your team can introduce one invariant at a time without rewriting legacy code.
 
 **PT-BR**
 
-Escolha uma invariante do seu sistema. Onde dá para codificar a restrição? Qual interface real permite observar o resultado? O que uma pessoa revisora poderia abrir para conferi-lo? Comece adaptando a skill e o feature map de verificação. Depois ligue um critério de aceite a uma checagem e a um artefato no PR.
+O Procurement Hub é o caso de referência; o verdadeiro entregável é o Reusable Enterprise Starter Kit em starter-kit/. Doze templates prontos para adaptar — do checklist de arquitetura e AGENTS.md aos Feature Maps, skill de verificação, starter TLA+, playbook de loop, schema de evidências, CI e governança — além de um guia de adoção incremental de quatro semanas para sistemas brownfield.
 
 **Palco**
 
-Dê um minuto para cada pessoa escolher sua invariante. Aponte os materiais aprovados para participantes.
+Aponte `starter-kit/README.md` e `docs/workshop/PARTICIPANT-GUIDE.md`.
 
 
 <!-- slide:questions -->
@@ -284,12 +276,12 @@ Dê um minuto para cada pessoa escolher sua invariante. Aponte os materiais apro
 
 **EN**
 
-We followed one purchase from an issue to a reviewable outcome. The same approach works wherever a team can state its invariants, exercise the system and record what happened. Think about the first recurring correction you can turn into a durable check. What would you ask an agent to prove in your repository?
+We moved from a live $4,000 budget overrun to an ACID, formally checked, independently verified Pull Request. Do not just chase better prompts or better models — engineer better environments where agents can prove their work. Which recurring mistake in your repository will you turn into an executable guardrail next week? Let’s open for Q&A.
 
 **PT-BR**
 
-Seguimos uma compra da issue a um resultado que outra pessoa consegue revisar. A mesma abordagem funciona quando a equipe explicita suas invariantes, exercita o sistema e registra o que aconteceu. Pense na primeira correção recorrente que pode virar uma checagem durável. O que você pediria a um agente para provar no seu repositório?
+Saímos de um estouro real de orçamento de $4.000 para um Pull Request ACID, model-checked e verificado de forma independente. Não busque apenas prompts ou modelos melhores — construa ambientes melhores onde agentes consigam provar o próprio trabalho. Qual erro recorrente do seu repositório você vai transformar em guardrail executável na próxima semana? Vamos às perguntas.
 
 **Palco**
 
-Reúna o elenco, conduza o Q&A e finalize até 60 min.
+Mantenha o elenco na tela, conduza o Q&A e encerre dentro dos 60 minutos.

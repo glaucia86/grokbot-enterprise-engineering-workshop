@@ -123,3 +123,21 @@
 - **Requirements addressed:** `AC-12`, Golden Prompt §§16–17.
 - **What was verified:** `bun run check:static`, `bun run verify:architecture`, `bun run test:unit`, `bun run test:harness`, and full CI command parity locally. Remote GitHub Actions not yet executed (local branch not pushed).
 - **Next executable phase:** Phase 08 — Update `engineering/package-workshop.ts`, generate & verify clean local `workshop/starter`, `workshop/guided`, `workshop/solution` branches and 6 local recovery checkpoint tags.
+
+---
+
+## Phase 09 — Participant Guide, Facilitator Guide, Reusable Starter Kit & Reveal.js Alignment
+
+- **Status:** COMPLETED & VERIFIED
+- **What changed:**
+  - Authored `docs/workshop/PARTICIPANT-GUIDE.md` covering all 23 required sections (Bun 1.4.5, Windows PowerShell/Git Bash/macOS/Linux, GrokBot setup + portable fallback, live PH-42 reproduction, harness, exercises, TLA+, troubleshooting, cleanup, advanced challenges, solution checkout).
+  - Authored `docs/workshop/FACILITATOR-GUIDE.md` (minute-by-minute 60-minute schedule, exact commands, prompts, 6 recovery checkpoint tags, fallback matrix, integrity rules).
+  - Authored Reusable Enterprise Starter Kit under `starter-kit/` (`README.md`, `BROWNFIELD-ADOPTION-GUIDE.md`, and all 12 reusable templates `01` through `12`).
+  - Updated root `README.md` to reflect the transformed enterprise architecture, 4 pillars, PH-42 budget overrun incident, and all commands.
+  - Realigned `slides/index.html`, `slides/presenter-guide.md` (EN + PT-BR notes), `slides/assets/architecture.svg`, `slides/assets/concurrency.svg`, `slides/deck.spec.ts`, and `slides/README.md` strictly to the verified implementation.
+- **Why it changed:** Delivered complete educational replication materials, reusable enterprise templates, and slide deck aligned 1:1 with verified repository behavior.
+- **Requirements addressed:** Golden Prompt §§19–23.
+- **What was verified:**
+  - `WORKSHOP_SLIDES_PORT=4193 bun run slides:verify`: **7/7 Playwright tests PASS** (public allowlist, avatar cast, GIF toggle, 5-layer Trust Pyramid reveal, EN/PT-BR speaker view, 1440×810 stage fit, 390×844 phone fit).
+  - `bun run check:static`: **PASS**.
+- **Next executable phase:** Phase 08 — Update `engineering/package-workshop.ts`, build spoiler-free `workshop/starter`, `workshop/guided`, `workshop/solution` local branches + 6 local recovery checkpoint tags.

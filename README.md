@@ -9,142 +9,99 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Bun](https://img.shields.io/badge/Bun-1.4.5-252529?logo=bun&logoColor=white)](https://bun.sh/)
 [![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white)](https://nextjs.org/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![Reveal.js](https://img.shields.io/badge/Reveal.js-6-F2E142?logo=revealdotjs&logoColor=black)](https://revealjs.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18.7-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Vitest](https://img.shields.io/badge/Vitest-5.1-6E9F18?logo=vitest&logoColor=white)](https://vitest.dev/)
+[![Playwright](https://img.shields.io/badge/Playwright-Chromium-2EAD33?logo=playwright&logoColor=white)](https://playwright.dev/)
+[![TLA+](https://img.shields.io/badge/TLA%2B-TLC_1.7.4-1F4E79)](formal/README.md)
 
-Take a concurrency bug in a purchase approval system from a reproducible symptom to a pull request a reviewer can verify independently.
+Build an enterprise engineering environment where AI coding agents autonomously investigate, fix, and verify a real financial concurrency incident under enforceable architectural constraints and human-approved delivery governance.
 
-**[Run Procurement Hub](#run-the-lab) · [Open the slide guide](slides/README.md) · [Try PH-42](#check-ph-42) · [Review the evidence](#review-the-pull-request)**
+**[Participant Guide](docs/workshop/PARTICIPANT-GUIDE.md) · [Facilitator Guide](docs/workshop/FACILITATOR-GUIDE.md) · [PH-42 Incident](doc-specs/03-demo-issue-42.md) · [Reusable Starter Kit](starter-kit/README.md) · [Slides](slides/README.md)**
 
 </div>
 
 ---
 
-## Start here
+## The Four Workshop Pillars
 
-| I want to… | Where to go |
-| --- | --- |
-| **Follow the presentation** | [Preview or download the Reveal.js deck](slides/README.md). GitHub Pages is prepared for the approved release. |
-| **Try the application** | [Run Procurement Hub locally](#run-the-lab) and complete a request, a decision and an audit review. See the [hosted demo plan](doc-specs/08-online-workshop.md) for the interactive preview. |
-| **Work through the exercise** | [Read PH-42](doc-specs/03-demo-issue-42.md), then run the historical and live checks. |
-| **Explore the engineering design** | [Open the specification pack](doc-specs/README.md) for the PRD, architecture, vertical slices and verification strategy. |
-
-## The case study
-
-**Procurement Hub** is a TypeScript lab for submitting, deciding and auditing purchase requests. It runs with Next.js and a real PostgreSQL database, using synthetic people and two independent tenant workspaces.
-
-In PH-42, two concurrent submissions with the same idempotency key could create two purchases and two creation events. That can put the same expense through approval twice. You will trace the invariant across the HTTP response, persisted records and audit trail, then prepare the evidence needed for someone else to review the fix.
-
-![Procurement Hub running locally with a synthetic purchase request and an audit trail containing CREATED and APPROVED events](docs/media/procurement-hub.webp)
-
-*Procurement Hub after a Northstar requester submits a purchase and an approver records the decision.*
-
-## What you’ll practice
-
-- Turn a bug report into observable acceptance criteria that a person and an agent can use.
-- Identify where the application enforces tenant scope, role permissions and persistence invariants.
-- Give GrokBot a bounded task, run the verification harness against the live application and use its findings to guide the next action.
-- Open a pull request with evidence tied to the candidate commit so a human reviewer can compare it against independent CI.
-
-### Session agenda
-
-| Time | Topic | Activity |
+| Pillar | What You Build & Verify | Key Artifacts |
 | --- | --- | --- |
-| 00–05 | The business case | Trace a duplicate purchase from submission to audit. |
-| 05–12 | Enforceable architecture | Find the boundaries for role, tenant and database writes. |
-| 12–20 | Verification harness | Identify the fastest checks and the scenario that needs a live database. |
-| 20–40 | GrokBot walkthrough | Reproduce the symptom, diagnose the cause and verify the candidate. |
-| 40–48 | Evidence and review | Match the candidate SHA, CI run and PR evidence. |
-| 48–53 | Optional extension | Explore the bounded model or trace the live evidence in more depth. |
-| 53–60 | Q&A | Discuss what the workflow would require in your own codebase. |
-
-## Run the lab
-
-Use **[Bun 1.4.5](https://bun.sh/)**, **Docker Compose v2** and a terminal. The application and disposable PostgreSQL database listen on loopback. The example configuration enables the workshop’s synthetic role selector.
-
-1. Copy `.env.example` to `.env` with `cp .env.example .env` in Bash or `Copy-Item .env.example .env` in PowerShell.
-2. Install the locked dependencies, install Chromium for the browser tests and start the lab.
-
-   ```bash
-   bun install --frozen-lockfile
-   bun run browser:install
-   bun run lab:up
-   bun run lab:doctor --db-only
-   bun run dev
-   ```
-
-3. Open [Procurement Hub at 127.0.0.1:3000](http://127.0.0.1:3000). Choose **Northstar Requester**, submit a purchase and open it from **My requests**.
-4. Return to the home page, choose **Northstar Approver**, open the same request and record a decision.
-5. Switch to **Northstar Auditor** to check the creation and decision events. You can also return as the requester to inspect the final status, then switch to **Meridian Requester** to explore the separate workspace.
-
-Run `bun run lab:doctor` in another terminal. A healthy app returns HTTP 200 with `{"status":"ready"}`. Readiness checks PostgreSQL and, with lab mode enabled, the seeded identities.
-
-<details>
-<summary>Local setup, individual tests and cleanup</summary>
-
-- `bun run lab:up` starts the database, applies the migrations and seeds the synthetic identities. Use `bun run lab:init` for an existing disposable lab database. Re-running setup preserves existing requests.
-- Run `bun run check:static` and `bun run test:unit` for fast feedback. Run `bun run test:integration` and `bun run test:e2e` against the disposable dataset. The tests create synthetic records with unique keys.
-- Set `WORKSHOP_BASE_URL` for a different local app port or `WORKSHOP_CHROMIUM_PATH` for a compatible installed Chromium. Use `bun run build` followed by `bun run start` to exercise a prebuilt app.
-- Stop the application with Ctrl+C and run `bun run lab:down` for the owned Compose lab. The volume and local evidence are retained. For simultaneous checkouts, use separate Compose projects and ports.
-- Leave `WORKSHOP_LAB_MODE` unset to disable the synthetic sessions.
-
-</details>
-
-## Check PH-42
-
-With the healthy local lab running, issue each command separately.
-
-| Command | Evidence source | Expected result |
-| --- | --- | --- |
-| `bun run verify:ph42-fixture` | Synthetic historical observation loaded into PostgreSQL | Simulated HTTP 201 and 201, different IDs, two requests and two creation events. Expected exit **1**. |
-| `bun run verify:concurrency` | Two equivalent submissions to the running API, checked in PostgreSQL | Observed HTTP 200 and 201, the same ID, one request and one creation event. Expected exit **0**. |
-
-PH-42 is complete when equivalent submissions converge on one logical purchase, one creation event and the same request ID. Check the full [issue and acceptance criteria](doc-specs/03-demo-issue-42.md) for conflicting payloads, tenant isolation and other regression paths.
-
-### Verify the lab in one run
-
-From a clean checkout with Bun, Docker Compose and Chromium available, use a fresh run ID.
-
-```bash
-bun run verify:all --run-id workshop-rehearsal
-```
-
-The harness builds the app, starts disposable PostgreSQL, checks readiness, runs the suites and records both PH-42 observations. It cleans up the resources it created and retains lifecycle and check manifests under `artifacts/verification/VS-04/<run-id>/`.
-
-For the reference checks, add `--slice VS-05` and read the evidence under `artifacts/verification/VS-05/<run-id>/`. See the [verification guide](skills/verify-procurement/SKILL.md) for Windows, standalone PostgreSQL and individual scenarios. The optional [bounded formal exercise](formal/README.md) uses a separate model and evidence set.
-
-## Explore the code
-
-| Area | What to look for |
-| --- | --- |
-| [Next.js application](src/app/) | Request pages, lab identity selection and API entry points. |
-| [Procurement module](src/modules/procurement/) | Role and ownership checks, decision rules and persistence. |
-| [Database and migrations](drizzle/) | Tenant-scoped schema, constraints and migration history. |
-| [Tests](tests/) and [verification harness](engineering/verify-lab.ts) | Unit checks, PostgreSQL integration, Chromium journeys and run evidence. |
-| [Vertical slices](doc-specs/05-vertical-slices.md) and [handoffs](doc-specs/handoffs/) | Scope, delivery sequence and completed verification by slice. |
-
-## Review the pull request
-
-1. Compare the issue’s acceptance criteria against the change and identify the behaviors that need evidence.
-2. Use the [PR template](.github/pull_request_template.md) to record the candidate SHA, checks actually run, artifact paths and any remaining limitations.
-3. Match the same SHA in **Workshop verification** and inspect the `workshop-evidence-*` artifact. Check both PH-42 outcomes and the live database counts.
-4. Review the change and evidence before approving delivery. The [release rehearsal](doc-specs/07-release-rehearsal.md) shows how to verify the participant starter and instructor bundle independently.
-
-## Workshop slides and live application
-
-[Reveal.js](slides/README.md) presents the four workshop pillars through PH-42. The **Workshop slides** workflow builds the English audience deck as a ZIP and provides its GitHub Pages publication path. The private [presenter guide](slides/presenter-guide.md) contains the bilingual talk track and stage cues.
-
-The interactive Procurement Hub needs a server and a PostgreSQL database. The [online workshop plan](doc-specs/08-online-workshop.md) documents GitHub Pages for the slides and the isolated Vercel preview for the app. The local walkthrough is available today.
-
-## Authoring and attribution
-
-This private authoring repository contains instructor material. Use the [release rehearsal](doc-specs/07-release-rehearsal.md) to prepare participant-safe content with isolated Git history. See [slice execution](doc-specs/LOOP-ENGINEERING.md) for revision-linked verification, authoring setup and review.
-
-This independent adaptation was inspired by Lauren Tan’s [All Code Is Slop (Except Mine)](https://www.youtube.com/watch?v=O_zcc6Xl12g) and [pstack](https://github.com/cursor/plugins/tree/main/pstack).
+| **01 · Enforceable Architecture** | 4-layer Modular Monolith (`domain`, `application`, `infrastructure`, `app`) with executable ESLint import & monetary-safety rules, exact `MoneyMinor` types, Smart/Dumb Zone vertical slices, and ADRs | `eslint.config.ts`, `bun run verify:architecture`, `PRD.md`, `SPEC.md`, `docs/adr/` |
+| **02 · Harness Engineering & Skills** | Isolated one-shot lifecycle harness (`launch -> doctor -> drive -> evidence -> cleanup`), portable `verify-procurement` skill, and 8 user-POV Feature Maps | `engineering/verify-lab.ts`, `skills/verify-procurement/SKILL.md`, `skills/verify-procurement/features/` |
+| **03 · Runtime & Formal Verification** | Deterministic live PH-42 overspend reproduction (`$7k + $7k > $10k`), bounded Loop Engineering engine (`loop-runner.ts`), multi-connection concurrency & security suites, `fast-check` properties, Playwright E2E, and Dockerized TLA+/TLC model checking | `bun run ph42:reproduce`, `engineering/loop-runner.ts`, `tests/concurrency/`, `tests/security/`, `formal/ProcurementApproval.tla` |
+| **04 · Evidence-Based Governance** | Exact-SHA machine (`manifest.json`) + human (`summary.md`) evidence bundles surviving cleanup, 6-job least-privilege CI with `governance-guard`, 11-section PR template, and explicit human merge accountability | `.github/workflows/workshop-verification.yml`, `.github/pull_request_template.md`, `docs/governance/ENTERPRISE-GOVERNANCE.md` |
 
 ---
 
-## About the presenter
+## The Enterprise Incident: PH-42
+
+**Procurement Hub** is a multi-tenant corporate procurement platform with Cost Center budgets, approval authority limits (`approvalLimitMinor`), financial commitments, idempotent workflows, and durable audit trails.
+
+In **PH-42 (*Concurrent Procurement Approval Violates Financial and Tenant Isolation Invariants*)**:
+- Northstar Cost Center `CC-ENG-01` has an **Allocated Budget** of **`$10,000.00`**.
+- Two `PENDING` purchase requests require **`$7,000.00`** each.
+- On `workshop/starter`, approving both concurrently commits **`$14,000.00`** against **`$10,000.00`** (**`-$4,000.00` available**), violating `INV-01` and `INV-02`.
+- The reference solution (`workshop/solution`) enforces all ten business invariants (`INV-01`–`INV-10`) through PostgreSQL row-level locking (`SELECT ... FOR UPDATE`), database `CHECK` and `UNIQUE` constraints, tenant-scoped `decision_idempotency_keys` with canonical payload conflict detection, authorization re-checked before idempotent replay, and atomic ACID audit trails.
+
+---
+
+## Quick Start
+
+**Prerequisites:** [Bun 1.4.5](https://bun.sh/), Docker Compose v2, and Git. (**No host Java required** — `verify:formal` automatically uses a pinned Docker JRE container if local `java` is absent.)
+
+```bash
+cp .env.example .env            # Windows PowerShell: Copy-Item .env.example .env
+bun install --frozen-lockfile
+bun run browser:install
+bun run lab:bootstrap
+bun run dev                     # Terminal 2: http://127.0.0.1:3000
+```
+
+### Core Engineering Commands
+
+| Goal | Command |
+| --- | --- |
+| Check database & app readiness | `bun run lab:doctor` |
+| Static types + ESLint | `bun run check:static` |
+| Prove architectural boundaries reject violations | `bun run verify:architecture` |
+| Seed `$10,000` `CC-ENG-01` + `$7k/$7k` browser demo | `bun run lab:seed:ph42` |
+| Reproduce PH-42 concurrent approval live | `bun run ph42:reproduce` |
+| Run Vitest unit, integration, concurrency, security, properties, harness | `bun run test:unit` · `test:integration` · `test:concurrency` · `test:security` · `test:properties` · `test:harness` |
+| Run Playwright Chromium E2E tests | `bun run test:e2e` |
+| Run bounded TLA+ / TLC model checking (zero host Java) | `bun run verify:formal` |
+| Run complete isolated verification harness (`manifest.json` + `summary.md`) | `bun run verify:all --slice solution --run-id rehearsal` |
+| Build & verify Reveal.js slides | `bun run slides:verify` |
+
+---
+
+## Workshop Branches & Recovery Checkpoints
+
+| Ref | Purpose |
+| --- | --- |
+| `workshop/starter` | Spoiler-free runnable brownfield app with the real reproducible PH-42 overspending defect (`ph42:reproduce` exits `1`) |
+| `workshop/guided` | Starter + progressive `GUIDED-WORKSHEET.md` hints and milestones without revealing the full fix |
+| `workshop/solution` | Complete verified reference implementation, tests, formal verification, and governance artifacts |
+| `checkpoint-00-starter` .. `checkpoint-05-pr-ready` | Immutable local recovery checkpoints for live 60-minute facilitation |
+
+---
+
+## Documentation & Reusable Enterprise Assets
+
+- **Hands-on Labs:** [Participant Replication Guide](docs/workshop/PARTICIPANT-GUIDE.md) · [Facilitator Runbook](docs/workshop/FACILITATOR-GUIDE.md)
+- **Reusable Starter Kit (12 templates + brownfield guide):** [starter-kit/README.md](starter-kit/README.md)
+- **Specifications & Architecture:** [PRD.md](PRD.md) · [SPEC.md](SPEC.md) · [Glossary](docs/domain/GLOSSARY.md) · [Traceability Matrix](docs/architecture/REQUIREMENTS-TRACEABILITY.md) · [Vertical Slices](docs/architecture/VERTICAL-SLICES.md) · [ADRs](docs/adr/)
+- **Assessment & Attribution:** [Enterprise Gap Analysis](docs/assessment/ENTERPRISE-GAP-ANALYSIS.md) · [Lauren Tan / pstack Source Traceability](docs/architecture/SOURCE-TRACEABILITY.md) · [Skill Inventory](docs/architecture/SKILL-INVENTORY.md)
+- **Workflows & Governance:** [Loop Engineering](docs/workflows/LOOP-ENGINEERING.md) · [Specialized Agent Roles](docs/agents/AGENT-ROLES.md) · [Enterprise Governance](docs/governance/ENTERPRISE-GOVERNANCE.md)
+
+---
+
+## Attribution
+
+Inspired by Lauren Tan's [*All Code Is Slop (Except Mine)*](https://www.youtube.com/watch?v=O_zcc6Xl12g) and [`cursor/plugins/pstack`](https://github.com/cursor/plugins/tree/main/pstack) (MIT). All skills, harnesses, loop runners, and formal workflows in this repository are independent, portable TypeScript adaptations for this workshop.
+
+---
+
+## About the Presenter
 
 <div align="center">
   <a href="https://github.com/glaucia86"><img src="docs/media/glaucia-lemos.jpg" width="170" height="170" alt="Glaucia Lemos"></a>

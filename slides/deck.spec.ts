@@ -114,7 +114,13 @@ test("keyboard, controls and the pyramid reveal the five layers in order", async
   const pyramid = page.locator("#trust-pyramid.present");
   await expect(pyramid).toBeVisible();
   await expect(pyramid.locator(".fragment.visible")).toHaveCount(0);
-  const layers = ["Codebase", "Static analysis", "Verification", "Prose", "Human review"];
+  const layers = [
+    "Codebase & Architecture",
+    "Deterministic Checks",
+    "Runtime Verification",
+    "Formal Verification",
+    "Prose, Skills & Review",
+  ];
   for (const layer of layers) {
     await page.keyboard.press("ArrowRight");
     await expect(pyramid.locator(".current-fragment strong")).toHaveText(layer);
@@ -127,7 +133,7 @@ test("keyboard, controls and the pyramid reveal the five layers in order", async
 
 test("presenter notes match all slides and open in Reveal speaker view", async ({ page }) => {
   await page.goto("/presenter/#/verify-live");
-  await expect(page.locator("section.present")).toContainText("bun run verify:concurrency");
+  await expect(page.locator("section.present")).toContainText("bun run ph42:reproduce");
   const slides = page.locator(".slides > section");
   await expect(slides).toHaveCount(ids.length);
   for (const [index, id] of ids.entries()) {
@@ -149,9 +155,9 @@ test("presenter notes match all slides and open in Reveal speaker view", async (
   await page.keyboard.press("s");
   const notes = await popup;
   const text = notes.locator(".speaker-controls-notes");
-  await expect(text).toContainText("Now we're exercising the running API");
-  await expect(text).toContainText("Agora vamos exercitar a API");
-  await expect(text).toContainText("34:00–39:00");
+  await expect(text).toContainText("Now we exercise the corrected API");
+  await expect(text).toContainText("Agora exercitamos a API");
+  await expect(text).toContainText("36:00–40:00");
 });
 
 for (const [name, viewport] of [
