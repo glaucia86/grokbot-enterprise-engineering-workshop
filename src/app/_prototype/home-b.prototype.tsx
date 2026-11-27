@@ -1,129 +1,80 @@
-/* PROTOTYPE Variant B home — product tour: an illustrative inbox where a request settles from pending to approved. */
+/* PROTOTYPE B: institutional product narrative, with an explicitly illustrative interactive walkthrough. */
 import Link from "next/link";
+import { ArrowRightIcon, ArrowUpRightIcon, ShieldCheckIcon, TrayIcon, WalletIcon, ReceiptIcon } from "../_components/icons";
 import { formatUsd } from "../format-purchase";
 import { roleLabel, type HomeData } from "./data";
 import { PersonaButton } from "./lab-switch";
+import { FinancialStory } from "./financial-story";
+import "./experience-b.css";
 
-const rows = [
-  { title: "Cloud Security Audit Tooling", center: "Platform Engineering Q4", amount: 700_000, animate: true },
-  { title: "Dock door seal replacement", center: "Warehouse Operations Q4", amount: 1_800_000, animate: false },
-  { title: "Packing station anti-fatigue mats", center: "Warehouse Operations Q4", amount: 95_000, animate: false },
-];
+const roles = ["APPROVER", "REQUESTER", "AUDITOR"] as const;
 
 export function HomeB({ data }: { data: HomeData }) {
-  const roles = ["APPROVER", "REQUESTER", "AUDITOR"] as const;
+  const destination = "/dashboard?variant=B";
   return (
-    <div className="pb min-h-dvh">
-      <header className="mx-auto flex max-w-[72rem] items-center justify-between gap-4 px-5 py-4 sm:px-8">
-        <Link href="/?variant=B" className="flex items-center gap-2 font-semibold">
-          <span className="grid size-8 place-items-center rounded-md bg-(--p-navy) text-xs font-bold text-white" aria-hidden="true">PH</span>
-          Procurement Hub
-        </Link>
-        <a href={data.session ? "/?variant=B" : "#enter"} className="inline-flex min-h-10 items-center rounded-md bg-(--p-accent) px-4 text-sm font-semibold text-white hover:bg-(--p-accent-hover)">
-          {data.session ? "Open your inbox" : "Enter the lab workspace"}
-        </a>
+    <div className="pb ph-product min-h-dvh">
+      <header className="ph-site-header">
+        <div className="ph-site-nav">
+          <Link href="/home?variant=B" className="ph-wordmark"><span className="ph-brand-icon"><ShieldCheckIcon size={24} weight="duotone" /></span><span>Procurement<span className="ph-wordmark-light"> Hub</span></span></Link>
+          <nav aria-label="Product navigation" className="ph-site-links"><a href="#workflow">How it works</a><a href="#controls">Financial controls</a><a href="#enter">Explore roles</a></nav>
+          <Link className="ph-primary ph-nav-cta" href={data.session ? destination : "#enter"}>Open workspace <ArrowUpRightIcon size={17} aria-hidden="true" /></Link>
+        </div>
       </header>
-
       <main id="main-content">
-        <section aria-labelledby="hero-title" className="mx-auto max-w-[72rem] px-5 pt-12 pb-16 text-center sm:px-8 lg:pt-20">
-          <h1 id="hero-title" className="mx-auto max-w-3xl text-[2.5rem] leading-[1.08] font-semibold tracking-[-0.03em] sm:text-[3.5rem]">
-            Approve spend with the budget in view.
-          </h1>
-          <p className="mx-auto mt-5 max-w-xl text-lg text-(--p-ink-2)">
-            One inbox for every purchase request: the amount, the cost center&rsquo;s available budget and your own authority, before you decide.
-          </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <a href="#enter" className="inline-flex min-h-12 items-center rounded-md bg-(--p-accent) px-6 font-semibold text-white hover:bg-(--p-accent-hover)">Enter the lab workspace</a>
-            <a href="#checks" className="inline-flex min-h-12 items-center rounded-md border border-(--p-line-strong) bg-(--p-surface) px-6 font-semibold hover:border-(--p-ink-3)">See the three checks</a>
-          </div>
-
-          <figure className="mx-auto mt-14 max-w-4xl text-left">
-            <div className="overflow-hidden rounded-lg border border-(--p-line) bg-(--p-surface) shadow-[0_30px_60px_-40px_rgb(11_22_40/0.5)]">
-              <div className="flex items-center justify-between border-b border-(--p-line) px-5 py-3 text-sm">
-                <span className="font-semibold">Inbox</span>
-                <span className="p-figures relative inline-block h-5 w-44 text-right text-(--p-ink-3)">
-                  <span className="p-settle-out absolute inset-0">3 need your decision</span>
-                  <span className="p-settle absolute inset-0">2 need your decision</span>
-                </span>
-              </div>
-              <ul className="p-figures text-sm">
-                {rows.map((row) => (
-                  <li key={row.title} className="grid grid-cols-[minmax(0,1fr)_auto_7.5rem] items-center gap-4 border-b border-(--p-line) px-5 py-3.5 last:border-b-0">
-                    <span className="min-w-0">
-                      <span className="block truncate font-medium">{row.title}</span>
-                      <span className="block truncate text-xs text-(--p-ink-3)">{row.center}</span>
-                    </span>
-                    <span className="font-semibold">{formatUsd(row.amount)}</span>
-                    <span className="relative h-6 text-right text-xs font-semibold">
-                      {row.animate ? (
-                        <>
-                          <span className="p-settle-out absolute inset-0 text-(--p-pending)">Pending decision</span>
-                          <span className="p-settle absolute inset-0 text-(--p-approved)">Approved</span>
-                        </>
-                      ) : <span className="text-(--p-pending)">Pending decision</span>}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              <div className="p-figures grid grid-cols-3 border-t border-(--p-line) bg-(--p-canvas) text-xs">
-                <span className="px-5 py-3"><span className="block text-(--p-ink-3)">Platform Engineering available</span>
-                  <span className="relative block h-5 text-sm font-semibold">
-                    <span className="p-settle-out absolute inset-0">{formatUsd(1_000_000)}</span>
-                    <span className="p-settle absolute inset-0">{formatUsd(300_000)}</span>
-                  </span>
-                </span>
-                <span className="px-5 py-3"><span className="block text-(--p-ink-3)">Your limit</span><span className="text-sm font-semibold">{formatUsd(2_500_000)}</span></span>
-                <span className="px-5 py-3"><span className="block text-(--p-ink-3)">Audit events</span>
-                  <span className="relative block h-5 text-sm font-semibold"><span className="p-settle-out absolute inset-0">3</span><span className="p-settle absolute inset-0">4</span></span>
-                </span>
-              </div>
+        <section className="ph-hero" aria-labelledby="ph-hero-heading">
+          <div className="ph-hero-grid" aria-hidden="true" />
+          <div className="ph-hero-inner">
+            <div className="ph-hero-copy">
+              <p className="ph-kicker"><span /> Corporate spend · Engineering lab</p>
+              <h1 id="ph-hero-heading">Clarity before<br />money <em>moves.</em></h1>
+              <p className="ph-lede">One place to request purchases, understand the budget impact, and trace the decisions behind every commitment.</p>
+              <div className="ph-hero-actions"><Link href={data.session ? destination : "#enter"} className="ph-primary">Explore the workspace <ArrowRightIcon size={19} aria-hidden="true" /></Link><a className="ph-secondary" href="#workflow">See a decision unfold <span aria-hidden="true">↓</span></a></div>
+              <p className="ph-hero-note">A synthetic enterprise lab. No real corporate data or payments.</p>
             </div>
-            <figcaption className="mt-3 text-center text-xs text-(--p-ink-3)">Illustrative scenario, not live data. With reduced motion the final state is shown.</figcaption>
-          </figure>
+            <figure className="ph-hero-figure">
+              <div className="ph-orbit ph-orbit-one" aria-hidden="true" /><div className="ph-orbit ph-orbit-two" aria-hidden="true" />
+              <div className="ph-ledger">
+                <div className="ph-ledger-top"><span><WalletIcon size={18} aria-hidden="true" /> Platform Engineering</span><span>Q4 / USD</span></div>
+                <div className="ph-ledger-balance"><span>Available after approval</span><strong>{formatUsd(300_000)}</strong><small>of {formatUsd(1_000_000)} allocated</small></div>
+                <div className="ph-ledger-bar" aria-hidden="true"><span /></div>
+                <div className="ph-ledger-key"><span><i /> Committed $7,000</span><span>Available $3,000</span></div>
+                <div className="ph-ledger-rule" />
+                <div className="ph-ledger-row"><span className="ph-ledger-symbol"><TrayIcon size={20} /></span><span><strong>Cloud security tooling</strong><small>Purchase request · CC-ENG-01</small></span><strong>{formatUsd(700_000)}</strong></div>
+                <div className="ph-ledger-row ph-ledger-result"><span className="ph-ledger-symbol"><ReceiptIcon size={20} /></span><span><strong>Approval recorded</strong><small>Illustrative commitment</small></span><span className="ph-ledger-ok">Approved</span></div>
+              </div>
+              <figcaption>Illustrative scenario — not live tenant data.</figcaption>
+            </figure>
+          </div>
+          <div className="ph-hero-footer"><span>01 / Procurement operations</span><span>Request → Review → Record</span><a href="#workflow">Scroll to explore ↓</a></div>
         </section>
-
-        <section id="checks" aria-labelledby="checks-heading" className="scroll-mt-16 border-y border-(--p-line) bg-(--p-surface)">
-          <div className="mx-auto max-w-[72rem] px-5 py-16 sm:px-8">
-            <h2 id="checks-heading" className="text-2xl font-semibold tracking-[-0.02em]">Three checks before money moves</h2>
-            <ol className="mt-8 grid gap-8 md:grid-cols-3 md:gap-0 md:divide-x md:divide-(--p-line)">
+        <section id="workflow" className="ph-workflow" aria-labelledby="ph-workflow-heading">
+          <div className="ph-section-intro"><p className="ph-index">01 / THE DECISION JOURNEY</p><h2 id="ph-workflow-heading">From a request<br />to a record.</h2><p>Follow an illustrative $7,000 purchase through the system. See precisely what changes, what stays pending, and what evidence is recorded.</p></div>
+          <FinancialStory />
+        </section>
+        <section id="controls" className="ph-controls" aria-labelledby="ph-controls-heading">
+          <div className="ph-controls-inner"><div><p className="ph-index">02 / FINANCIAL CONTROLS</p><h2 id="ph-controls-heading">Trust is a property<br />of the system.</h2><p>These are the intended rules. The workshop tests the implementation against them; this page is not a verification report.</p></div>
+            <dl className="ph-control-list">
               {[
-                ["Authority", "Is the amount within your approval limit, and did someone else raise the request?"],
-                ["Budget", "Does the cost center still have the amount available when you confirm, not just when you looked?"],
-                ["Record", "Is the outcome written once, with its commitment and audit event, even if the connection drops?"],
-              ].map(([title, body], index) => (
-                <li key={title} className="md:px-8 md:first:pl-0 md:last:pr-0">
-                  <p className="p-figures text-sm font-semibold text-(--p-accent)">{index + 1}</p>
-                  <h3 className="mt-1 text-lg font-semibold">{title}</h3>
-                  <p className="mt-1 text-(--p-ink-2)">{body}</p>
-                </li>
-              ))}
-            </ol>
+                ["01", "Authority before approval", "Approval is limited by the organization’s server-side membership and policy."],
+                ["02", "Budget before commitment", "An approval must fit the cost center’s available allocation at the time of the decision."],
+                ["03", "A durable record", "A financial outcome must be traceable to its authorized decision and audit event."],
+                ["04", "Concurrency under scrutiny", "Two competing approvals must never spend the same available dollar twice."],
+              ].map(([n, title, body]) => <div key={n}><span>{n}</span><dt>{title}</dt><dd>{body}</dd></div>)}
+            </dl>
           </div>
         </section>
-
-        <section id="enter" aria-labelledby="enter-heading" className="mx-auto max-w-[72rem] scroll-mt-16 px-5 py-16 sm:px-8">
-          <h2 id="enter-heading" className="text-2xl font-semibold tracking-[-0.02em]">Enter the lab workspace</h2>
-          <p className="mt-2 text-(--p-ink-2)">Pick a synthetic identity. It is a workshop simulation, not a sign-in.</p>
-          {roles.map((role) => (
-            <div key={role} className="mt-8">
-              <h3 className="text-sm font-semibold text-(--p-ink-3)">{roleLabel[role]}s</h3>
-              <ul className="mt-2 divide-y divide-(--p-line) rounded-lg border border-(--p-line) bg-(--p-surface)">
-                {data.identities.filter((i) => i.role === role && i.key).map((identity) => (
-                  <li key={identity.key}>
-                    <PersonaButton identity={identity.key!} destination="/?variant=B" className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left hover:bg-(--p-canvas)">
-                      <span>
-                        <span className="font-medium">{identity.displayName}</span>
-                        <span className="p-figures text-sm text-(--p-ink-3)"> · {identity.tenantName}{identity.approvalLimitMinor !== null && <> · limit {formatUsd(identity.approvalLimitMinor)}</>}</span>
-                      </span>
-                      <span className="text-sm font-semibold text-(--p-accent)">Enter →</span>
-                    </PersonaButton>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+        <section id="enter" className="ph-personas" aria-labelledby="ph-enter-heading">
+          <div className="ph-section-intro"><p className="ph-index">03 / ENTER THE LAB</p><h2 id="ph-enter-heading">Choose your perspective.</h2><p>Explore the same financial operation from a different role. This identity selector is a workshop simulation, not production authentication.</p></div>
+          {!data.enabled && <p role="status">Lab mode is disabled. Start the local workshop environment to continue.</p>}
+          <div className="ph-persona-grid">
+            {roles.map((role) => <section key={role} className="ph-persona"><h3>{roleLabel[role]}</h3><p>{role === "APPROVER" ? "Review pending work and assess financial impact." : role === "REQUESTER" ? "Create and track your purchase requests." : "Trace outcomes and review financial evidence."}</p>
+              <ul>{data.identities.filter((i) => i.role === role && i.key).map((identity) => <li key={identity.key}><PersonaButton identity={identity.key!} destination={destination} className="ph-persona-button"><span><strong>{identity.displayName}</strong><small>{identity.tenantName}{identity.approvalLimitMinor !== null && <> · {formatUsd(identity.approvalLimitMinor)} limit</>}</small></span><ArrowRightIcon size={18} aria-hidden="true" /></PersonaButton></li>)}</ul>
+            </section>)}
+          </div>
+          {data.session && <Link href={destination} className="ph-primary">Return to your workspace <ArrowRightIcon size={18} aria-hidden="true" /></Link>}
         </section>
       </main>
+      <footer className="ph-site-footer"><span>Procurement Hub · Enterprise engineering lab</span><Link href="/?variant=0">Open working application ↗</Link></footer>
     </div>
   );
 }

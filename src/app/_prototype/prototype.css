@@ -90,3 +90,14 @@
 
 /* Without motion the illustration shows its final state. */
 .p-settle-out { opacity: 0; }
+
+/* Explicit comparison controls; no global keyboard interception. */
+.pa, .pb, .pc { color-scheme: light; }
+.p-variant-dock { position: fixed; right: 1rem; bottom: 1rem; z-index: 40; display: flex; align-items: center; gap: .65rem; padding: .45rem .55rem; border: 1px solid #35485e; border-radius: 9px; background: #0b1628; color: #f6f9fc; box-shadow: 0 8px 24px #0003; font: 500 12px/1.2 var(--font-plex-sans), sans-serif; }
+.p-variant-label { color: #b9cada; font-size: 10px; letter-spacing: .08em; }
+.p-variant-options { display: flex; gap: .25rem; }
+.p-variant-options button { display: flex; align-items: center; gap: .35rem; min-height: 32px; padding: .35rem .55rem; border-radius: 5px; }
+.p-variant-options button[aria-pressed=true] { background: #a6f1dd; color: #102c35; font-weight: 700; }
+.p-variant-options button:not([aria-pressed=true]):hover { background: #294358; }
+.p-variant-options button:focus-visible { outline: 2px solid #a6f1dd; outline-offset: 2px; }
+@media (max-width: 640px) { .p-variant-dock { right: .5rem; bottom: .5rem; gap: .35rem; }.p-variant-options button { min-height: 38px; min-width: 32px; justify-content: center; }.p-variant-options button span { display: none; } }

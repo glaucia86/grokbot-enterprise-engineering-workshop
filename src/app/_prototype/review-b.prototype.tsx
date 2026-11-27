@@ -32,16 +32,17 @@ export function ReviewPaneB({ session, detail, events, asOf, nextPending, fullPa
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="min-w-0">
             <p className="text-xs text-(--p-ink-3)"><span translate="no">{ref}</span> · {costCenter.name}</p>
-            <Heading className="mt-1 text-2xl font-semibold tracking-[-0.015em]">{purchase.title}</Heading>
+            <Heading className="mt-1 text-2xl font-semibold tracking-[-0.015em] break-words">{purchase.title}</Heading>
             <p className="mt-1 text-sm text-(--p-ink-3)">
               {requester ? `${requester} · ` : ""}submitted {formatUtcTimestamp(purchase.createdAt)}
               {purchase.status === "PENDING" && <> · waiting {waitingDays(purchase.createdAt, asOf)}</>}
             </p>
           </div>
-          <p className="p-figures text-3xl font-semibold tracking-[-0.02em]">{formatUsd(purchase.amountMinor)}</p>
+          <div className="ph-review-total p-figures"><small>Requested amount</small><p className="text-3xl font-semibold tracking-[-0.04em]">{formatUsd(purchase.amountMinor)}</p><small>{statusLabel[purchase.status]}</small></div>
         </div>
 
-        <p className="max-w-prose text-[0.9375rem] leading-relaxed whitespace-pre-wrap text-(--p-ink-2)">{purchase.justification}</p>
+        <section><h3 className="mb-1 text-xs font-semibold text-(--p-ink-3)">Business justification</h3><p className="max-w-prose text-[0.9375rem] leading-relaxed whitespace-pre-wrap break-words text-(--p-ink-2)">{purchase.justification}</p></section>
+        <h3 className="text-base font-semibold">Financial impact</h3>
 
         <dl className="p-figures grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-(--p-line) bg-(--p-line) text-sm sm:grid-cols-4">
           <div className="bg-(--p-surface) px-4 py-3"><dt className="text-xs text-(--p-ink-3)">Available now</dt><dd className="mt-0.5 font-semibold">{formatUsd(costCenter.availableBudgetMinor)}</dd></div>
@@ -74,17 +75,17 @@ export function ReviewPaneB({ session, detail, events, asOf, nextPending, fullPa
         {commitment && <p className="p-figures text-sm">{formatUsd(commitment.amountMinor)} committed by {commitment.committedByActorName}.</p>}
       </div>
 
-      <div className="sticky bottom-0 mt-auto border-t border-(--p-line) bg-(--p-surface)/95 backdrop-blur-sm">
+      <div className="mt-auto border-t border-(--p-line) bg-(--p-surface)/95 backdrop-blur-sm">
         <div className={cn("flex flex-wrap items-center justify-between gap-3 px-6 py-3", fullPage && "mx-auto max-w-4xl")}>
           {fullPage ? (
             nextPending ? (
               <Link href={`/requests/${nextPending.id}?variant=B`} className="text-sm font-medium text-(--p-accent) hover:underline">Next: {nextPending.title} →</Link>
-            ) : <Link href="/?variant=B" className="text-sm font-medium text-(--p-accent) hover:underline">← Back to inbox</Link>
+            ) : <Link href="/dashboard?variant=B" className="text-sm font-medium text-(--p-accent) hover:underline">← Back to inbox</Link>
           ) : (
             <Link href={`/requests/${purchase.id}?variant=B`} className="text-sm font-medium text-(--p-accent) hover:underline">Open full review</Link>
           )}
           {canDecide ? (
-            <DecisionStub mode="footer" impact={{ amountMinor: purchase.amountMinor, availableMinor: costCenter.availableBudgetMinor, limitMinor: session.approvalLimitMinor, costCenterCode: costCenter.code, canApprove, overLimit }} />
+            <DecisionStub key={purchase.id} mode="footer" impact={{ amountMinor: purchase.amountMinor, availableMinor: costCenter.availableBudgetMinor, limitMinor: session.approvalLimitMinor, costCenterCode: costCenter.code, canApprove, overLimit }} />
           ) : (
             <span className={cn("text-sm font-medium", tone(purchase.status))}>{statusLabel[purchase.status]}</span>
           )}
@@ -100,8 +101,8 @@ export function ReviewB({ data }: { data: ReviewData }) {
       session={data.session}
       identities={data.identities}
       nav={[
-        { href: "/?variant=B", label: data.session.role === "APPROVER" ? "Inbox" : "Requests", icon: <TrayIcon size={20} />, current: true },
-        { href: "/?variant=B#ledger", label: "Budgets", icon: <WalletIcon size={20} /> },
+        { href: "/dashboard?variant=B", label: data.session.role === "APPROVER" ? "Inbox" : "Requests", icon: <TrayIcon size={20} />, current: true },
+        { href: "/dashboard?variant=B#ledger", label: "Budgets", icon: <WalletIcon size={20} /> },
       ]}
     >
       <ReviewPaneB session={data.session} detail={data.detail} events={data.events} asOf={data.asOf} nextPending={data.nextPending} fullPage />

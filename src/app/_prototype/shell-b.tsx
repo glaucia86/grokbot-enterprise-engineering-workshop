@@ -1,9 +1,9 @@
-/* PROTOTYPE Variant B shell: slim labelled rail, work-first top bar, lab identity tucked into the bar. */
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { cn } from "../_components/ui";
+import { ShieldCheckIcon, ArrowUpRightIcon } from "../_components/icons";
 import { roleLabel, type Identity, type Session } from "./data";
 import { LabSelect } from "./lab-switch";
+import "./experience-b.css";
 
 export function ShellB({ session, identities, nav, children }: {
   session: Session;
@@ -12,39 +12,29 @@ export function ShellB({ session, identities, nav, children }: {
   children: ReactNode;
 }) {
   return (
-    <div className="pb min-h-dvh md:grid md:grid-cols-[4.5rem_minmax(0,1fr)]">
-      <nav aria-label="Workspace" className="flex items-center gap-1 border-b border-(--p-line) bg-(--p-surface) px-2 py-1.5 md:sticky md:top-0 md:h-dvh md:flex-col md:items-stretch md:border-r md:border-b-0 md:px-1.5 md:py-3">
-        <Link href="/?variant=B" className="mb-0 grid h-10 place-items-center rounded-md bg-(--p-navy) text-sm font-bold text-white md:mb-3" aria-label="Procurement Hub home">PH</Link>
-        {nav.map((item) => (
-          <a
-            key={item.href}
-            href={item.href}
-            aria-current={item.current ? "page" : undefined}
-            className={cn(
-              "relative grid min-h-12 min-w-14 place-items-center rounded-md px-1 text-[0.6875rem] font-medium",
-              item.current ? "bg-(--p-accent-soft) text-(--p-accent)" : "text-(--p-ink-3) hover:bg-(--p-track) hover:text-(--p-ink)",
-            )}
-          >
-            <span aria-hidden="true">{item.icon}</span>
-            {item.label}
-            {item.count !== undefined && item.count > 0 && (
-              <span className="p-figures absolute top-1 right-1 rounded-full bg-(--p-accent) px-1.5 text-[0.625rem] leading-4 text-white">{item.count}</span>
-            )}
-          </a>
-        ))}
-      </nav>
-      <div className="min-w-0">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-(--p-line) bg-(--p-surface) px-4 py-2 text-xs text-(--p-ink-3) sm:px-6">
-          <span><span className="font-medium text-(--p-ink-2)" translate="no">{session.tenantName}</span> · {session.displayName} · {roleLabel[session.role]}</span>
-          <LabSelect
-            identities={identities}
-            current={session.key}
-            className="flex items-center gap-1.5"
-            selectClassName="min-h-8 max-w-[14rem] rounded-md border border-(--p-line-strong) bg-(--p-surface) px-2 text-xs text-(--p-ink-2)"
-            buttonClassName="min-h-8 rounded-md border border-(--p-line-strong) px-2.5 text-xs font-medium text-(--p-ink-2) hover:bg-(--p-track)"
-          />
-        </div>
-        <main id="main-content">{children}</main>
+    <div className="pb ph-workspace">
+      <aside className="ph-sidebar">
+        <Link href="/home?variant=B" className="ph-sidebar-brand"><span className="ph-brand-icon"><ShieldCheckIcon size={22} /></span>Procurement Hub</Link>
+        <span className="ph-sidebar-label">OPERATIONS</span>
+        <nav aria-label="Workspace" className="flex flex-wrap gap-1 md:flex-col">
+          {nav.map((item) => (
+            <Link key={item.href} href={item.href} aria-current={item.current ? "page" : undefined} className="ph-sidebar-link">
+              <span aria-hidden="true">{item.icon}</span>{item.label}
+              {item.count !== undefined && item.count > 0 && <span className="ph-sidebar-count">{item.count}</span>}
+            </Link>
+          ))}
+          <Link href="/home?variant=B" className="ph-sidebar-link"><ArrowUpRightIcon size={18} aria-hidden="true" /> Product home</Link>
+        </nav>
+        <div className="ph-sidebar-foot"><p className="ph-sidebar-label">DESIGN PROTOTYPE</p><Link className="ph-sidebar-link" href="/?variant=0">Open working UI <ArrowUpRightIcon size={16} aria-hidden="true" /></Link></div>
+      </aside>
+      <div className="ph-workspace-main">
+        <header className="ph-topbar">
+          <div className="ph-topbar-meta"><strong translate="no">{session.tenantName}</strong><span>{session.displayName} · {roleLabel[session.role]}</span></div>
+          <LabSelect identities={identities} current={session.key} className="flex items-center gap-2"
+            selectClassName="min-h-9 min-w-0 max-w-full rounded-md border border-(--p-line-strong) bg-(--p-surface) px-2 text-xs"
+            buttonClassName="min-h-9 rounded-md border border-(--p-line-strong) px-3 text-xs font-semibold hover:bg-(--p-track)" />
+        </header>
+        <main id="main-content" className="ph-workspace-body">{children}</main>
       </div>
     </div>
   );

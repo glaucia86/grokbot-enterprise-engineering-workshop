@@ -46,12 +46,14 @@ export function DecisionStub({ impact, mode }: { impact: DecisionImpact; mode: M
 
   function open(next: "approve" | "reject") {
     setKind(next);
+    setReason("");
     setResult("");
     dialog.current?.showModal();
   }
 
   return (
     <div className="grid gap-2">
+      <p className="text-xs font-medium text-(--p-ink-3)">Design preview · decisions are simulated.</p>
       <div className={style.wrap}>
         <button type="button" className={style.approve} disabled={!impact.canApprove} onClick={() => open("approve")}>
           Approve {formatUsd(impact.amountMinor)}

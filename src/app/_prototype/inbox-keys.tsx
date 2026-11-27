@@ -7,7 +7,8 @@ export function InboxKeys() {
   useEffect(() => {
     function onKey(event: KeyboardEvent) {
       const target = event.target as HTMLElement | null;
-      if (target?.closest("input, textarea, select, [contenteditable='true']")) return;
+      if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.defaultPrevented) return;
+      if (document.querySelector("dialog[open]") || target?.closest("input, textarea, select, button, [contenteditable='true']")) return;
       if (event.key !== "j" && event.key !== "k") return;
       const items = [...document.querySelectorAll<HTMLAnchorElement>("[data-inbox-item]")];
       if (!items.length) return;
