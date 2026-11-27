@@ -154,4 +154,3 @@ export function DashboardB({ data }: { data: DashboardData }) {
     </ShellB>
   );
 }
-

@@ -44,7 +44,7 @@ function LedgerComposition() {
             <span>USD · minor units</span>
           </div>
         </div>
-  
+
         <div
           className={cn(card, "parallax-layer scroll-drift absolute top-[14%] left-0 w-[64%] p-4 shadow-float")}
           style={depth(14, -30)}
@@ -62,7 +62,7 @@ function LedgerComposition() {
             <div className="h-full w-[70%] rounded-full bg-ink-2" />
           </div>
         </div>
-  
+
         <div
           className={cn(card, "parallax-layer scroll-drift absolute top-[46%] right-0 w-[60%] p-4 shadow-float")}
           style={depth(24, -70)}
@@ -88,7 +88,7 @@ function LedgerComposition() {
             </li>
           </ul>
         </div>
-  
+
         <div
           className="parallax-layer scroll-drift absolute bottom-[2%] left-[14%] flex items-center gap-2.5 rounded-full bg-surface py-1.5 pr-4 pl-1.5 shadow-float"
           style={depth(34, -110)}

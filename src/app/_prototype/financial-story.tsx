@@ -122,7 +122,11 @@ export function FinancialStory() {
     <div ref={root} className="ph-journey" data-chapter={active}>
       <div className="ph-journey-toolbar">
         <p>Illustrative scenario. No live data or financial actions.</p>
-        <a href="#controls">Skip walkthrough <ArrowRightIcon size={15} aria-hidden="true" /></a>
+        <a href="#controls" onClick={(event) => {
+          if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+          // Cancel a pending chapter or focus scroll before native fragment navigation.
+          document.getElementById("controls")?.scrollIntoView({ behavior: "instant", block: "start" });
+        }}>Skip walkthrough <ArrowRightIcon size={15} aria-hidden="true" /></a>
       </div>
 
       <div className="ph-journey-layout">
