@@ -5,6 +5,7 @@ import { formatUsd } from "../format-purchase";
 import { roleLabel, type HomeData } from "./data";
 import { PersonaButton } from "./lab-switch";
 import { FinancialStory } from "./financial-story";
+import { illustrativePurchase } from "./financial-story-data";
 import "./experience-b.css";
 
 const roles = ["APPROVER", "REQUESTER", "AUDITOR"] as const;
@@ -34,21 +35,21 @@ export function HomeB({ data }: { data: HomeData }) {
             <figure className="ph-hero-figure">
               <div className="ph-orbit ph-orbit-one" aria-hidden="true" /><div className="ph-orbit ph-orbit-two" aria-hidden="true" />
               <div className="ph-ledger">
-                <div className="ph-ledger-top"><span><WalletIcon size={18} aria-hidden="true" /> Platform Engineering</span><span>Q4 / USD</span></div>
-                <div className="ph-ledger-balance"><span>Available after approval</span><strong>{formatUsd(300_000)}</strong><small>of {formatUsd(1_000_000)} allocated</small></div>
+                <div className="ph-ledger-top"><span><WalletIcon size={18} aria-hidden="true" /> {illustrativePurchase.costCenter}</span><span>Q4 / USD</span></div>
+                <div className="ph-ledger-balance"><span>Available after approval</span><strong>{formatUsd(illustrativePurchase.allocatedMinor - illustrativePurchase.requestedMinor)}</strong><small>of {formatUsd(illustrativePurchase.allocatedMinor)} allocated</small></div>
                 <div className="ph-ledger-bar" aria-hidden="true"><span /></div>
-                <div className="ph-ledger-key"><span><i /> Committed $7,000</span><span>Available $3,000</span></div>
+                <div className="ph-ledger-key"><span><i /> Committed {formatUsd(illustrativePurchase.requestedMinor)}</span><span>Available {formatUsd(illustrativePurchase.allocatedMinor - illustrativePurchase.requestedMinor)}</span></div>
                 <div className="ph-ledger-rule" />
-                <div className="ph-ledger-row"><span className="ph-ledger-symbol"><TrayIcon size={20} /></span><span><strong>Cloud security tooling</strong><small>Purchase request · CC-ENG-01</small></span><strong>{formatUsd(700_000)}</strong></div>
+                <div className="ph-ledger-row"><span className="ph-ledger-symbol"><TrayIcon size={20} /></span><span><strong>{illustrativePurchase.title}</strong><small>Purchase request · {illustrativePurchase.costCenterCode}</small></span><strong>{formatUsd(illustrativePurchase.requestedMinor)}</strong></div>
                 <div className="ph-ledger-row ph-ledger-result"><span className="ph-ledger-symbol"><ReceiptIcon size={20} /></span><span><strong>Approval recorded</strong><small>Illustrative commitment</small></span><span className="ph-ledger-ok">Approved</span></div>
               </div>
-              <figcaption>Illustrative scenario — not live tenant data.</figcaption>
+              <figcaption>Illustrative scenario. Not live tenant data.</figcaption>
             </figure>
           </div>
           <div className="ph-hero-footer"><span>01 / Procurement operations</span><span>Request → Review → Record</span><a href="#workflow">Scroll to explore ↓</a></div>
         </section>
         <section id="workflow" className="ph-workflow" aria-labelledby="ph-workflow-heading">
-          <div className="ph-section-intro"><p className="ph-index">01 / THE DECISION JOURNEY</p><h2 id="ph-workflow-heading">From a request<br />to a record.</h2><p>Follow an illustrative $7,000 purchase through the system. See precisely what changes, what stays pending, and what evidence is recorded.</p></div>
+          <div className="ph-section-intro"><h2 id="ph-workflow-heading">From a request<br />to a record.</h2><p>Follow a $7,000 example from submission to an auditable outcome. The view follows each step of the decision.</p></div>
           <FinancialStory />
         </section>
         <section id="controls" className="ph-controls" aria-labelledby="ph-controls-heading">
@@ -59,7 +60,7 @@ export function HomeB({ data }: { data: HomeData }) {
                 ["02", "Budget before commitment", "An approval must fit the cost center’s available allocation at the time of the decision."],
                 ["03", "A durable record", "A financial outcome must be traceable to its authorized decision and audit event."],
                 ["04", "Concurrency under scrutiny", "Two competing approvals must never spend the same available dollar twice."],
-              ].map(([n, title, body]) => <div key={n}><span>{n}</span><dt>{title}</dt><dd>{body}</dd></div>)}
+              ].map(([n, title, body]) => <div key={n}><dt><span aria-hidden="true">{n}</span>{title}</dt><dd>{body}</dd></div>)}
             </dl>
           </div>
         </section>
