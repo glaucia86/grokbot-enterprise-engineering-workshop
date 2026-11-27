@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { PurchaseRequest } from "../../modules/procurement/domain/procurement";
 import { formatUsd, formatUtcShortDate } from "../format-purchase";
-import type { DashboardMetrics } from "./dashboard-metrics";
+import { integrityStatus, type DashboardMetrics, type IntegrityStatus } from "./dashboard-metrics";
 import type { ReactNode } from "react";
 import {
   ArrowRightIcon,
@@ -9,7 +9,6 @@ import {
   HourglassMediumIcon,
   PencilSimpleLineIcon,
   ScalesIcon,
-  SealCheckIcon,
   StampIcon,
   TrayIcon,
   WarningIcon,
@@ -102,8 +101,21 @@ export function DecisionQueue({ metrics, approvalLimitMinor }: { metrics: Dashbo
   );
 }
 
+function integrityMessage(status: IntegrityStatus) {
+  if (status.kind === "over-allocation") {
+    return status.centers
+      .map((center) => `${center.code} has ${formatUsd(center.committedMinor)} committed against ${formatUsd(center.allocatedMinor)} allocated.`)
+      .join(" ");
+  }
+  if (status.kind === "unreconciled") {
+    return `Committed budget differs from approved requests in ${status.centers.map((center) => center.code).join(", ")}. Inspect its commitments.`;
+  }
+  return "Each cost center is within its allocation, and its committed budget equals its approved requests.";
+}
+
 export function LedgerReconciliation({ metrics }: { metrics: DashboardMetrics }) {
-  const balanced = metrics.reconciliationDeltaMinor === 0;
+  const status = integrityStatus(metrics);
+  const exception = status.kind !== "clear";
   return (
     <section className={card} aria-labelledby="reconciliation-heading">
       <div className={cardHeader}>
@@ -111,39 +123,49 @@ export function LedgerReconciliation({ metrics }: { metrics: DashboardMetrics })
           <ScalesIcon size={18} className="text-ink-3" aria-hidden="true" />
           <h2 id="reconciliation-heading" className={cardTitle}>Ledger reconciliation</h2>
         </div>
-        <span className={cn(chip, "border-transparent bg-transparent text-ink-3")}>INV-01</span>
+        <span className="text-xs text-ink-3">Per cost center</span>
       </div>
       <div className="grid gap-3 px-5 py-4">
-        <dl className="grid gap-2 text-sm">
-          <div className="flex items-baseline justify-between gap-3">
-            <dt className="text-ink-3">Committed budget</dt>
-            <dd className="font-mono tabular-nums text-ink">{formatUsd(metrics.committedMinor)}</dd>
-          </div>
-          <div className="flex items-baseline justify-between gap-3">
-            <dt className="text-ink-3">Approved requests</dt>
-            <dd className="font-mono tabular-nums text-ink">{formatUsd(metrics.byStatus.APPROVED.amountMinor)}</dd>
-          </div>
-          <div className="flex items-baseline justify-between gap-3 border-t border-dashed border-line pt-2">
-            <dt className="font-medium text-ink">Difference</dt>
-            <dd className={cn("font-mono font-semibold tabular-nums", balanced ? "text-ink" : "text-danger")}>
-              {formatUsd(metrics.reconciliationDeltaMinor)}
-            </dd>
-          </div>
-        </dl>
+        <table className="w-full text-sm">
+          <caption className="sr-only">Committed budget compared with approved requests and allocation, per cost center</caption>
+          <thead>
+            <tr className="text-left text-xs text-ink-3">
+              <th scope="col" className="pb-1.5 font-medium">Cost center</th>
+              <th scope="col" className="pb-1.5 text-right font-medium">Committed</th>
+              <th scope="col" className="pb-1.5 text-right font-medium">Approved</th>
+            </tr>
+          </thead>
+          <tbody>
+            {metrics.integrity.map((center) => {
+              const flagged = center.overAllocationMinor > 0 || center.reconciliationDeltaMinor !== 0;
+              return (
+                <tr key={center.id} className="border-t border-line">
+                  <th scope="row" className="py-1.5 text-left font-normal">
+                    <span className={chip} translate="no">{center.code}</span>
+                  </th>
+                  <td className={cn("py-1.5 text-right font-mono tabular-nums", center.overAllocationMinor > 0 ? "font-semibold text-danger" : "text-ink")}>
+                    {formatUsd(center.committedMinor)}
+                  </td>
+                  <td className={cn("py-1.5 text-right font-mono tabular-nums", flagged ? "text-danger" : "text-ink")}>
+                    {formatUsd(center.approvedMinor)}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
         <p
           className={cn(
             "flex items-start gap-2 rounded-lg border px-3 py-2 text-[0.8125rem]",
-            balanced ? "border-success-line bg-success-soft text-success" : "border-danger-line bg-danger-soft text-danger",
+            exception ? "border-danger-line bg-danger-soft text-danger" : "border-line bg-subtle text-ink-2",
           )}
+          role={exception ? "alert" : undefined}
         >
-          {balanced ? (
-            <CheckCircleIcon size={16} className="mt-px shrink-0" aria-hidden="true" />
-          ) : (
-            <WarningIcon size={16} className="mt-px shrink-0" aria-hidden="true" />
-          )}
-          {balanced
-            ? "Every committed dollar traces to exactly one approved request."
-            : "Committed budget does not match approved requests. Inspect commitments for duplicates."}
+          {exception && <WarningIcon size={16} className="mt-px shrink-0" aria-hidden="true" />}
+          <span>
+            {integrityMessage(status)}
+            <span className="mt-1 block text-xs opacity-80">Checks INV-01 from current ledger balances when this page loaded.</span>
+          </span>
         </p>
       </div>
     </section>
@@ -180,21 +202,25 @@ function nextStepFor(role: string, metrics: DashboardMetrics): Step {
     };
   }
   if (role === "AUDITOR") {
-    return metrics.reconciliationDeltaMinor === 0
-      ? {
-          tone: "success",
-          icon: <SealCheckIcon size={20} />,
-          title: "Ledger balanced",
-          detail: "Committed budget matches the approved requests (INV-01). Open any request to trace its audit trail.",
-          action: { href: "#requests", label: "Inspect requests" },
-        }
-      : {
-          tone: "danger",
-          icon: <WarningIcon size={20} />,
-          title: `Ledger mismatch of ${formatUsd(metrics.reconciliationDeltaMinor)}`,
-          detail: "Committed budget differs from the approved requests. Inspect the cost centers for duplicate commitments.",
-          action: { href: "#budgets", label: "Inspect ledger" },
-        };
+    const status = integrityStatus(metrics);
+    if (status.kind === "clear") {
+      return {
+        tone: "accent",
+        icon: <ScalesIcon size={20} />,
+        title: "Every cost center is within allocation and reconciled",
+        detail: "Open any request to trace its audit trail.",
+        action: { href: "#requests", label: "Inspect requests" },
+      };
+    }
+    return {
+      tone: "danger",
+      icon: <WarningIcon size={20} />,
+      title: status.kind === "over-allocation"
+        ? `${plural(status.centers.length, "cost center")} over allocation`
+        : "Committed budget differs from approved requests",
+      detail: integrityMessage(status),
+      action: { href: "#budgets", label: "Inspect ledger" },
+    };
   }
   const pending = metrics.byStatus.PENDING.count;
   return pending

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition, type FormEvent } from "react";
-import { CircleNotchIcon, LockSimpleIcon } from "../../_components/icons";
+import { CircleNotchIcon } from "../../_components/icons";
 import { button, cn, control, field, label } from "../../_components/ui";
 
 type Attempt = { payload: string; key: string };
@@ -65,7 +65,7 @@ export function DecisionForm({ requestId }: { requestId: string }) {
         startTransition(() => router.refresh());
       }
     } catch {
-      setError("The lab could not confirm the decision. Retry to reuse the same idempotency key safely.");
+      setError("The decision could not be confirmed. Refresh the page to check the request's current status before deciding again.");
     } finally {
       setSubmitting(false);
     }
@@ -106,10 +106,6 @@ export function DecisionForm({ requestId }: { requestId: string }) {
           />
         </div>
       )}
-      <p className="flex items-start gap-1.5 text-xs text-ink-3">
-        <LockSimpleIcon size={14} className="mt-px shrink-0 text-accent" aria-hidden="true" />
-        Protected by an automatic idempotency key and ACID PostgreSQL budget lock.
-      </p>
       <button type="submit" disabled={busy} className={cn(decision === "REJECT" ? button.danger : button.primary, "w-full")} data-magnetic>
         {busy && <CircleNotchIcon size={16} className="animate-spin" aria-hidden="true" />}
         {busy ? "Saving…" : "Save decision"}

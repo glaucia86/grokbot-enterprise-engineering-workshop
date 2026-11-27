@@ -6,18 +6,18 @@ import { isLabEnabled } from "../server/db/lab-config";
 import { requests } from "../server/procurement/requests";
 import { AppShell } from "./_components/app-shell";
 import { BudgetBar } from "./_components/budget-bar";
-import { dashboardMetrics } from "./_components/dashboard-metrics";
+import { availabilitySignal, dashboardMetrics } from "./_components/dashboard-metrics";
 import { DecisionQueue, LedgerReconciliation, NextStep } from "./_components/dashboard-panels";
 import {
   ArrowRightIcon,
   ArrowUpRightIcon,
   CaretRightIcon,
-  CheckCircleIcon,
   FileTextIcon,
   HourglassMediumIcon,
   LockSimpleIcon,
   PencilSimpleLineIcon,
   ReceiptIcon,
+  ScalesIcon,
   WalletIcon,
   WarningIcon,
 } from "./_components/icons";
@@ -108,7 +108,7 @@ export default async function Home({
     REJECTED: metrics.byStatus.REJECTED.count,
   };
   const utilization = computeUtilizationPercent(metrics.allocatedMinor, metrics.committedMinor);
-  const headroomNegative = metrics.availableMinor < 0;
+  const availability = availabilitySignal(metrics);
   const isRequester = session.role === "REQUESTER";
 
   return (
@@ -148,14 +148,17 @@ export default async function Home({
         >
           <WarningIcon size={22} weight="fill" className="mt-0.5 shrink-0 text-danger-solid" aria-hidden="true" />
           <div className="min-w-0 flex-1">
-            <p className="font-semibold text-danger">Financial Invariant Violation Detected (INV-01 / INV-02 · PH-42)</p>
+            <p className="font-semibold text-danger">
+              Committed budget exceeds allocation
+              <span className="ml-2 text-xs font-medium text-ink-3">INV-01 · INV-02</span>
+            </p>
             <p className="mt-1 text-sm text-ink-2">
               {metrics.overspentCenters.map((center) => (
                 <span key={center.id}>
                   Cost center <strong translate="no">{center.code}</strong> ({center.name}) has{" "}
                   <strong className="font-mono tabular-nums">{formatUsd(center.committedBudgetMinor)}</strong> committed against{" "}
-                  <strong className="font-mono tabular-nums">{formatUsd(center.allocatedBudgetMinor)}</strong> allocated (deficit{" "}
-                  <strong className="font-mono tabular-nums text-danger">{formatUsd(center.availableBudgetMinor)}</strong>).{" "}
+                  <strong className="font-mono tabular-nums">{formatUsd(center.allocatedBudgetMinor)}</strong> allocated, so it is over its allocation by{" "}
+                  <strong className="font-mono tabular-nums text-danger">{formatUsd(-center.availableBudgetMinor)}</strong>.{" "}
                 </span>
               ))}
             </p>
@@ -182,15 +185,15 @@ export default async function Home({
           {utilization}% of allocated
         </Kpi>
         <Kpi
-          label="Available headroom"
-          icon={<CheckCircleIcon size={16} />}
+          label="Available budget"
+          icon={<ScalesIcon size={16} />}
           value={formatUsd(metrics.availableMinor)}
           href="#budgets"
-          tone={headroomNegative ? "danger" : "default"}
+          tone={availability.tone === "danger" ? "danger" : "default"}
         >
-          <span className={cn("inline-flex items-center gap-1", headroomNegative ? "text-danger" : "text-success")}>
-            {headroomNegative ? <WarningIcon size={13} aria-hidden="true" /> : <CheckCircleIcon size={13} aria-hidden="true" />}
-            {headroomNegative ? "INV-02 violated" : "INV-02 holds"}
+          <span className={cn("inline-flex items-center gap-1", availability.tone === "danger" && "font-medium text-danger")}>
+            {availability.tone === "danger" && <WarningIcon size={13} aria-hidden="true" />}
+            {availability.note}
           </span>
         </Kpi>
         <Kpi label={isRequester ? "My pending exposure" : "Pending exposure"} icon={<HourglassMediumIcon size={16} />} value={formatUsd(metrics.pendingMinor)} href="/?status=PENDING#requests">
@@ -205,7 +208,7 @@ export default async function Home({
               <div>
                 <h2 id="budgets-heading" className={cardTitle}>Cost center budgets</h2>
                 <p className="mt-0.5 text-[0.8125rem] text-ink-3">
-                  Real-time PostgreSQL ledger balances for {session.tenantName} in exact USD minor units.
+                  Ledger balances for {session.tenantName} as of this page load.
                 </p>
               </div>
             </div>

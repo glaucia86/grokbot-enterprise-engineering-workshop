@@ -3,7 +3,7 @@ import type { CSSProperties, ReactNode } from "react";
 import type { listLabIdentities, readLabSession } from "../../server/auth/lab-session";
 import { LabIdentityForm } from "../lab-identity-form";
 import { BrandMark, HealthLink } from "./app-shell";
-import { ArrowRightIcon, CheckCircleIcon, SealCheckIcon, XCircleIcon } from "./icons";
+import { ArrowRightIcon, CheckCircleIcon, ScalesIcon, XCircleIcon } from "./icons";
 import { invariants, stack, trustLayers } from "./landing-content";
 import { ParallaxStage } from "./parallax-stage";
 import { RoleGateway } from "./role-gateway";
@@ -24,84 +24,89 @@ const pyramidTone: Record<string, string> = {
   "01": "w-full bg-accent-solid text-white",
 };
 
-/** Real UI fragments floating over ruled ledger paper, each at its own depth. */
+/** Illustrative UI fragments floating over ruled ledger paper, each at its own depth. Not live data. */
 function LedgerComposition() {
   return (
-    <ParallaxStage className="hero-stage relative mx-auto hidden aspect-[5/4] w-full max-w-[34rem] sm:block">
-      <div
-        className="parallax-layer scroll-drift ledger-rules-night absolute inset-[6%_4%_4%_10%] overflow-hidden rounded-xl border border-night-line"
-        style={depth(6, 40)}
-        data-ledger
-        aria-hidden="true"
-      >
-        <div className="ledger-cursor ledger-cursor-row absolute inset-x-0 h-8 border-y border-night-accent/25 bg-night-accent/[0.07]">
-          <span data-ledger-line className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-[0.625rem] text-night-accent">Line 01</span>
+    <figure className="mx-auto hidden w-full max-w-[34rem] sm:block">
+      <ParallaxStage className="hero-stage relative aspect-[5/4] w-full">
+        <div
+          className="parallax-layer scroll-drift ledger-rules-night absolute inset-[6%_4%_4%_10%] overflow-hidden rounded-xl border border-night-line"
+          style={depth(6, 40)}
+          data-ledger
+          aria-hidden="true"
+        >
+          <div className="ledger-cursor ledger-cursor-row absolute inset-x-0 h-8 border-y border-night-accent/25 bg-night-accent/[0.07]">
+            <span data-ledger-line className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-[0.625rem] text-night-accent">Line 01</span>
+          </div>
+          <div className="ledger-cursor ledger-cursor-x absolute inset-y-0 w-px bg-night-accent/40" />
+          <div className="absolute top-4 right-5 left-16 flex items-center justify-between font-mono text-[0.6875rem] text-night-muted">
+            <span>LEDGER · Q4</span>
+            <span>USD · minor units</span>
+          </div>
         </div>
-        <div className="ledger-cursor ledger-cursor-x absolute inset-y-0 w-px bg-night-accent/40" />
-        <div className="absolute top-4 right-5 left-16 flex items-center justify-between font-mono text-[0.6875rem] text-night-muted">
-          <span>LEDGER · Q4</span>
-          <span>USD · minor units</span>
+  
+        <div
+          className={cn(card, "parallax-layer scroll-drift absolute top-[14%] left-0 w-[64%] p-4 shadow-float")}
+          style={depth(14, -30)}
+          data-card
+          data-tilt
+          aria-hidden="true"
+        >
+          <div className="flex items-center justify-between">
+            <span className={chip}>CC-ENG-01</span>
+            <span className="text-[0.6875rem] font-medium text-ink-3">Platform Engineering Q4</span>
+          </div>
+          <p className="mt-3 text-xs text-ink-3">Available headroom</p>
+          <p className="font-mono text-xl font-semibold tracking-[-0.03em] tabular-nums text-ink">$3,000.00</p>
+          <div className="mt-2.5 h-2 overflow-hidden rounded-full bg-muted">
+            <div className="h-full w-[70%] rounded-full bg-ink-2" />
+          </div>
         </div>
-      </div>
-
-      <div
-        className={cn(card, "parallax-layer scroll-drift absolute top-[14%] left-0 w-[64%] p-4 shadow-float")}
-        style={depth(14, -30)}
-        data-card
-        data-tilt
-        aria-hidden="true"
-      >
-        <div className="flex items-center justify-between">
-          <span className={chip}>CC-ENG-01</span>
-          <span className="text-[0.6875rem] font-medium text-ink-3">Platform Engineering Q4</span>
+  
+        <div
+          className={cn(card, "parallax-layer scroll-drift absolute top-[46%] right-0 w-[60%] p-4 shadow-float")}
+          style={depth(24, -70)}
+          data-card
+          data-tilt
+          aria-hidden="true"
+        >
+          <p className="text-xs font-semibold text-ink">Two approvals, one budget</p>
+          <ul className="mt-2.5 grid gap-2 text-xs">
+            <li className="flex items-center justify-between gap-2 rounded-lg bg-subtle px-2.5 py-2">
+              <span className="flex items-center gap-1.5 text-ink-2">
+                <CheckCircleIcon size={14} weight="fill" className="text-success-solid" />
+                $7,000.00
+              </span>
+              <span className="font-mono tabular-nums text-ink">200</span>
+            </li>
+            <li className="flex items-center justify-between gap-2 rounded-lg bg-subtle px-2.5 py-2">
+              <span className="flex items-center gap-1.5 text-ink-2">
+                <XCircleIcon size={14} weight="fill" className="text-danger-solid" />
+                $7,000.00
+              </span>
+              <span className="font-mono tabular-nums text-ink">409</span>
+            </li>
+          </ul>
         </div>
-        <p className="mt-3 text-xs text-ink-3">Available headroom</p>
-        <p className="font-mono text-xl font-semibold tracking-[-0.03em] tabular-nums text-ink">$3,000.00</p>
-        <div className="mt-2.5 h-2 overflow-hidden rounded-full bg-muted">
-          <div className="h-full w-[70%] rounded-full bg-ink-2" />
+  
+        <div
+          className="parallax-layer scroll-drift absolute bottom-[2%] left-[14%] flex items-center gap-2.5 rounded-full bg-surface py-1.5 pr-4 pl-1.5 shadow-float"
+          style={depth(34, -110)}
+          data-card
+          aria-hidden="true"
+        >
+          <span className="grid size-7 place-items-center rounded-full bg-success-soft text-success">
+            <ScalesIcon size={15} />
+          </span>
+          <span className="text-xs text-ink-2">
+            <strong className="font-semibold text-ink">INV-01</strong> · committed ≤ allocated
+          </span>
         </div>
-      </div>
-
-      <div
-        className={cn(card, "parallax-layer scroll-drift absolute top-[46%] right-0 w-[60%] p-4 shadow-float")}
-        style={depth(24, -70)}
-        data-card
-        data-tilt
-        aria-hidden="true"
-      >
-        <p className="text-xs font-semibold text-ink">Two approvals, one budget</p>
-        <ul className="mt-2.5 grid gap-2 text-xs">
-          <li className="flex items-center justify-between gap-2 rounded-lg bg-subtle px-2.5 py-2">
-            <span className="flex items-center gap-1.5 text-ink-2">
-              <CheckCircleIcon size={14} weight="fill" className="text-success-solid" />
-              $7,000.00
-            </span>
-            <span className="font-mono tabular-nums text-ink">200</span>
-          </li>
-          <li className="flex items-center justify-between gap-2 rounded-lg bg-subtle px-2.5 py-2">
-            <span className="flex items-center gap-1.5 text-ink-2">
-              <XCircleIcon size={14} weight="fill" className="text-danger-solid" />
-              $7,000.00
-            </span>
-            <span className="font-mono tabular-nums text-ink">409</span>
-          </li>
-        </ul>
-      </div>
-
-      <div
-        className="parallax-layer scroll-drift absolute bottom-[2%] left-[14%] flex items-center gap-2.5 rounded-full bg-surface py-1.5 pr-4 pl-1.5 shadow-float"
-        style={depth(34, -110)}
-        data-card
-        aria-hidden="true"
-      >
-        <span className="grid size-7 place-items-center rounded-full bg-success-soft text-success">
-          <SealCheckIcon size={15} />
-        </span>
-        <span className="text-xs text-ink-2">
-          <strong className="font-semibold text-ink">INV-01</strong> holds
-        </span>
-      </div>
-    </ParallaxStage>
+      </ParallaxStage>
+      <figcaption className="mt-3 text-xs text-night-muted">
+        Illustrative scenario, not live data: two $7,000.00 approvals against one $10,000.00 budget, and the outcome the invariants require.
+      </figcaption>
+    </figure>
   );
 }
 
@@ -240,7 +245,7 @@ export function Landing({ enabled, identities, session }: {
           <div className="mx-auto max-w-[80rem] px-4 py-24 sm:px-6 lg:px-8">
             <div className="flex flex-wrap items-end justify-between gap-6">
               <SectionTitle id="invariants-heading" kicker="Business invariants" title="Ten invariants. Zero tolerance." />
-              <p className="view-rise text-sm text-ink-3" style={rise(20)}>Defined in the PRD · model-checked in TLA+</p>
+              <p className="view-rise text-sm text-ink-3" style={rise(20)}>Defined in the PRD · a bounded TLA+ model checks the approval-concurrency subset</p>
             </div>
             <ul className={cn(card, "mt-10 grid overflow-hidden sm:grid-cols-2")}>
               {invariants.map((item, index) => (
