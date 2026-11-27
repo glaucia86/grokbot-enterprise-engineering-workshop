@@ -156,3 +156,21 @@
 - **Why it changed:** Made the entire workshop cleanly reproducible after the live session without risking spoilers in `workshop/starter` or `workshop/guided` Git history.
 - **Requirements addressed:** Golden Prompt §18.
 - **Next executable phase:** Phase 10 — Clean-Environment Validation & Complete Workshop Rehearsal across isolated clones of `workshop/starter`, `workshop/guided`, and `workshop/solution`, plus final 15-section delivery report.
+
+---
+
+## Phase 10 — Clean-Environment Validation & Complete Workshop Rehearsal
+
+- **Status:** COMPLETED & VERIFIED
+- **What changed:**
+  - Fixed ESLint static check in `package.json` and `engineering/slice-checks.json` to lint explicit source roots (`src scripts engineering tests eslint.config.ts vitest.config.ts playwright.config.ts drizzle.config.ts`) after clean-clone rehearsal caught a 45s timeout on Windows temp directory root traversal.
+  - Regenerated verified single-commit bundles and updated local branches `workshop/starter`, `workshop/guided`, `workshop/solution` and checkpoint tags (`checkpoint-00-starter`..`checkpoint-05-pr-ready`).
+- **What was verified (all from fresh isolated clones outside the authoring checkout):**
+  - **`workshop/starter` clean clone:** `bun install --frozen-lockfile` + `bun run verify:all -- --slice starter --run-id clean-starter` exited `0` (all 10 baseline checks + Chromium E2E passed, cleanup passed, `manifest.json` + `summary.md` retained); live `ph42Approval` observation deterministically failed (`status: "fail"`, `httpStatuses: [200, 200]`, `committedBudgetMinor: 1400000`, `availableBudgetMinor: -400000`, `violatedInvariants: ["INV-01", "INV-02"]`). Zero spoiler files confirmed.
+  - **`workshop/guided` clean clone:** `GUIDED-WORKSHEET.md` present, zero spoilers, `bun install --frozen-lockfile`, `check:static`, `verify:architecture` (5/5 rejected), `test:unit` (29/29 pass).
+  - **`workshop/solution` clean clone:** `bun install --frozen-lockfile` + `bun run verify:all -- --slice solution --run-id clean-solution` exited `0` (all 14 checks + 5 stages passed, cleanup passed, `manifest.json` + `summary.md` retained, `ph42Approval` `httpStatuses: [200, 409 INSUFFICIENT_BUDGET]`, `committedBudgetMinor: 700000`, `availableBudgetMinor: 300000`); `bun run verify:formal` exited `0` (TLC 2.19: `defective-read-commit.cfg` exit `12` `BudgetNotExceeded` 7-step counterexample; `locked-atomic.cfg` exit `0` 473 generated / 225 distinct / 0 queued).
+  - **Authoring branch final sweep:** `verify:all --slice solution`, `verify:formal`, `slides:verify`, `verify-specifications.ts`, and `bootstrap-skills.ts --verify` all executed against the final clean commit SHA.
+- **Unverified / External Items (Honest Disclosure):**
+  - Remote GitHub Actions execution (`workshop-verification.yml`, `workshop-slides.yml`) and administrative GitHub Branch Rulesets cannot be verified until authorized human pushes and configures the destination GitHub repository.
+  - Live GrokBot CLI execution was not run locally because `grokbot` is not installed in this environment; all prompts, skills, harnesses, and role handoffs are verified agent-independently.
+- **Next executable phase:** Human review, optional remote push of approved refs, and live workshop delivery.
