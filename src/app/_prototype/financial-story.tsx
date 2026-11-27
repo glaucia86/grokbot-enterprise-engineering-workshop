@@ -38,7 +38,8 @@ export function FinancialStory() {
     const element = root.current;
     if (!element) return;
     const media = window.matchMedia(scrollLayout);
-    const supportsTimeline = CSS.supports("animation-timeline: view()");
+    const supportsTimeline = CSS.supports("animation-timeline: view()")
+      && CSS.supports("animation-range: entry 50% exit 50%");
     const articles = Array.from(element.querySelectorAll<HTMLElement>("[data-story-chapter]"));
     let observer: IntersectionObserver | undefined;
     let restoreFrame: number | undefined;
@@ -130,7 +131,7 @@ export function FinancialStory() {
             {/* Moving duplicates are decorative; the complete narrative follows in document order. */}
             <div className="ph-journey-stage" aria-hidden="true">
               <div className="ph-journey-backdrop" />
-              <MobilePurchase chapter={chapter} />
+              <MobilePurchase active={active} />
               <div className="ph-journey-float ph-journey-balance">
                 <div className="ph-journey-balance-inner" key={chapter.id}>
                   <span>{active === 1 ? "Available if approved" : "Available budget"}</span>
@@ -186,43 +187,55 @@ export function FinancialStory() {
   );
 }
 
-function MobilePurchase({ chapter }: { chapter: FinancialChapter }) {
-  const approved = chapter.committedMinor > 0;
-  const review = chapter.id === "story-review";
-  const trace = chapter.id === "story-trace";
-
+function MobilePurchase({ active }: { active: number }) {
   return (
     <div className="ph-journey-phone">
       <div className="ph-mobile-screen">
         <div className="ph-mobile-camera" />
         <div className="ph-mobile-brand"><ShieldCheckIcon size={17} weight="duotone" /><span>Procurement Hub</span><span>USD</span></div>
-        <div className="ph-mobile-content" key={chapter.id}>
-          <p className="ph-mobile-center">{illustrativePurchase.costCenter}</p>
-          <h4>{illustrativePurchase.title}</h4>
-          <p className="ph-mobile-status" data-approved={approved}>
-            {approved && <CheckCircleIcon size={12} weight="fill" />}{chapter.status}
-          </p>
-          <div className="ph-mobile-requested"><span>Requested</span><strong>{formatUsd(illustrativePurchase.requestedMinor)}</strong></div>
-          <dl className="ph-mobile-ledger">
-            <div><dt>Committed</dt><dd>{formatUsd(chapter.committedMinor)}</dd></div>
-            <div><dt>Available</dt><dd>{formatUsd(illustrativePurchase.allocatedMinor - chapter.committedMinor)}</dd></div>
-            {review && <div><dt>If approved</dt><dd>{formatUsd(illustrativePurchase.allocatedMinor - illustrativePurchase.requestedMinor)}</dd></div>}
-          </dl>
-          <div className="ph-mobile-budget"><span /></div>
-          {trace ? (
-            <ol className="ph-mobile-trail">
-              <li><FileTextIcon size={17} /><span><strong>Request submitted</strong><small>Requester</small></span></li>
-              <li><ReceiptIcon size={17} /><span><strong>Approval recorded</strong><small>Authorized approver</small></span></li>
-            </ol>
-          ) : (
-            <p className="ph-mobile-annotation"><ShieldCheckIcon size={14} />{review
-              ? "Authority and budget are checked before a decision."
-              : approved ? "Approval shown for illustration only."
-                : "Awaiting review. No budget committed."}</p>
-          )}
+        <div className="ph-mobile-viewport">
+          <div className="ph-mobile-track">
+            {financialChapters.map((chapter, index) => (
+              <MobilePurchasePanel key={chapter.id} chapter={chapter} index={index} active={index === active} />
+            ))}
+          </div>
         </div>
         <div className="ph-mobile-home-indicator" />
       </div>
+    </div>
+  );
+}
+
+function MobilePurchasePanel({ chapter, index, active }: { chapter: FinancialChapter; index: number; active: boolean }) {
+  const approved = chapter.committedMinor > 0;
+  const review = chapter.id === "story-review";
+  const trace = chapter.id === "story-trace";
+
+  return (
+    <div className="ph-mobile-content" data-story-screen={index} data-active={active} data-approved={approved}>
+      <p className="ph-mobile-center">{illustrativePurchase.costCenter}</p>
+      <h4>{illustrativePurchase.title}</h4>
+      <p className="ph-mobile-status" data-approved={approved}>
+        {approved && <CheckCircleIcon size={12} weight="fill" />}{chapter.status}
+      </p>
+      <div className="ph-mobile-requested"><span>Requested</span><strong>{formatUsd(illustrativePurchase.requestedMinor)}</strong></div>
+      <dl className="ph-mobile-ledger">
+        <div><dt>Committed</dt><dd>{formatUsd(chapter.committedMinor)}</dd></div>
+        <div><dt>Available</dt><dd>{formatUsd(illustrativePurchase.allocatedMinor - chapter.committedMinor)}</dd></div>
+        {review && <div><dt>If approved</dt><dd>{formatUsd(illustrativePurchase.allocatedMinor - illustrativePurchase.requestedMinor)}</dd></div>}
+      </dl>
+      <div className="ph-mobile-budget"><span /></div>
+      {trace ? (
+        <ol className="ph-mobile-trail">
+          <li><FileTextIcon size={17} /><span><strong>Request submitted</strong><small>Requester</small></span></li>
+          <li><ReceiptIcon size={17} /><span><strong>Approval recorded</strong><small>Authorized approver</small></span></li>
+        </ol>
+      ) : (
+        <p className="ph-mobile-annotation"><ShieldCheckIcon size={14} />{review
+          ? "Authority and budget are checked before a decision."
+          : approved ? "Approval shown for illustration only."
+            : "Awaiting review. No budget committed."}</p>
+      )}
     </div>
   );
 }

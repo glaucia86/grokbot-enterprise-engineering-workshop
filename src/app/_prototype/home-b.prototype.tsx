@@ -23,7 +23,6 @@ export function HomeB({ data }: { data: HomeData }) {
       </header>
       <main id="main-content">
         <section className="ph-hero" aria-labelledby="ph-hero-heading">
-          <div className="ph-hero-grid" aria-hidden="true" />
           <div className="ph-hero-inner">
             <div className="ph-hero-copy">
               <p className="ph-kicker"><span /> Corporate spend · Engineering lab</p>
@@ -33,7 +32,6 @@ export function HomeB({ data }: { data: HomeData }) {
               <p className="ph-hero-note">A synthetic enterprise lab. No real corporate data or payments.</p>
             </div>
             <figure className="ph-hero-figure">
-              <div className="ph-orbit ph-orbit-one" aria-hidden="true" /><div className="ph-orbit ph-orbit-two" aria-hidden="true" />
               <div className="ph-ledger">
                 <div className="ph-ledger-top"><span><WalletIcon size={18} aria-hidden="true" /> {illustrativePurchase.costCenter}</span><span>Q4 / USD</span></div>
                 <div className="ph-ledger-balance"><span>Available after approval</span><strong>{formatUsd(illustrativePurchase.allocatedMinor - illustrativePurchase.requestedMinor)}</strong><small>of {formatUsd(illustrativePurchase.allocatedMinor)} allocated</small></div>

@@ -16,8 +16,16 @@
 .ph-secondary { color: #e1ebf6; border: 1px solid #64758a; }
 .ph-secondary:hover { background: #ffffff12; }
 .ph-nav-cta { min-height: 40px; font-size: .84rem; white-space: nowrap; }
-.ph-hero { position: relative; isolation: isolate; overflow: clip; background: #0b1628; color: #f6f9fc; }
-.ph-hero-grid { position: absolute; z-index: -1; inset: 0; pointer-events: none; background-image: linear-gradient(#ffffff08 1px,transparent 1px), linear-gradient(90deg,#ffffff08 1px,transparent 1px); background-size: 72px 72px; mask-image: linear-gradient(90deg,transparent 5%,#000 80%); }
+/* Broad directional light keeps the product in focus without a patterned backdrop. */
+.ph-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  background:
+    linear-gradient(180deg, #0b162800 38%, #0b1628 100%),
+    linear-gradient(112deg, #0b1628 18%, #12283b 66%, #284b56 100%);
+  color: #f6f9fc;
+}
 .ph-hero-inner { min-height: min(680px, 76vh); display: grid; align-items: center; grid-template-columns: minmax(0,1.04fr) minmax(0,.96fr); gap: clamp(2rem,5vw,5rem); padding-block: 5rem 4rem; }
 .ph-kicker { display: flex; gap: .55rem; align-items: center; text-transform: uppercase; font-size: .73rem; font-weight: 600; letter-spacing: .15em; color: #9bb8ca; }
 .ph-kicker span { display: inline-block; width: 8px; height: 8px; background: #a6f1dd; border-radius: 50%; }
@@ -27,9 +35,7 @@
 .ph-hero-actions { display: flex; flex-wrap: wrap; gap: .8rem; margin-top: 2rem; }
 .ph-hero-note { margin-top: 1.15rem; font-size: .78rem; color: #a7b8cb; }
 .ph-hero-figure { margin: 0; position: relative; isolation: isolate; padding: 2rem .5rem; min-width: 0; }
-.ph-orbit { position: absolute; z-index: -1; pointer-events: none; border: 1px solid #76c9d33b; border-radius: 50%; inset: 0 -6%; }
-.ph-orbit-two { inset: 9% -13%; transform: rotate(-22deg); }
-.ph-ledger { color: #0b1628; background: #f9fcfd; padding: clamp(1.1rem,3vw,2rem); border-radius: 12px; box-shadow: 0 28px 80px #0005; border: 1px solid #e4edf2; font-variant-numeric: tabular-nums; }
+.ph-ledger { color: #0b1628; background: #f9fcfd; padding: clamp(1.1rem,3vw,2rem); border-radius: 12px; box-shadow: 0 34px 74px -24px #030d1ec0, 0 1px 0 #ffffff inset; border: 1px solid #e4edf2; font-variant-numeric: tabular-nums; }
 .ph-ledger-top, .ph-ledger-key { display: flex; justify-content: space-between; align-items: center; gap: .7rem; font-size: .75rem; color: #536579; }
 .ph-ledger-top > span:first-child { display: flex; align-items: center; gap: .5rem; font-weight: 650; color: #172d46; }
 .ph-ledger-balance { display: grid; gap: .2rem; margin-block: 2rem 1.25rem; }
@@ -68,13 +74,9 @@
   .ph-hero-copy { animation: p-rise 650ms ease-out both; }
   .ph-primary,.ph-secondary,.ph-persona-button { transition: background-color 180ms ease, color 180ms ease; }
   @supports (animation-timeline: view()) {
-    .ph-hero-grid { animation: ph-grid-drift linear both; animation-timeline: view(); animation-range: exit 0% exit 100%; }
-    .ph-orbit-one { animation: ph-orbit-drift linear both; animation-timeline: view(); animation-range: exit 0% exit 100%; }
     .ph-control-list > div { animation: ph-content-in linear both; animation-timeline: view(); animation-range: entry 0% cover 22%; }
   }
 }
-@keyframes ph-grid-drift { to { transform: translateY(90px); } }
-@keyframes ph-orbit-drift { to { transform: translateY(-55px) rotate(12deg); } }
 @keyframes ph-content-in { from { opacity: .65; transform: translateY(12px); } to { opacity: 1; transform: none; } }
 
 /* Workspace shell and priority strip. */

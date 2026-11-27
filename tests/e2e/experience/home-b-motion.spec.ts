@@ -62,18 +62,36 @@ async function crossChapterBoundary(page: Page, id: string, offset: number) {
   }, offset);
 }
 
+async function scrollWithWheel(page: Page, distance: number) {
+  const start = await page.evaluate(() => window.scrollY);
+  await page.mouse.wheel(0, distance);
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeCloseTo(start + distance, 0);
+  await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+}
+
+async function phonePosition(page: Page) {
+  return scene(page).locator(".ph-journey-phone").evaluate((phone) => {
+    const bounds = phone.getBoundingClientRect();
+    return { x: bounds.x, y: bounds.y, width: bounds.width, height: bounds.height, transform: getComputedStyle(phone).transform };
+  });
+}
+
 async function expectChapter(page: Page, index: number) {
   const chapter = chapters[index];
   await expect(controls(page).getByRole("button", { name: chapter.control, exact: true })).toHaveAttribute("aria-pressed", "true");
   await expect(controls(page).locator('[aria-pressed="true"]')).toHaveCount(1);
-  await expect(scene(page).getByText(chapter.status, { exact: true })).toBeVisible();
-  await expect(scene(page).getByText("$7,000.00", { exact: true }).first()).toBeVisible();
+  // All four screens share one scrolling document; only the active screen represents this chapter.
+  const panel = scene(page).locator(`[data-story-screen="${index}"]`);
+  await expect(panel).toHaveAttribute("data-active", "true");
+  await expect(panel).toBeInViewport({ ratio: 0.05 });
+  await expect(panel.getByText(chapter.status, { exact: true })).toBeVisible();
+  await expect(panel.getByText("$7,000.00", { exact: true }).first()).toBeVisible();
   if (index < 2) {
-    await expect(scene(page).getByText("$10,000.00", { exact: true }).first()).toBeVisible();
-    await expect(scene(page).getByText("$0.00", { exact: true })).toBeVisible();
+    await expect(panel.getByText("$10,000.00", { exact: true }).first()).toBeVisible();
+    await expect(panel.getByText("$0.00", { exact: true })).toBeVisible();
   } else {
-    await expect(scene(page).getByText("$3,000.00", { exact: true }).first()).toBeVisible();
-    await expect(scene(page).getByText("$0.00", { exact: true })).toHaveCount(0);
+    await expect(panel.getByText("$3,000.00", { exact: true }).first()).toBeVisible();
+    await expect(panel.getByText("$0.00", { exact: true })).toHaveCount(0);
   }
 }
 
@@ -105,6 +123,66 @@ test("scrolling forward and backward changes the illustrative review without wri
     await expectChapter(page, index);
     await expect(scene(page)).toBeInViewport();
   }
+  expectNoSideEffects(observed);
+});
+
+test("wheel scrolling advances the screen continuously inside a stationary phone", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  const observed = watchIllustration(page);
+  await openHome(page);
+  await page.evaluate(() => document.fonts.ready);
+  await scrollToChapter(page, "story-review");
+  const review = controls(page).getByRole("button", { name: "Review impact", exact: true });
+  await expect(review).toHaveAttribute("aria-pressed", "true");
+
+  const initialPhone = await phonePosition(page);
+  await page.mouse.move(initialPhone.x + initialPhone.width / 2, initialPhone.y + initialPhone.height / 2);
+  await scrollWithWheel(page, 48);
+  const settledPhone = await phonePosition(page);
+  expect(settledPhone.transform, "The device frame must not rotate or translate with the page scroll").toBe(initialPhone.transform);
+  for (const axis of ["x", "y", "width", "height"] as const) {
+    expect(Math.abs(settledPhone[axis] - initialPhone[axis]), `The phone's ${axis} must remain stable`).toBeLessThanOrEqual(0.5);
+  }
+
+  const viewport = scene(page).locator(".ph-mobile-viewport");
+  const track = viewport.locator(".ph-mobile-track");
+  await expect(viewport).toBeInViewport();
+  await expect(track.locator("[data-story-screen]")).toHaveCount(chapters.length);
+  const initialViewport = await viewport.boundingBox();
+  const initialTrackTop = await track.evaluate((element) => element.getBoundingClientRect().top);
+  await scrollWithWheel(page, 48);
+  const firstTrackTop = await track.evaluate((element) => element.getBoundingClientRect().top);
+  expect(await phonePosition(page)).toEqual(settledPhone);
+  await expect(review).toHaveAttribute("aria-pressed", "true");
+  await scrollWithWheel(page, 48);
+  const secondTrackTop = await track.evaluate((element) => element.getBoundingClientRect().top);
+  expect(await phonePosition(page)).toEqual(settledPhone);
+  expect(await viewport.boundingBox(), "The clipping window stays fixed while its document moves").toEqual(initialViewport);
+  await expect(review).toHaveAttribute("aria-pressed", "true");
+
+  const firstMovement = initialTrackTop - firstTrackTop;
+  const secondMovement = firstTrackTop - secondTrackTop;
+  expect(firstMovement, "Content must move before the chapter changes").toBeGreaterThan(3);
+  expect(secondMovement, "Another small scroll must continue moving the same internal document").toBeGreaterThan(3);
+  expect(Math.abs(firstMovement - secondMovement)).toBeLessThanOrEqual(Math.max(1, firstMovement * 0.2));
+  await scrollWithWheel(page, -96);
+  expect(await track.evaluate((element) => element.getBoundingClientRect().top)).toBeCloseTo(initialTrackTop, 0);
+  expect(await phonePosition(page)).toEqual(settledPhone);
+
+  const clipping = await viewport.evaluate((element) => {
+    const bounds = element.getBoundingClientRect();
+    const content = element.querySelector(".ph-mobile-track");
+    const center = bounds.left + bounds.width / 2;
+    return {
+      overflow: getComputedStyle(element).overflowY,
+      escapesAbove: content?.contains(document.elementFromPoint(center, bounds.top - 2)),
+      escapesBelow: content?.contains(document.elementFromPoint(center, bounds.bottom + 2)),
+    };
+  });
+  expect(["hidden", "clip"]).toContain(clipping.overflow);
+  expect(clipping.escapesAbove).toBe(false);
+  expect(clipping.escapesBelow).toBe(false);
   expectNoSideEffects(observed);
 });
 
@@ -201,6 +279,31 @@ test("reduced motion keeps the whole story readable and controls update without 
   await expectChapter(page, 2);
   expect(await page.evaluate(() => window.scrollY)).toBeCloseTo(beforeSelection, 0);
   expect(await page.evaluate(() => document.getAnimations().filter((animation) => animation.playState === "running").length)).toBe(0);
+  expectNoSideEffects(observed);
+});
+
+test("browsers without scroll timelines retain readable chapters and manual review", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.addInitScript(() => {
+    const supports = CSS.supports.bind(CSS);
+    Object.defineProperty(CSS, "supports", {
+      configurable: true,
+      value: (property: string, value?: string) => {
+        if (property.includes("animation-timeline")) return false;
+        return value === undefined ? supports(property) : supports(property, value);
+      },
+    });
+  });
+  const observed = watchIllustration(page);
+  await openHome(page);
+  await expectReadableChapters(page);
+  const trace = controls(page).getByRole("button", { name: "Trace the outcome", exact: true });
+  await trace.scrollIntoViewIfNeeded();
+  const beforeSelection = await page.evaluate(() => window.scrollY);
+  await trace.click();
+  await expectChapter(page, 3);
+  expect(await page.evaluate(() => window.scrollY)).toBeCloseTo(beforeSelection, 0);
   expectNoSideEffects(observed);
 });
 
