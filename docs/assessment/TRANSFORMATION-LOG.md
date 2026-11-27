@@ -141,3 +141,18 @@
   - `WORKSHOP_SLIDES_PORT=4193 bun run slides:verify`: **7/7 Playwright tests PASS** (public allowlist, avatar cast, GIF toggle, 5-layer Trust Pyramid reveal, EN/PT-BR speaker view, 1440×810 stage fit, 390×844 phone fit).
   - `bun run check:static`: **PASS**.
 - **Next executable phase:** Phase 08 — Update `engineering/package-workshop.ts`, build spoiler-free `workshop/starter`, `workshop/guided`, `workshop/solution` local branches + 6 local recovery checkpoint tags.
+
+---
+
+## Phase 08 — Workshop Packaging, Spoiler-Free Branches & Recovery Checkpoints
+
+- **Status:** COMPLETED & VERIFIED
+- **What changed:**
+  - Replaced obsolete `release/starter.patch` with deterministic, spoiler-verified edition packaging in `engineering/package-workshop.ts` supporting `starter`, `guided`, and `solution`.
+  - Authored `release/starter.md`, `release/guided.md`, `release/GUIDED-WORKSHEET.md`, and `release/solution.md`.
+  - Hardened cleanup blocks in `tests/concurrency/approval-concurrency.test.ts` and `tests/security/isolation-and-auth.test.ts` so they run cleanly as red acceptance targets on starter before migration `0003` exists.
+  - Upgraded `engineering/verify-specifications.ts` to check all markdown links across root, `docs/`, `skills/`, `starter-kit/`, `formal/`, and `slides/` plus `INV-01`–`INV-10` and Gherkin tags.
+  - Generated verified single-root-commit bundles (`starter.bundle`, `guided.bundle`, `solution.bundle`), created local branches `workshop/starter`, `workshop/guided`, `workshop/solution`, and created 6 local recovery checkpoint tags (`checkpoint-00-starter`..`checkpoint-05-pr-ready`) without modifying `main` or pushing.
+- **Why it changed:** Made the entire workshop cleanly reproducible after the live session without risking spoilers in `workshop/starter` or `workshop/guided` Git history.
+- **Requirements addressed:** Golden Prompt §18.
+- **Next executable phase:** Phase 10 — Clean-Environment Validation & Complete Workshop Rehearsal across isolated clones of `workshop/starter`, `workshop/guided`, and `workshop/solution`, plus final 15-section delivery report.

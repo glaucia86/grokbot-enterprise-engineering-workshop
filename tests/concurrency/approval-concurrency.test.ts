@@ -56,10 +56,15 @@ async function withDisposableCostCenter(
     await work(id);
   } finally {
     await db().begin(async (sql) => {
-      await sql`
-        delete from decision_idempotency_keys
-        where request_id in (select id from purchase_requests where cost_center_id = ${id})
+      const [{ exists: hasDecisionKeys }] = await sql<{ exists: boolean }[]>`
+        select to_regclass('public.decision_idempotency_keys') is not null as exists
       `;
+      if (hasDecisionKeys) {
+        await sql`
+          delete from decision_idempotency_keys
+          where request_id in (select id from purchase_requests where cost_center_id = ${id})
+        `;
+      }
       await sql`delete from financial_commitments where cost_center_id = ${id}`;
       await sql`
         delete from audit_events

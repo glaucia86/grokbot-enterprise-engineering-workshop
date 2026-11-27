@@ -221,7 +221,12 @@ test("INV-06: authorization is re-enforced on idempotent approval replay after r
     assert.deepEqual(roleReplay.json, { error: { code: "FORBIDDEN" } });
   } finally {
     await db().begin(async (sql) => {
-      await sql`delete from decision_idempotency_keys where request_id = ${reqId}`;
+      const [{ exists: hasDecisionKeys }] = await sql<{ exists: boolean }[]>`
+        select to_regclass('public.decision_idempotency_keys') is not null as exists
+      `;
+      if (hasDecisionKeys) {
+        await sql`delete from decision_idempotency_keys where request_id = ${reqId}`;
+      }
       const [c] = await sql<{ amount_minor: string; cost_center_id: string }[]>`
         delete from financial_commitments where request_id = ${reqId} returning amount_minor::text, cost_center_id
       `;

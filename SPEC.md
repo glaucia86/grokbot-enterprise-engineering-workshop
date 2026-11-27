@@ -68,7 +68,7 @@ Browser / HTTP Client
 
 ## 2. Domain Model & Value Types (`src/modules/procurement/domain/`)
 
-- **`MoneyMinor`**: integer USD minor units (`1 .. Number.MAX_SAFE_INTEGER` for purchase amounts; `0 .. Number.MAX_SAFE_INTEGER` for budget counters). All budget arithmetic (`computeAvailableBudget`, `canCommitAmount`, `addCommittedAmount`) validates `Number.isSafeInteger` and never uses binary floating-point division/multiplication for financial invariants (see [ADR-0002](docs/adr/ADR-0002-exact-monetary-minor-units.md)).
+- **`MoneyMinor`**: integer USD minor units (`1 .. Number.MAX_SAFE_INTEGER` for purchase amounts; `0 .. Number.MAX_SAFE_INTEGER` for budget counters). All budget arithmetic (`computeAvailableBudget`, `canCommitAmount`, `addCommittedAmount`) validates `Number.isSafeInteger` and never uses binary floating-point division/multiplication for financial invariants (see [ADR-0002](docs/adr/0002-exact-monetary-minor-units.md)).
 - **`TenantActor`**: `{ tenantId: string; userId: string; role: TenantRole; approvalLimitMinor: number | null }`, always resolved from the server-side `lab_sessions` + `memberships` tables.
 - **`CostCenter`**: `{ id, tenantId, code, name, currency: "USD", allocatedBudgetMinor, committedBudgetMinor, availableBudgetMinor, updatedAt }`.
 - **`PurchaseRequest`**: `{ id, costCenterId, costCenterCode, costCenterName, title, justification, amountMinor, currency: "USD", status: "PENDING" | "APPROVED" | "REJECTED", createdAt, updatedAt }`.
