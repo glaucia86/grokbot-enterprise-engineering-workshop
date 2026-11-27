@@ -5,8 +5,9 @@ type JsonRecord = Record<string, unknown>;
 const statuses = ["pass", "fail", "blocked", "not-run"];
 const stageIds = ["launch", "doctor", "drive", "evidence", "cleanup"];
 const checkIds = [
-  "static", "typecheck", "unit", "http-postgres", "vs-00-http-smoke", "browser",
-  "ph42-fixture", "ph42-live-invariant", "harness-contract", "idempotency-migration",
+  "static", "typecheck", "architecture", "unit", "properties", "harness-contract",
+  "http-smoke", "http-postgres-baseline", "submission-concurrency", "browser",
+  "approval-concurrency", "security-regressions", "migrations", "ph42-live-approval",
 ];
 const shaPattern = /^[a-f0-9]{40}$/;
 
@@ -22,38 +23,49 @@ function nonnegative(value: unknown) {
   return typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : undefined;
 }
 
+function finiteInteger(value: unknown) {
+  return typeof value === "number" && Number.isSafeInteger(value) ? value : undefined;
+}
+
 function outcomeRows(value: unknown, ids: string[]) {
   return (Array.isArray(value) ? value : []).map(record).flatMap((row) => {
     const id = member(row.id, ids);
     const status = member(row.status, statuses);
     return id && status ? [{
-      id, status, durationSeconds: nonnegative(row.durationSeconds),
+      id,
+      status,
+      durationSeconds: nonnegative(row.durationSeconds),
       exitCode: row.exitCode === null || Number.isInteger(row.exitCode) ? row.exitCode : undefined,
     }] : [];
   });
 }
 
-function observation(value: unknown, source: string) {
+function sanitizeBudget(value: unknown) {
   const row = record(value);
-  const httpStatuses = Array.isArray(row.httpStatuses)
-    ? row.httpStatuses.filter((code) => Number.isInteger(code) && code >= 100 && code <= 599).slice(0, 2)
-    : undefined;
   return {
-    source,
-    status: member(row.status, statuses),
-    httpStatuses,
-    sameRequest: typeof row.sameRequest === "boolean" ? row.sameRequest : undefined,
-    requestCount: nonnegative(row.requestCount),
-    creationEventCount: nonnegative(row.creationEventCount),
+    allocatedBudgetMinor: nonnegative(row.allocatedBudgetMinor),
+    committedBudgetMinor: finiteInteger(row.committedBudgetMinor),
+    availableBudgetMinor: finiteInteger(row.availableBudgetMinor),
+    commitmentsCount: nonnegative(row.commitmentsCount),
+    approvedRequestCount: nonnegative(row.approvedRequestCount),
+    approvedAuditCount: nonnegative(row.approvedAuditCount),
   };
 }
 
 export function sanitizeEvidence(lifecycle: JsonRecord, attempt: JsonRecord | undefined, candidateSha: string, runId: string) {
   if (!shaPattern.test(candidateSha) || !runIdPattern.test(runId)) throw new Error("Invalid revision or run ID.");
+  const slice = member(lifecycle.slice, ["solution", "VS-05"]);
+  if (!slice) throw new Error("Evidence must come from the solution or VS-05 verification slice.");
+
   for (const manifest of [lifecycle, ...(attempt ? [attempt] : [])]) {
-    if (manifest.schemaVersion !== 1 || manifest.slice !== "VS-05" || manifest.runId !== runId
-      || manifest.candidateSha !== candidateSha || manifest.worktreeDirty !== false) {
-      throw new Error("Evidence must identify the exact, clean VS-05 candidate.");
+    if (
+      (manifest.schemaVersion !== 1 && manifest.schemaVersion !== 2) ||
+      manifest.slice !== slice ||
+      manifest.runId !== runId ||
+      manifest.candidateSha !== candidateSha ||
+      manifest.worktreeDirty !== false
+    ) {
+      throw new Error("Evidence must identify the exact, clean solution candidate.");
     }
   }
   if (typeof lifecycle.candidateTree !== "string" || !shaPattern.test(lifecycle.candidateTree)) {
@@ -63,27 +75,53 @@ export function sanitizeEvidence(lifecycle: JsonRecord, attempt: JsonRecord | un
   if (!status || (status === "pass" && attempt?.status !== "pass")) throw new Error("Missing verification outcome.");
   const versions = record(lifecycle.toolVersions);
   const observations = record(lifecycle.observations);
+  const ph42 = record(observations.ph42Approval);
+  const httpStatuses = Array.isArray(ph42.httpStatuses)
+    ? ph42.httpStatuses.filter((code) => Number.isInteger(code) && code >= 100 && code <= 599).slice(0, 4)
+    : undefined;
+  const violatedInvariants = Array.isArray(ph42.violatedInvariants)
+    ? ph42.violatedInvariants.filter((item): item is string => typeof item === "string" && /^INV-\d\d$/.test(item))
+    : undefined;
+
   return {
-    schemaVersion: 1, slice: "VS-05", runId, candidateSha, candidateTree: lifecycle.candidateTree,
-    status, worktreeDirty: false,
-    toolVersions: { bun: typeof versions.bun === "string" && /^\d+\.\d+\.\d+$/.test(versions.bun) ? versions.bun : undefined },
+    schemaVersion: 2,
+    slice,
+    runId,
+    candidateSha,
+    candidateTree: lifecycle.candidateTree,
+    status,
+    worktreeDirty: false,
+    toolVersions: {
+      bun: typeof versions.bun === "string" && /^\d+\.\d+\.\d+$/.test(versions.bun) ? versions.bun : undefined,
+    },
     stages: outcomeRows(lifecycle.stages, stageIds),
     checks: outcomeRows(attempt?.checks, checkIds),
     observations: {
-      liveApi: observation(observations.liveApi, "live-loopback"),
-      syntheticSnapshot: observation(observations.syntheticSnapshot, "synthetic-snapshot"),
+      ph42Approval: {
+        status: member(ph42.status, statuses),
+        httpStatuses,
+        violatedInvariants,
+        before: sanitizeBudget(ph42.before),
+        after: sanitizeBudget(ph42.after),
+      },
     },
   };
 }
 
 if (import.meta.main) {
-  const [candidateSha, runId] = Bun.argv.slice(2);
+  const [candidateSha, runId, sliceArg] = Bun.argv.slice(2);
+  const slice = sliceArg ?? "solution";
   if (!candidateSha || !runId || !runIdPattern.test(runId) || git("rev-parse", "HEAD") !== candidateSha) {
     throw new Error("The checkout must match the requested candidate revision and the run ID must be valid.");
   }
-  const run = join(verificationDir, "VS-05", runId);
+  const run = join(verificationDir, slice, runId);
   const lifecycle = Bun.file(join(run, "lifecycle/manifest.json"));
   const attempt = Bun.file(join(run, "attempt-0/manifest.json"));
-  const evidence = sanitizeEvidence(await lifecycle.json(), await attempt.exists() ? await attempt.json() : undefined, candidateSha, runId);
+  const evidence = sanitizeEvidence(
+    await lifecycle.json(),
+    await attempt.exists() ? await attempt.json() : undefined,
+    candidateSha,
+    runId,
+  );
   await writeManifest(join(run, "ci-evidence.json"), evidence);
 }

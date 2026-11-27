@@ -71,3 +71,22 @@
   - Live `bun run ph42:reproduce` on starter: **FAIL as expected (`exit 1`)** — `httpStatuses: [200, 200]`, `CC-ENG-01` `allocatedBudgetMinor: 1000000`, `committedBudgetMinor: 1400000`, `availableBudgetMinor: -400000`, `violatedInvariants: ["INV-01", "INV-02"]`.
 - **What failed / blocked:** None.
 - **Next executable phase:** Phase 04 & Phase 05 — Verification Harness (`manifest.json` + `summary.md` surviving cleanup), `verify-procurement` skill + 8 Feature Maps, Bounded Loop Engine (`engineering/loop-runner.ts`), Specialized Agent Roles, and `verify-formal-approval` skill.
+
+---
+
+## Phase 04 & Phase 05 — Verification Harness, 8 Feature Maps, Loop Engineering & Agent Roles
+
+- **Status:** COMPLETED & VERIFIED
+- **What changed:**
+  - Upgraded `skills/verify-procurement/SKILL.md` (Launch, Doctor, Drive, Evidence, Cleanup, Helpers, Troubleshooting, Environment Requirements, Success/Failure Criteria).
+  - Replaced 3 thin legacy feature files with 8 comprehensive, actionable Feature Maps under `skills/verify-procurement/features/`: `purchase-request-creation.md`, `purchase-request-approval.md`, `budget-commitment.md`, `idempotent-retries.md`, `tenant-isolation.md`, `authorization.md`, `audit-trail.md`, `failure-recovery.md` + upgraded `README.md`.
+  - Upgraded `engineering/verify-lab.ts`, `engineering/slice-checks.json`, and `engineering/ci-evidence.ts` to emit both machine-readable `manifest.json` and human-readable `summary.md` (including before/after PostgreSQL PH-42 snapshots) surviving teardown.
+  - Built bounded Loop Engineering engine (`engineering/loop-runner.ts` + `engineering/tests/loop-runner.test.ts` + `docs/workflows/LOOP-ENGINEERING.md`) with persisted `state.json` & `handoff.md`, iteration/failure/time budgets, anti-spin hypothesis+diff guard, and protected-file scope guard.
+  - Authored `docs/agents/AGENT-ROLES.md` (6 enterprise roles, independent QA/Security falsification checklists, sequential fresh-context handoff protocol) and `skills/verify-formal-approval/SKILL.md`.
+- **Why it changed:** Operationalized Pillars 02 & 03 into executable harnesses, structured feature maps, persisted bounded loops, and concrete role-based verification protocols.
+- **Requirements addressed:** Golden Prompt §§10, 11, 14, 15, 16.
+- **What was verified:**
+  - `bun run check:static`: **PASS**
+  - `bun run test:harness`: **6/6 PASS** across 5 Vitest files (caught & fixed a real `git status --porcelain` leading-space trimming bug in `loop-runner.ts` via `loop-runner.test.ts`!)
+  - Full isolated `verify:all --slice starter` lifecycle rehearsal executed next on clean commit.
+- **Next executable phase:** Phase 06 — Reference ACID Solution (`0003` migration, `FOR UPDATE` + `CHECK` + `decision_idempotency_keys` + auth-before-replay), full Vitest integration/concurrency/security/`fast-check`/Playwright E2E suites, and real TLA+/TLC model checking via Docker JRE fallback.

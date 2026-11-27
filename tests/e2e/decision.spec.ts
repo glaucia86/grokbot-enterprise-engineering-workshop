@@ -10,7 +10,7 @@ async function switchIdentity(page: Page, role: keyof typeof identities) {
   const identity = identities[role];
   await page.getByLabel("Lab identity").selectOption(identity.key);
   await page.getByRole("button", { name: "Switch identity" }).click();
-  await expect(page.getByText("Northstar Industries · " + identity.label, { exact: true })).toBeVisible();
+  await expect(page.locator(".session-state")).toContainText("Northstar Industries · " + identity.label);
 }
 
 for (const scenario of [
