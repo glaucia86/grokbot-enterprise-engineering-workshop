@@ -43,6 +43,16 @@ In **PH-42 (*Concurrent Procurement Approval Violates Financial and Tenant Isola
 - On `workshop/starter`, approving both concurrently commits **`$14,000.00`** against **`$10,000.00`** (**`-$4,000.00` available**), violating `INV-01` and `INV-02`.
 - The reference solution (`workshop/solution`) enforces all ten business invariants (`INV-01`–`INV-10`) through PostgreSQL row-level locking (`SELECT ... FOR UPDATE`), database `CHECK` and `UNIQUE` constraints, tenant-scoped `decision_idempotency_keys` with canonical payload conflict detection, authorization re-checked before idempotent replay, and atomic ACID audit trails.
 
+### Application Preview
+
+![Procurement Hub enterprise dashboard showing Northstar cost center budgets, KPI summary strip, utilization meters, and status-filtered tenant requests](docs/media/procurement-hub.webp)
+
+*Enterprise dashboard: Cost Center ledger (`CC-ENG-01` at 70% utilization after approving `$7,000.00`), KPI summary strip, approval limit badge, and URL-synced status filters.*
+
+![Procurement Hub request detail showing two-column executive layout, Cost Center ledger, durable financial commitment, and vertical audit timeline](docs/media/procurement-hub-detail.webp)
+
+*Request detail view: 2-column executive layout with Cost Center ledger, durable 1:1 financial commitment record, and chronological vertical audit trail.*
+
 ---
 
 ## Quick Start
