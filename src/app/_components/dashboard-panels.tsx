@@ -2,15 +2,19 @@ import Link from "next/link";
 import type { PurchaseRequest } from "../../modules/procurement/domain/procurement";
 import { formatUsd, formatUtcShortDate } from "../format-purchase";
 import type { DashboardMetrics } from "./dashboard-metrics";
+import type { ReactNode } from "react";
 import {
   ArrowRightIcon,
   CheckCircleIcon,
+  HourglassMediumIcon,
+  PencilSimpleLineIcon,
   ScalesIcon,
+  SealCheckIcon,
   StampIcon,
   TrayIcon,
   WarningIcon,
 } from "./icons";
-import { card, cardHeader, cardTitle, chip, cn } from "./ui";
+import { button, card, cardHeader, cardTitle, chip, cn } from "./ui";
 
 function QueueItem({ purchase, overLimit }: { purchase: PurchaseRequest; overLimit: boolean }) {
   const titleId = `queue-title-${purchase.id}`;
@@ -142,6 +146,97 @@ export function LedgerReconciliation({ metrics }: { metrics: DashboardMetrics })
             : "Committed budget does not match approved requests. Inspect commitments for duplicates."}
         </p>
       </div>
+    </section>
+  );
+}
+
+type Step = {
+  tone: "accent" | "success" | "danger";
+  icon: ReactNode;
+  title: string;
+  detail: string;
+  action?: { href: string; label: string };
+};
+
+function nextStepFor(role: string, metrics: DashboardMetrics): Step {
+  const plural = (count: number, word: string) => `${count} ${word}${count === 1 ? "" : "s"}`;
+  if (role === "APPROVER") {
+    const oldest = metrics.queue[0];
+    if (!oldest) {
+      return {
+        tone: "success",
+        icon: <CheckCircleIcon size={20} />,
+        title: "Your queue is clear",
+        detail: "New requests from your tenant land in the decision queue, oldest first.",
+      };
+    }
+    const escalate = metrics.escalate.length ? ` · ${plural(metrics.escalate.length, "request")} above your limit` : "";
+    return {
+      tone: "accent",
+      icon: <StampIcon size={20} />,
+      title: `${plural(metrics.queue.length, "request")} waiting for your decision`,
+      detail: `Oldest: ${oldest.title} · ${formatUsd(oldest.amountMinor)}${escalate}`,
+      action: { href: "/requests/" + oldest.id, label: "Review oldest" },
+    };
+  }
+  if (role === "AUDITOR") {
+    return metrics.reconciliationDeltaMinor === 0
+      ? {
+          tone: "success",
+          icon: <SealCheckIcon size={20} />,
+          title: "Ledger balanced",
+          detail: "Committed budget matches the approved requests (INV-01). Open any request to trace its audit trail.",
+          action: { href: "#requests", label: "Inspect requests" },
+        }
+      : {
+          tone: "danger",
+          icon: <WarningIcon size={20} />,
+          title: `Ledger mismatch of ${formatUsd(metrics.reconciliationDeltaMinor)}`,
+          detail: "Committed budget differs from the approved requests. Inspect the cost centers for duplicate commitments.",
+          action: { href: "#budgets", label: "Inspect ledger" },
+        };
+  }
+  const pending = metrics.byStatus.PENDING.count;
+  return pending
+    ? {
+        tone: "accent",
+        icon: <HourglassMediumIcon size={20} />,
+        title: `${plural(pending, "request")} awaiting a decision`,
+        detail: "Approvers in your tenant see them immediately. Track them below or raise another one.",
+        action: { href: "#new-request", label: "New request" },
+      }
+    : {
+        tone: "accent",
+        icon: <PencilSimpleLineIcon size={20} />,
+        title: "Start with a purchase request",
+        detail: "Pick a cost center, describe the need, and submit. The amount is stored in exact cents.",
+        action: { href: "#new-request", label: "New request" },
+      };
+}
+
+const stepTone = {
+  accent: "border-accent-line bg-accent-soft text-accent",
+  success: "border-success-line bg-success-soft text-success",
+  danger: "border-danger-line bg-danger-soft text-danger",
+} as const;
+
+export function NextStep({ role, metrics }: { role: string; metrics: DashboardMetrics }) {
+  const step = nextStepFor(role, metrics);
+  return (
+    <section className={cn(card, "mt-6 flex flex-wrap items-center gap-4 px-5 py-4")} aria-label="Next step">
+      <span className={cn("grid size-10 shrink-0 place-items-center rounded-lg border", stepTone[step.tone])} aria-hidden="true">
+        {step.icon}
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold text-ink">{step.title}</p>
+        <p className="mt-0.5 truncate text-[0.8125rem] text-ink-3">{step.detail}</p>
+      </div>
+      {step.action && (
+        <Link href={step.action.href} prefetch={false} className={cn(button.secondary, "shrink-0")} data-magnetic>
+          {step.action.label}
+          <ArrowRightIcon size={15} aria-hidden="true" />
+        </Link>
+      )}
     </section>
   );
 }

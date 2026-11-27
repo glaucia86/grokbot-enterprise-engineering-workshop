@@ -44,7 +44,7 @@ export function LabIdentityForm({ identities, selected, layout = "inline", tone 
           ))}
         </select>
       </div>
-      <button type="submit" disabled={pending} className={cn(button.primary, layout === "stacked" && "w-full")}>
+      <button type="submit" disabled={pending} className={cn(button.primary, layout === "stacked" && "w-full")} data-magnetic>
         {pending && <CircleNotchIcon size={16} className="animate-spin" aria-hidden="true" />}
         {pending ? "Switching…" : "Switch identity"}
       </button>

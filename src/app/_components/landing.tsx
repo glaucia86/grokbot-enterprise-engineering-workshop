@@ -27,12 +27,17 @@ const pyramidTone: Record<string, string> = {
 /** Real UI fragments floating over ruled ledger paper, each at its own depth. */
 function LedgerComposition() {
   return (
-    <ParallaxStage className="relative mx-auto hidden aspect-[5/4] w-full max-w-[34rem] sm:block">
+    <ParallaxStage className="hero-stage relative mx-auto hidden aspect-[5/4] w-full max-w-[34rem] sm:block">
       <div
-        className="parallax-layer scroll-drift ledger-rules-night absolute inset-[6%_4%_4%_10%] rounded-xl border border-night-line"
+        className="parallax-layer scroll-drift ledger-rules-night absolute inset-[6%_4%_4%_10%] overflow-hidden rounded-xl border border-night-line"
         style={depth(6, 40)}
+        data-ledger
         aria-hidden="true"
       >
+        <div className="ledger-cursor ledger-cursor-row absolute inset-x-0 h-8 border-y border-night-accent/25 bg-night-accent/[0.07]">
+          <span data-ledger-line className="absolute top-1/2 right-3 -translate-y-1/2 font-mono text-[0.625rem] text-night-accent">Line 01</span>
+        </div>
+        <div className="ledger-cursor ledger-cursor-x absolute inset-y-0 w-px bg-night-accent/40" />
         <div className="absolute top-4 right-5 left-16 flex items-center justify-between font-mono text-[0.6875rem] text-night-muted">
           <span>LEDGER · Q4</span>
           <span>USD · minor units</span>
@@ -42,6 +47,8 @@ function LedgerComposition() {
       <div
         className={cn(card, "parallax-layer scroll-drift absolute top-[14%] left-0 w-[64%] p-4 shadow-float")}
         style={depth(14, -30)}
+        data-card
+        data-tilt
         aria-hidden="true"
       >
         <div className="flex items-center justify-between">
@@ -58,6 +65,8 @@ function LedgerComposition() {
       <div
         className={cn(card, "parallax-layer scroll-drift absolute top-[46%] right-0 w-[60%] p-4 shadow-float")}
         style={depth(24, -70)}
+        data-card
+        data-tilt
         aria-hidden="true"
       >
         <p className="text-xs font-semibold text-ink">Two approvals, one budget</p>
@@ -82,6 +91,7 @@ function LedgerComposition() {
       <div
         className="parallax-layer scroll-drift absolute bottom-[2%] left-[14%] flex items-center gap-2.5 rounded-full bg-surface py-1.5 pr-4 pl-1.5 shadow-float"
         style={depth(34, -110)}
+        data-card
         aria-hidden="true"
       >
         <span className="grid size-7 place-items-center rounded-full bg-success-soft text-success">
@@ -153,7 +163,7 @@ export function Landing({ enabled, identities, session }: {
           <div className="ml-auto flex items-center gap-2">
             <span className="hidden sm:block"><HealthLink tone="night" /></span>
             {session && (
-              <Link href="/" prefetch={false} className={button.primary}>
+              <Link href="/" prefetch={false} className={button.primary} data-magnetic>
                 Open dashboard <ArrowRightIcon size={16} aria-hidden="true" />
               </Link>
             )}
@@ -237,7 +247,7 @@ export function Landing({ enabled, identities, session }: {
                 <li
                   key={item.id}
                   className={cn(
-                    "flex items-baseline gap-4 border-line px-6 py-4",
+                    "spotlight flex items-baseline gap-4 border-line px-6 py-4 transition-colors duration-150 hover:bg-subtle",
                     index > 0 && "border-t",
                     index === 1 && "sm:border-t-0",
                     index % 2 === 1 && "sm:border-l",

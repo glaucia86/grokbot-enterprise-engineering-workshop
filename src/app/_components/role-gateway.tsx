@@ -24,7 +24,7 @@ export function RoleGateway({ identities, activeKey }: { identities: Identity[];
         {roles.map((role) => {
           const members = identities.filter((identity) => identity.role === role.role && identity.key);
           return (
-            <li key={role.role} className={cn(card, "flex flex-col overflow-hidden")}>
+            <li key={role.role} className={cn(card, "flex flex-col overflow-hidden")} data-tilt>
               <div className="flex items-center gap-3 px-5 pt-5 pb-4">
                 <span className="grid size-10 place-items-center rounded-lg bg-accent-soft text-accent" aria-hidden="true">
                   {role.icon}
@@ -45,7 +45,7 @@ export function RoleGateway({ identities, activeKey }: { identities: Identity[];
                         disabled={pending || active}
                         onClick={() => void switchTo(key)}
                         aria-label={active ? `${identity.displayName} is the current session` : `Enter as ${identity.displayName}`}
-                        className="group flex w-full cursor-pointer items-center justify-between gap-3 px-5 py-3 text-left transition-colors duration-150 hover:bg-subtle disabled:cursor-default disabled:hover:bg-transparent"
+                        className="spotlight group flex w-full cursor-pointer items-center justify-between gap-3 px-5 py-3 text-left transition-colors duration-150 hover:bg-subtle disabled:cursor-default disabled:hover:bg-transparent"
                       >
                         <span className="min-w-0 leading-tight">
                           <span className="block truncate text-sm font-medium text-ink">{identity.displayName}</span>

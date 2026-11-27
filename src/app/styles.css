@@ -53,6 +53,8 @@
   --night-muted: #a8a29e;
   --night-accent: #fb923c;
 
+  --spot: rgba(234, 88, 12, 0.075);
+
   color-scheme: light dark;
 }
 
@@ -96,6 +98,8 @@
     --night: #0a0908;
     --night-surface: #151311;
     --night-raised: #1e1b18;
+
+    --spot: rgba(251, 146, 60, 0.09);
   }
 }
 
@@ -217,13 +221,49 @@
   }
 }
 
+/* ---------- Pointer effects (driven by PointerEffects, CSS variables only) ---------- */
+/* Spotlight: a soft accent glow under the cursor. Colour only, so it also runs under reduced motion. */
+.spotlight {
+  background-image: radial-gradient(var(--spot-size, 420px) circle at var(--mx, -999px) var(--my, -999px), var(--spot), transparent 70%);
+}
+
+/* 3D tilt for cards that are not parallax layers (those fold the tilt into their own transform). */
+[data-tilt]:not(.parallax-layer) {
+  transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform 450ms var(--ease-out-strong), box-shadow 200ms ease-out;
+  will-change: transform;
+}
+[data-tilt]:not(.parallax-layer):hover { box-shadow: var(--shadow-raised); }
+
+/* Magnetic primary actions use the independent `translate` property, so press scale still works. */
+[data-magnetic] {
+  translate: var(--tx, 0px) var(--ty, 0px);
+  transition-property: translate, background-color, border-color, color, box-shadow, transform;
+  transition-duration: 250ms;
+  transition-timing-function: var(--ease-out-strong);
+}
+
 /* ---------- Landing parallax (pointer + scroll), progressive enhancement ---------- */
 .parallax-layer {
   --depth: 0;
-  transform: translate3d(calc(var(--px, 0) * var(--depth) * 1px), calc(var(--py, 0) * var(--depth) * 1px), 0);
-  transition: transform 600ms var(--ease-out-strong);
+  transform:
+    perspective(900px)
+    translate3d(calc(var(--px, 0) * var(--depth) * 1px), calc(var(--py, 0) * var(--depth) * 1px + var(--lift, 0px)), 0)
+    rotateX(var(--rx, 0deg))
+    rotateY(var(--ry, 0deg));
+  transition: transform 600ms var(--ease-out-strong), opacity 250ms ease-out, box-shadow 250ms ease-out;
   will-change: transform;
 }
+
+/* Interactive hero: the hovered fragment lifts, the others step back. */
+.hero-stage [data-card]:hover { --lift: -8px; }
+.hero-stage:has([data-card]:hover) [data-card]:not(:hover) { opacity: 0.55; }
+
+/* Ledger cursor: a vertical hairline plus the current ruled row, snapped to the 32px rules. */
+.hero-stage .ledger-cursor { opacity: 0; transition: opacity 200ms ease-out; }
+.hero-stage[data-active="true"] .ledger-cursor { opacity: 1; }
+.ledger-cursor-x { left: var(--cx, 0px); }
+.ledger-cursor-row { top: var(--row, 0px); }
 
 @supports (animation-timeline: scroll()) {
   @media (prefers-reduced-motion: no-preference) {
@@ -251,7 +291,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .parallax-layer { transform: none !important; transition: none !important; }
+  .parallax-layer, [data-tilt] { transform: none !important; transition: none !important; }
+  [data-magnetic] { translate: none !important; }
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;

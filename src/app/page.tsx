@@ -7,8 +7,10 @@ import { requests } from "../server/procurement/requests";
 import { AppShell } from "./_components/app-shell";
 import { BudgetBar } from "./_components/budget-bar";
 import { dashboardMetrics } from "./_components/dashboard-metrics";
-import { DecisionQueue, LedgerReconciliation } from "./_components/dashboard-panels";
+import { DecisionQueue, LedgerReconciliation, NextStep } from "./_components/dashboard-panels";
 import {
+  ArrowRightIcon,
+  ArrowUpRightIcon,
   CaretRightIcon,
   CheckCircleIcon,
   FileTextIcon,
@@ -33,18 +35,31 @@ function parseStatusFilter(value: string | string[] | undefined): PurchaseStatus
   return purchaseStatuses.includes(candidate as PurchaseStatus) ? (candidate as PurchaseStatus) : undefined;
 }
 
-function Kpi({ label, icon, value, tone = "default", children }: {
+function Kpi({ label, icon, value, href, tone = "default", children }: {
   label: string;
   icon: ReactNode;
   value: string;
+  href: string;
   tone?: "default" | "danger";
   children: ReactNode;
 }) {
   return (
-    <div className={cn("grid content-start gap-1.5 bg-surface px-5 py-4", tone === "danger" && "bg-danger-soft")}>
+    <Link
+      href={href}
+      prefetch={false}
+      className={cn(
+        "spotlight group grid content-start gap-1.5 bg-surface px-5 py-4 transition-colors duration-150 hover:bg-subtle",
+        tone === "danger" && "bg-danger-soft hover:bg-danger-soft",
+      )}
+    >
       <span className="flex items-center gap-1.5 text-[0.8125rem] font-medium text-ink-3">
         <span aria-hidden="true">{icon}</span>
         {label}
+        <ArrowUpRightIcon
+          size={14}
+          className="ml-auto text-accent opacity-0 transition-[opacity,transform] duration-150 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:opacity-100 group-focus-visible:opacity-100"
+          aria-hidden="true"
+        />
       </span>
       <span
         className={cn(
@@ -55,7 +70,7 @@ function Kpi({ label, icon, value, tone = "default", children }: {
         {value}
       </span>
       <div className="text-xs text-ink-3">{children}</div>
-    </div>
+    </Link>
   );
 }
 
@@ -154,20 +169,23 @@ export default async function Home({
         </section>
       )}
 
+      <NextStep role={session.role} metrics={metrics} />
+
       <section
         aria-label="Tenant financial summary"
         className="mt-6 grid grid-cols-1 gap-px overflow-hidden rounded-xl border border-line bg-line shadow-card sm:grid-cols-2 xl:grid-cols-4"
       >
-        <Kpi label="Total allocated" icon={<WalletIcon size={16} />} value={formatUsd(metrics.allocatedMinor)}>
+        <Kpi label="Total allocated" icon={<WalletIcon size={16} />} value={formatUsd(metrics.allocatedMinor)} href="#budgets">
           {costCenters.length} active cost centers
         </Kpi>
-        <Kpi label="Total committed" icon={<ReceiptIcon size={16} />} value={formatUsd(metrics.committedMinor)}>
+        <Kpi label="Total committed" icon={<ReceiptIcon size={16} />} value={formatUsd(metrics.committedMinor)} href="#budgets">
           {utilization}% of allocated
         </Kpi>
         <Kpi
           label="Available headroom"
           icon={<CheckCircleIcon size={16} />}
           value={formatUsd(metrics.availableMinor)}
+          href="#budgets"
           tone={headroomNegative ? "danger" : "default"}
         >
           <span className={cn("inline-flex items-center gap-1", headroomNegative ? "text-danger" : "text-success")}>
@@ -175,7 +193,7 @@ export default async function Home({
             {headroomNegative ? "INV-02 violated" : "INV-02 holds"}
           </span>
         </Kpi>
-        <Kpi label={isRequester ? "My pending exposure" : "Pending exposure"} icon={<HourglassMediumIcon size={16} />} value={formatUsd(metrics.pendingMinor)}>
+        <Kpi label={isRequester ? "My pending exposure" : "Pending exposure"} icon={<HourglassMediumIcon size={16} />} value={formatUsd(metrics.pendingMinor)} href="/?status=PENDING#requests">
           {counts.PENDING} awaiting decision
         </Kpi>
       </section>
@@ -198,7 +216,7 @@ export default async function Home({
                 <p className="text-xs text-ink-3">Run lab initialization to seed departmental budgets for this tenant.</p>
               </div>
             ) : (
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto lg:overflow-visible">
                 <table className="w-full min-w-[36rem] border-separate border-spacing-0 text-sm">
                   <thead>
                     <tr>
@@ -218,7 +236,7 @@ export default async function Home({
                           key={center.id}
                           id={"cc-" + center.code}
                           data-cost-center-code={center.code}
-                          className={cn("transition-colors duration-150 hover:bg-subtle target:bg-danger-soft", overspent && "bg-danger-soft/60")}
+                          className={cn("spotlight transition-colors duration-150 hover:bg-subtle target:bg-danger-soft", overspent && "bg-danger-soft/60")}
                         >
                           <td className={cn(tdClass, overspent && "shadow-[inset_3px_0_0_var(--danger-solid)]")}>
                             <div className="grid justify-items-start gap-1">
@@ -228,7 +246,33 @@ export default async function Home({
                           </td>
                           <td className={tdClass}>
                             <div className="grid gap-1.5">
-                              <BudgetBar allocatedMinor={center.allocatedBudgetMinor} committedMinor={center.committedBudgetMinor} pendingMinor={pending} />
+                              <div
+                                className="group/bar relative rounded-full py-1 outline-offset-4"
+                                tabIndex={0}
+                                aria-label={`${center.name}: ${formatUsd(center.committedBudgetMinor)} committed, ${formatUsd(pending)} pending, ${formatUsd(center.availableBudgetMinor)} available of ${formatUsd(center.allocatedBudgetMinor)}`}
+                              >
+                                <BudgetBar allocatedMinor={center.allocatedBudgetMinor} committedMinor={center.committedBudgetMinor} pendingMinor={pending} />
+                                <div
+                                  className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 w-56 -translate-x-1/2 translate-y-1 rounded-lg bg-night px-3 py-2.5 text-xs text-night-ink opacity-0 shadow-float transition-[opacity,translate] duration-150 group-hover/bar:translate-y-0 group-hover/bar:opacity-100 group-focus-visible/bar:translate-y-0 group-focus-visible/bar:opacity-100"
+                                  aria-hidden="true"
+                                >
+                                  <dl className="grid gap-1">
+                                    <div className="flex justify-between gap-3">
+                                      <dt className="flex items-center gap-1.5 text-night-muted"><span className="size-2 rounded-sm bg-white" />Committed</dt>
+                                      <dd className="font-mono tabular-nums">{formatUsd(center.committedBudgetMinor)}</dd>
+                                    </div>
+                                    <div className="flex justify-between gap-3">
+                                      <dt className="flex items-center gap-1.5 text-night-muted"><span className="hatch size-2 rounded-sm text-white/70" />Pending</dt>
+                                      <dd className="font-mono tabular-nums">{formatUsd(pending)}</dd>
+                                    </div>
+                                    <div className="flex justify-between gap-3 border-t border-night-line pt-1">
+                                      <dt className="text-night-muted">Available</dt>
+                                      <dd className={cn("font-mono font-semibold tabular-nums", overspent && "text-danger-solid")}>{formatUsd(center.availableBudgetMinor)}</dd>
+                                    </div>
+                                  </dl>
+                                  <span className="absolute top-full left-1/2 -translate-x-1/2 border-x-[6px] border-t-[6px] border-x-transparent border-t-night" />
+                                </div>
+                              </div>
                               <div className="flex justify-between gap-2 text-xs text-ink-3">
                                 <span className={cn(overspent ? "font-semibold text-danger" : pct >= 80 ? "font-semibold text-warning" : undefined)}>
                                   {overspent ? "Exceeded" : pct >= 80 ? "High" : "Healthy"} · <span className="font-mono tabular-nums">{pct}%</span>
@@ -314,14 +358,17 @@ export default async function Home({
                       <th scope="col" className={thClass}>Cost center</th>
                       <th scope="col" className={cn(thClass, "text-right")}>Amount</th>
                       <th scope="col" className={thClass}>Status</th>
+                      <th scope="col" className={cn(thClass, "relative w-24")}><span className="sr-only">Action</span></th>
                     </tr>
                   </thead>
                   <tbody>
-                    {purchases.map((purchase) => (
-                      <tr key={purchase.id} className="group transition-colors duration-150 hover:bg-subtle">
+                    {purchases.map((purchase) => {
+                      const reviewable = session.role === "APPROVER" && purchase.status === "PENDING";
+                      return (
+                      <tr key={purchase.id} className="spotlight group relative cursor-pointer transition-colors duration-150 hover:bg-subtle">
                         <td className={cn(tdClass, "max-w-0 w-[52%]")}>
                           <Link
-                            className="block truncate font-medium text-ink group-hover:text-accent"
+                            className="block truncate font-medium text-ink after:absolute after:inset-0 group-hover:text-accent"
                             href={"/requests/" + purchase.id}
                             prefetch={false}
                           >
@@ -332,8 +379,18 @@ export default async function Home({
                         <td className={tdClass}><span className={chip} translate="no">{purchase.costCenterCode}</span></td>
                         <td className={cn(tdClass, "text-right font-mono tabular-nums text-ink")}>{formatUsd(purchase.amountMinor)}</td>
                         <td className={tdClass}><StatusBadge status={purchase.status} /></td>
+                        <td className={cn(tdClass, "text-right")} aria-hidden="true">
+                          {reviewable ? (
+                            <span className="inline-flex items-center gap-1 rounded-md bg-accent-soft px-2 py-1 text-xs font-semibold text-accent transition-colors duration-150 group-hover:bg-accent-solid group-hover:text-white">
+                              Review <ArrowRightIcon size={12} />
+                            </span>
+                          ) : (
+                            <ArrowRightIcon size={16} className="inline-block text-ink-3 opacity-0 transition-[opacity,transform] duration-150 group-hover:translate-x-0.5 group-hover:opacity-100" />
+                          )}
+                        </td>
                       </tr>
-                    ))}
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

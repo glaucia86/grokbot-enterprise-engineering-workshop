@@ -165,7 +165,7 @@ export function PurchaseRequestForm({ costCenters }: { costCenters: CostCenterOp
           </span>
         </p>
       </div>
-      <button type="submit" disabled={pending || costCenters.length === 0} className={cn(button.primary, "w-full")}>
+      <button type="submit" disabled={pending || costCenters.length === 0} className={cn(button.primary, "w-full")} data-magnetic>
         {pending && <CircleNotchIcon size={16} className="animate-spin" aria-hidden="true" />}
         {pending ? "Submitting…" : "Submit request"}
       </button>

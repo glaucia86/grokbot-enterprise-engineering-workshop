@@ -110,7 +110,7 @@ export function DecisionForm({ requestId }: { requestId: string }) {
         <LockSimpleIcon size={14} className="mt-px shrink-0 text-accent" aria-hidden="true" />
         Protected by an automatic idempotency key and ACID PostgreSQL budget lock.
       </p>
-      <button type="submit" disabled={busy} className={cn(decision === "REJECT" ? button.danger : button.primary, "w-full")}>
+      <button type="submit" disabled={busy} className={cn(decision === "REJECT" ? button.danger : button.primary, "w-full")} data-magnetic>
         {busy && <CircleNotchIcon size={16} className="animate-spin" aria-hidden="true" />}
         {busy ? "Saving…" : "Save decision"}
       </button>

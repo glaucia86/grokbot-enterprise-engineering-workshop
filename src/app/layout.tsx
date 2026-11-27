@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import type { ReactNode } from "react";
+import { PointerEffects } from "./_components/pointer-effects";
 import "./styles.css";
 
 const plexSans = IBM_Plex_Sans({
@@ -41,6 +42,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           Skip to main content
         </a>
         {children}
+        <PointerEffects />
       </body>
     </html>
   );

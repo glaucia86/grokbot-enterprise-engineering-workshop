@@ -5,7 +5,7 @@ export function cn(...classes: (string | false | null | undefined)[]) {
 }
 
 /* Shape lock: cards rounded-xl (12px), controls rounded-lg (8px), chips rounded-md (6px), badges rounded-full. */
-export const card = "min-w-0 rounded-xl border border-line bg-surface shadow-card";
+export const card = "spotlight min-w-0 rounded-xl border border-line bg-surface shadow-card";
 export const cardHeader = "flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-line px-5 py-3.5";
 export const cardTitle = "text-[0.9375rem] font-semibold tracking-[-0.01em] text-ink";
 export const eyebrow = "text-xs font-semibold uppercase tracking-[0.08em] text-ink-3";
