@@ -9,7 +9,7 @@
    ========================================================================== */
 
 :root {
-  --canvas: #f4f6f9;
+  --canvas: #eef1f6;
   --surface: #ffffff;
   --subtle: #f8fafc;
   --muted: #eef1f5;
@@ -43,6 +43,15 @@
 
   --ledger-rule: rgba(31, 79, 216, 0.07);
   --ledger-margin: rgba(217, 45, 32, 0.18);
+
+  /* Night: solid navy blocks (hero, proof, footer, sidebar). Same role in both appearances. */
+  --night: #0b1220;
+  --night-surface: #111a2e;
+  --night-raised: #16213a;
+  --night-line: rgba(255, 255, 255, 0.09);
+  --night-ink: #e8ecf4;
+  --night-muted: #9aa6bd;
+  --night-accent: #7c9dff;
 
   color-scheme: light dark;
 }
@@ -83,6 +92,10 @@
 
     --ledger-rule: rgba(124, 157, 255, 0.07);
     --ledger-margin: rgba(240, 68, 56, 0.22);
+
+    --night: #070b14;
+    --night-surface: #0e1524;
+    --night-raised: #141d31;
   }
 }
 
@@ -119,6 +132,14 @@
   --color-danger-soft: var(--danger-soft);
   --color-danger-line: var(--danger-line);
   --color-danger-solid: var(--danger-solid);
+
+  --color-night: var(--night);
+  --color-night-surface: var(--night-surface);
+  --color-night-raised: var(--night-raised);
+  --color-night-line: var(--night-line);
+  --color-night-ink: var(--night-ink);
+  --color-night-muted: var(--night-muted);
+  --color-night-accent: var(--night-accent);
 
   --shadow-card: 0 1px 2px rgb(13 20 33 / 0.05), 0 1px 1px rgb(13 20 33 / 0.03);
   --shadow-raised: 0 1px 2px rgb(13 20 33 / 0.06), 0 8px 24px -12px rgb(13 20 33 / 0.18);
@@ -178,6 +199,14 @@
     background-image:
       linear-gradient(to right, transparent 3.25rem, var(--ledger-margin) 3.25rem, var(--ledger-margin) calc(3.25rem + 1px), transparent calc(3.25rem + 1px)),
       repeating-linear-gradient(to bottom, transparent 0, transparent 31px, var(--ledger-rule) 31px, var(--ledger-rule) 32px);
+  }
+
+  /* Ruled ledger lines on navy for the hero stage. */
+  .ledger-rules-night {
+    background-color: var(--night-surface);
+    background-image:
+      linear-gradient(to right, transparent 3.25rem, rgba(240, 68, 56, 0.28) 3.25rem, rgba(240, 68, 56, 0.28) calc(3.25rem + 1px), transparent calc(3.25rem + 1px)),
+      repeating-linear-gradient(to bottom, transparent 0, transparent 31px, rgba(255, 255, 255, 0.05) 31px, rgba(255, 255, 255, 0.05) 32px);
   }
 
   /* Pending exposure in bullet charts: hatched, so it never relies on colour alone. */

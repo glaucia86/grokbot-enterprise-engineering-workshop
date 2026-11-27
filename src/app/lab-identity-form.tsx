@@ -3,16 +3,18 @@
 import type { FormEvent } from "react";
 import type { listLabIdentities } from "../server/auth/lab-session";
 import { CircleNotchIcon } from "./_components/icons";
-import { button, cn, control, field, label } from "./_components/ui";
+import { button, cn, control, controlNight, field, label, labelNight } from "./_components/ui";
 import { useLabIdentitySwitch } from "./_components/use-lab-identity-switch";
 
 type Identity = Awaited<ReturnType<typeof listLabIdentities>>[number];
 
-export function LabIdentityForm({ identities, selected, layout = "inline" }: {
+export function LabIdentityForm({ identities, selected, layout = "inline", tone = "default" }: {
   identities: Identity[];
   selected?: string;
   layout?: "inline" | "stacked";
+  tone?: "default" | "night";
 }) {
+  const night = tone === "night";
   const { error, pending, switchTo } = useLabIdentitySwitch();
 
   function submit(event: FormEvent<HTMLFormElement>) {
@@ -27,14 +29,14 @@ export function LabIdentityForm({ identities, selected, layout = "inline" }: {
       autoComplete="off"
     >
       <div className={field}>
-        <label htmlFor="identity" className={label}>Lab identity</label>
+        <label htmlFor="identity" className={night ? labelNight : label}>Lab identity</label>
         <select
           id="identity"
           name="identity"
           defaultValue={selected ?? ""}
           required
           disabled={pending}
-          className={cn(control, "select-chevron")}
+          className={cn(night ? controlNight : control, "select-chevron")}
         >
           <option value="" disabled>Choose a synthetic identity…</option>
           {identities.map(({ key, tenantName, displayName }) => key && (

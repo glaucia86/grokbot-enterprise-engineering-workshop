@@ -1,11 +1,10 @@
 import Link from "next/link";
-import type { PurchaseRequest, PurchaseStatus } from "../../modules/procurement/domain/procurement";
+import type { PurchaseRequest } from "../../modules/procurement/domain/procurement";
 import { formatUsd, formatUtcShortDate } from "../format-purchase";
 import type { DashboardMetrics } from "./dashboard-metrics";
 import {
   ArrowRightIcon,
   CheckCircleIcon,
-  HourglassMediumIcon,
   ScalesIcon,
   StampIcon,
   TrayIcon,
@@ -142,59 +141,6 @@ export function LedgerReconciliation({ metrics }: { metrics: DashboardMetrics })
             ? "Every committed dollar traces to exactly one approved request."
             : "Committed budget does not match approved requests. Inspect commitments for duplicates."}
         </p>
-      </div>
-    </section>
-  );
-}
-
-const mixTone: Record<PurchaseStatus, { bar: string; dot: string; label: string }> = {
-  APPROVED: { bar: "bg-success-solid", dot: "bg-success-solid", label: "Approved" },
-  PENDING: { bar: "bg-warning-solid", dot: "bg-warning-solid", label: "Pending" },
-  REJECTED: { bar: "bg-danger-solid", dot: "bg-danger-solid", label: "Rejected" },
-};
-
-export function DecisionMix({ metrics }: { metrics: DashboardMetrics }) {
-  const statuses: PurchaseStatus[] = ["APPROVED", "PENDING", "REJECTED"];
-  const total = statuses.reduce((sum, status) => sum + metrics.byStatus[status].count, 0);
-  const decided = metrics.byStatus.APPROVED.count + metrics.byStatus.REJECTED.count;
-  const approvalRate = decided === 0 ? null : Math.round((metrics.byStatus.APPROVED.count / decided) * 100);
-
-  return (
-    <section className={card} aria-labelledby="mix-heading">
-      <div className={cardHeader}>
-        <div className="flex items-center gap-2">
-          <HourglassMediumIcon size={18} className="text-ink-3" aria-hidden="true" />
-          <h2 id="mix-heading" className={cardTitle}>Decision mix</h2>
-        </div>
-        <span className="text-xs text-ink-3">
-          {approvalRate === null ? "No decisions yet" : `${approvalRate}% approval rate`}
-        </span>
-      </div>
-      <div className="grid gap-4 px-5 py-4">
-        <div className="flex h-2 w-full gap-0.5 overflow-hidden rounded-full bg-muted" aria-hidden="true">
-          {total > 0 &&
-            statuses.map((status) =>
-              metrics.byStatus[status].count > 0 ? (
-                <span
-                  key={status}
-                  className={mixTone[status].bar}
-                  style={{ flexGrow: metrics.byStatus[status].count, flexBasis: 0 }}
-                />
-              ) : null,
-            )}
-        </div>
-        <dl className="grid gap-2 text-sm">
-          {statuses.map((status) => (
-            <div key={status} className="flex items-center justify-between gap-3">
-              <dt className="flex items-center gap-2 text-ink-2">
-                <span className={cn("size-2 rounded-full", mixTone[status].dot)} aria-hidden="true" />
-                {mixTone[status].label}
-                <span className="font-mono text-xs tabular-nums text-ink-3">{metrics.byStatus[status].count}</span>
-              </dt>
-              <dd className="font-mono tabular-nums text-ink">{formatUsd(metrics.byStatus[status].amountMinor)}</dd>
-            </div>
-          ))}
-        </dl>
       </div>
     </section>
   );

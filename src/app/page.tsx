@@ -7,7 +7,7 @@ import { requests } from "../server/procurement/requests";
 import { AppShell } from "./_components/app-shell";
 import { BudgetBar } from "./_components/budget-bar";
 import { dashboardMetrics } from "./_components/dashboard-metrics";
-import { DecisionMix, DecisionQueue, LedgerReconciliation } from "./_components/dashboard-panels";
+import { DecisionQueue, LedgerReconciliation } from "./_components/dashboard-panels";
 import {
   CaretRightIcon,
   CheckCircleIcon,
@@ -59,7 +59,7 @@ function Kpi({ label, icon, value, tone = "default", children }: {
   );
 }
 
-const thClass = "border-b border-line bg-subtle px-4 py-2.5 text-left text-[0.6875rem] font-semibold uppercase tracking-[0.07em] text-ink-3";
+const thClass = "border-b border-line bg-subtle px-4 py-2.5 text-left whitespace-nowrap text-[0.6875rem] font-semibold uppercase tracking-[0.07em] text-ink-3";
 const tdClass = "border-b border-line px-4 py-3 align-middle";
 
 export default async function Home({
@@ -95,17 +95,9 @@ export default async function Home({
   const utilization = computeUtilizationPercent(metrics.allocatedMinor, metrics.committedMinor);
   const headroomNegative = metrics.availableMinor < 0;
   const isRequester = session.role === "REQUESTER";
-  const tenantWide = !isRequester;
-
-  const sectionLinks = [
-    { href: "#budgets", label: "Cost center budgets" },
-    { href: "#requests", label: isRequester ? "My requests" : "Tenant requests" },
-    ...(session.role === "APPROVER" ? [{ href: "#queue", label: "Decision queue" }] : []),
-    ...(isRequester ? [{ href: "#new-request", label: "New purchase request" }] : []),
-  ];
 
   return (
-    <AppShell session={session} section="dashboard" sectionLinks={sectionLinks}>
+    <AppShell session={session} section="dashboard">
       <header className="flex flex-wrap items-end justify-between gap-x-8 gap-y-5">
         <div className="min-w-0 flex-1">
           <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-xs text-ink-3">
@@ -128,7 +120,7 @@ export default async function Home({
             )}
           </p>
         </div>
-        <div className="w-full sm:w-auto sm:min-w-[26rem]">
+        <div className="w-full sm:w-auto sm:min-w-[24rem]">
           <LabIdentityForm identities={[...identities]} selected={session.key ?? undefined} />
         </div>
       </header>
@@ -170,10 +162,7 @@ export default async function Home({
           {costCenters.length} active cost centers
         </Kpi>
         <Kpi label="Total committed" icon={<ReceiptIcon size={16} />} value={formatUsd(metrics.committedMinor)}>
-          <div className="grid gap-1.5">
-            <BudgetBar allocatedMinor={metrics.allocatedMinor} committedMinor={metrics.committedMinor} size="sm" />
-            <span>{utilization}% of allocated budget</span>
-          </div>
+          {utilization}% of allocated
         </Kpi>
         <Kpi
           label="Available headroom"
@@ -183,15 +172,11 @@ export default async function Home({
         >
           <span className={cn("inline-flex items-center gap-1", headroomNegative ? "text-danger" : "text-success")}>
             {headroomNegative ? <WarningIcon size={13} aria-hidden="true" /> : <CheckCircleIcon size={13} aria-hidden="true" />}
-            {headroomNegative ? "Negative budget — INV-02 violated" : "Non-negative invariant satisfied"}
+            {headroomNegative ? "INV-02 violated" : "INV-02 holds"}
           </span>
         </Kpi>
         <Kpi label={isRequester ? "My pending exposure" : "Pending exposure"} icon={<HourglassMediumIcon size={16} />} value={formatUsd(metrics.pendingMinor)}>
-          {counts.PENDING} awaiting decision ·{" "}
-          <span className={cn("font-mono tabular-nums", metrics.headroomAfterPendingMinor < 0 && "font-semibold text-warning")}>
-            {formatUsd(metrics.headroomAfterPendingMinor)}
-          </span>{" "}
-          headroom if all approved
+          {counts.PENDING} awaiting decision
         </Kpi>
       </section>
 
@@ -205,11 +190,6 @@ export default async function Home({
                   Real-time PostgreSQL ledger balances for {session.tenantName} in exact USD minor units.
                 </p>
               </div>
-              <ul className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-ink-3" aria-label="Chart legend">
-                <li className="flex items-center gap-1.5"><span className="h-2 w-3 rounded-sm bg-accent-solid" aria-hidden="true" />Committed</li>
-                <li className="flex items-center gap-1.5"><span className="hatch h-2 w-3 rounded-sm text-accent/45" aria-hidden="true" />{isRequester ? "My pending" : "Pending"}</li>
-                <li className="flex items-center gap-1.5"><span className="h-2.5 w-px bg-ink-3" aria-hidden="true" />80% review line</li>
-              </ul>
             </div>
             {costCenters.length === 0 ? (
               <div className="grid justify-items-center gap-1 px-5 py-10 text-center">
@@ -219,13 +199,12 @@ export default async function Home({
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[44rem] border-separate border-spacing-0 text-sm">
+                <table className="w-full min-w-[36rem] border-separate border-spacing-0 text-sm">
                   <thead>
                     <tr>
                       <th scope="col" className={thClass}>Cost center</th>
                       <th scope="col" className={cn(thClass, "w-[32%]")}>Utilization</th>
                       <th scope="col" className={cn(thClass, "text-right")}>Allocated</th>
-                      <th scope="col" className={cn(thClass, "text-right")}>Committed</th>
                       <th scope="col" className={cn(thClass, "text-right")}>Available</th>
                     </tr>
                   </thead>
@@ -254,12 +233,10 @@ export default async function Home({
                                 <span className={cn(overspent ? "font-semibold text-danger" : pct >= 80 ? "font-semibold text-warning" : undefined)}>
                                   {overspent ? "Exceeded" : pct >= 80 ? "High" : "Healthy"} · <span className="font-mono tabular-nums">{pct}%</span>
                                 </span>
-                                {pending > 0 && <span className="font-mono tabular-nums">+{formatUsd(pending)} pending</span>}
                               </div>
                             </div>
                           </td>
                           <td className={cn(tdClass, "text-right font-mono tabular-nums")}>{formatUsd(center.allocatedBudgetMinor)}</td>
-                          <td className={cn(tdClass, "text-right font-mono tabular-nums")}>{formatUsd(center.committedBudgetMinor)}</td>
                           <td className={cn(tdClass, "text-right font-mono tabular-nums", overspent ? "font-semibold text-danger" : "text-ink")}>
                             {formatUsd(center.availableBudgetMinor)}
                             {overspent && (
@@ -391,8 +368,7 @@ export default async function Home({
           {session.role === "APPROVER" && session.approvalLimitMinor !== null && (
             <DecisionQueue metrics={metrics} approvalLimitMinor={session.approvalLimitMinor} />
           )}
-          {tenantWide && <LedgerReconciliation metrics={metrics} />}
-          <DecisionMix metrics={metrics} />
+          {session.role === "AUDITOR" && <LedgerReconciliation metrics={metrics} />}
         </aside>
       </div>
     </AppShell>
