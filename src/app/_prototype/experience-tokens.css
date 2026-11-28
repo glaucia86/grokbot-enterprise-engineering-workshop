@@ -1,0 +1,35 @@
+/* Selected workspace palette, shared by home, inbox and review. */
+.pb {
+  --p-ink: #0b1628;
+  --p-ink-2: #334155;
+  --p-ink-3: #64748b;
+  --p-canvas: #f8fafc;
+  --p-surface: #ffffff;
+  --p-line: #e2e8f0;
+  --p-line-strong: #cbd5e1;
+  --p-track: #e7edf4;
+  --p-navy: #0b1628;
+  --p-navy-2: #172d46;
+  --p-navy-ink: #e7edf4;
+  --p-navy-muted: #94a3b8;
+  --p-accent: #176b87;
+  --p-accent-hover: #12566d;
+  --p-accent-soft: #e6f1f5;
+  --p-evidence: #0f766e;
+  --p-approved: #15803d;
+  --p-pending: #b45309;
+  --p-pending-graphic: #d97706;
+  --p-violation: #b91c1c;
+  --p-violation-soft: #fef2f2;
+  color: var(--p-ink);
+  background: var(--p-canvas);
+  font-family: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+.pb { color-scheme: light; }
+.p-figures { font-variant-numeric: tabular-nums; }
+
+@keyframes p-rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}

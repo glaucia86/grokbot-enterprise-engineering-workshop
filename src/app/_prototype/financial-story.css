@@ -1,0 +1,301 @@
+/*
+ * B home: one illustrative purchase, told through four readable chapters.
+ * Layers are local to the stage: backdrop 0, phone 1, balance / receipt 2.
+ * The compact, non-sticky layout is the baseline, including without JavaScript.
+ */
+.ph-journey {
+  --story-ink: #0b1628;
+  --story-muted: #536579;
+  --story-line: #c3d1dc;
+  --story-accent: #176b87;
+  --story-mint: #a6f1dd;
+  --story-phone-width: 262px;
+  position: relative;
+}
+
+.ph-journey-toolbar {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .75rem 1.5rem;
+  margin-bottom: 2rem;
+  padding-block: 1rem;
+  border-block: 1px solid var(--story-line);
+  font-size: .8rem;
+  color: var(--story-muted);
+}
+
+.ph-journey-toolbar a {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  color: #12566d;
+  font-weight: 600;
+  min-height: 32px;
+}
+
+.ph-journey-toolbar a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.ph-journey-layout { min-width: 0; }
+.ph-journey-visual { width: 100%; max-width: 46rem; margin-inline: auto; min-width: 0; }
+.ph-journey-figure { margin: 0; }
+
+.ph-journey-stage {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  height: 566px;
+  border-radius: 20px;
+  background: #e7eef2;
+  overflow: clip;
+}
+
+.ph-journey-backdrop {
+  position: absolute;
+  inset: 5% 9%;
+  z-index: 0;
+  border-radius: 50% 50% 18px 18px;
+  background: #112a3e;
+}
+
+.ph-journey-backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 5% 7%;
+  border: 1px solid #6b8f9d66;
+  border-radius: inherit;
+}
+
+.ph-journey-figure figcaption {
+  margin-top: .85rem;
+  color: var(--story-muted);
+  font-size: .75rem;
+  text-align: center;
+}
+
+.ph-journey-phone {
+  z-index: 1;
+  position: relative;
+  width: var(--story-phone-width);
+  height: calc(var(--story-phone-width) * 1.88);
+  padding: 7px;
+  border: 1px solid #5a7181;
+  border-radius: 38px;
+  background: linear-gradient(140deg, #617b8b, #152c3c 23%, #0a1422 75%, #5f7a88);
+  box-shadow: 0 30px 50px -18px #05152280, inset 0 0 0 2px #0d1b2b;
+}
+
+.ph-journey-phone::before {
+  content: "";
+  position: absolute;
+  width: 3px;
+  height: 33px;
+  background: #425c6d;
+  top: 96px;
+  right: -3px;
+  border-radius: 0 2px 2px 0;
+}
+
+.ph-mobile-screen {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  padding: 0 16px;
+  background: #f8fbfd;
+  border-radius: 31px;
+  color: var(--story-ink);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ph-mobile-camera { flex: none; width: 66px; height: 16px; margin: 8px auto 16px; background: #0e1d2d; border-radius: 20px; }
+.ph-mobile-brand { flex: none; display: flex; gap: 6px; align-items: center; padding-bottom: 13px; border-bottom: 1px solid #d7e2e9; font-size: 11px; font-weight: 650; }
+.ph-mobile-brand svg { color: var(--story-accent); flex: none; }
+.ph-mobile-brand > span:last-child { margin-left: auto; font-size: 9px; font-weight: 500; color: var(--story-muted); }
+/* Only the app document travels. The camera, header, and device stay still. */
+.ph-mobile-viewport { flex: 1; min-height: 0; margin-bottom: 18px; overflow: clip; }
+.ph-mobile-track { height: 100%; }
+.ph-mobile-content { display: none; height: 100%; padding-block: 17px 16px; }
+.ph-mobile-content[data-active="true"] { display: block; }
+.ph-mobile-center { color: var(--story-muted); font-size: 10px; }
+.ph-mobile-screen h4 { margin-block: 4px 10px; font-size: 20px; line-height: 1.14; letter-spacing: -.04em; font-weight: 550; }
+
+.ph-mobile-status {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+  min-height: 24px;
+  padding: 4px 7px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 600;
+  color: #88500b;
+  background: #f7ead2;
+}
+
+.ph-mobile-status[data-approved="true"] { color: #1f5c4d; background: #dbf0e9; }
+.ph-mobile-requested { display: grid; gap: 3px; margin-block: 17px 14px; }
+.ph-mobile-requested > span { color: var(--story-muted); font-size: 10px; }
+.ph-mobile-requested strong { font-size: 32px; line-height: 1.1; font-weight: 550; letter-spacing: -.055em; }
+.ph-mobile-ledger { display: grid; gap: 7px; font-size: 10px; }
+.ph-mobile-ledger > div { display: flex; justify-content: space-between; gap: 8px; }
+.ph-mobile-ledger dt { color: var(--story-muted); }
+.ph-mobile-ledger dd { font-weight: 600; }
+.ph-mobile-budget { height: 5px; margin-top: 13px; border-radius: 2px; background: #dce7ec; overflow: hidden; }
+.ph-mobile-budget > span { display: block; width: 100%; height: 100%; background: var(--story-accent); transform: scaleX(0); transform-origin: left; }
+.ph-mobile-content[data-approved="true"] .ph-mobile-budget > span { transform: scaleX(.7); }
+.ph-mobile-annotation { display: flex; align-items: flex-start; gap: 6px; margin-top: 16px; padding: 10px; background: #e6f1f5; color: #1e5365; border-radius: 6px; font-size: 10px; line-height: 1.5; }
+.ph-mobile-annotation svg { flex: none; margin-top: 1px; }
+.ph-mobile-home-indicator { position: absolute; bottom: 7px; left: 36%; right: 36%; height: 3px; border-radius: 4px; background: #253d50; }
+
+.ph-mobile-trail { margin-top: 15px; display: grid; gap: 10px; }
+.ph-mobile-trail > li { display: grid; grid-template-columns: 22px 1fr; align-items: center; gap: 6px; font-size: 10px; }
+.ph-mobile-trail svg { color: #176b87; }
+.ph-mobile-trail strong { font-weight: 600; }
+.ph-mobile-trail small { display: block; color: var(--story-muted); font-size: 9px; margin-top: 2px; }
+
+.ph-journey-float { position: absolute; z-index: 2; pointer-events: none; }
+.ph-journey-balance { top: 24px; left: 2%; width: 190px; }
+.ph-journey-balance-inner { background: var(--story-mint); color: #102c35; border: 1px solid #c6f8e9; padding: 17px 19px; border-radius: 10px; box-shadow: 0 14px 35px -12px #102b3e40; }
+.ph-journey-balance-inner > span { display: block; font-size: 10px; font-weight: 550; }
+.ph-journey-balance-inner > strong { display: block; font-size: 29px; font-variant-numeric: tabular-nums; font-weight: 550; letter-spacing: -.05em; margin-top: 6px; line-height: 1.1; }
+.ph-journey-balance-inner > small { display: block; font-size: 10px; color: #315a55; margin-top: 7px; }
+.ph-journey-receipt { right: 1.5%; bottom: 59px; width: 202px; }
+.ph-journey-receipt-inner { background: #f8fbfd; border: 1px solid #bdcfd8; padding: 15px; border-radius: 10px; box-shadow: 0 16px 35px -12px #102b3e50; }
+.ph-journey-receipt-top { display: flex; align-items: center; gap: 7px; color: #12566d; font-size: 10px; font-weight: 600; }
+.ph-journey-receipt strong { display: block; margin-block: 8px 6px; font-size: 15px; letter-spacing: -.025em; font-weight: 600; }
+.ph-journey-receipt small { display: block; font-size: 10px; color: var(--story-muted); line-height: 1.5; }
+
+/* Hide nonfunctional controls in the server-rendered / no-JavaScript fallback. */
+.ph-journey-navigation { display: none; }
+.ph-journey[data-ready="true"] .ph-journey-navigation { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 5px; margin-top: 15px; }
+.ph-journey-navigation button { min-height: 44px; padding: 7px 5px; border: 1px solid #aebfca; border-radius: 6px; color: #334b5d; font-size: 10px; line-height: 1.3; font-weight: 550; text-align: center; background: #f8fbfd; }
+.ph-journey-navigation button:hover { border-color: #176b87; background: #e6f1f5; }
+.ph-journey-navigation button[aria-pressed="true"] { color: #f5fbfd; background: #176b87; border-color: #176b87; }
+.ph-journey-navigation button:focus-visible { outline: 3px solid #176b87; outline-offset: 3px; }
+
+.ph-journey-chapters { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2.5rem 4rem; margin-top: 3.5rem; }
+.ph-journey-chapter { min-width: 0; border-top: 1px solid var(--story-line); padding-top: 2rem; }
+.ph-journey-chapter h3 { font-size: clamp(1.9rem, 3.1vw, 2.8rem); line-height: 1.09; font-weight: 500; letter-spacing: -.05em; max-width: 12ch; }
+.ph-journey-chapter > p { max-width: 37ch; color: var(--story-muted); line-height: 1.7; margin-top: 1rem; font-size: .95rem; }
+.ph-journey-metric { margin-block: 1.8rem; display: grid; gap: .35rem; }
+.ph-journey-metric > span { font-size: .8rem; color: var(--story-muted); }
+.ph-journey-metric > strong { color: #12566d; font-size: clamp(2.8rem, 4.3vw, 4rem); line-height: 1.05; letter-spacing: -.06em; font-weight: 500; font-variant-numeric: tabular-nums; }
+.ph-journey-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; padding-top: 1rem; border-top: 1px solid var(--story-line); }
+.ph-journey-facts dt { color: var(--story-muted); font-size: .74rem; }
+.ph-journey-facts dd { margin-top: .35rem; font-size: .94rem; font-weight: 550; font-variant-numeric: tabular-nums; }
+.ph-journey-chapter > .ph-journey-note { font-size: .8rem; line-height: 1.55; margin-top: 1.25rem; }
+
+/* JS enables staging only when this layout and CSS timelines are supported. */
+@media (min-width: 1024px) and (min-height: 700px) and (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) and (animation-range: entry 50% exit 50%) {
+    .ph-journey[data-scroll="enhanced"] .ph-journey-layout {
+      display: grid;
+      grid-template-columns: minmax(0, .83fr) minmax(0, 1.17fr);
+      gap: clamp(2.5rem, 5vw, 5rem);
+      align-items: start;
+      view-timeline-name: --ph-purchase-journey;
+      view-timeline-axis: block;
+    }
+
+    .ph-journey[data-scroll="enhanced"] .ph-journey-visual {
+      grid-column: 2;
+      grid-row: 1;
+      position: sticky;
+      top: 24px;
+      max-width: none;
+      --story-phone-width: clamp(240px, 31svh, 280px);
+    }
+
+    .ph-journey[data-scroll="enhanced"] .ph-journey-stage { height: min(600px, calc(100svh - 196px)); }
+    /* Equal chapter heights keep their centers aligned with the four app panels. */
+    .ph-journey[data-scroll="enhanced"] .ph-journey-chapters { grid-column: 1; grid-row: 1; display: grid; grid-auto-rows: 1fr; grid-template-columns: 1fr; gap: 0; margin-top: 0; }
+    .ph-journey[data-scroll="enhanced"] .ph-journey-chapter { display: flex; flex-direction: column; justify-content: center; min-height: max(580px, 78svh); padding-block: 3rem; }
+    .ph-journey[data-scroll="enhanced"] .ph-journey-chapter:first-child { border-top: 0; }
+    .ph-journey[data-scroll="enhanced"] .ph-journey-chapter h3 { font-size: clamp(2.2rem, 3.45vw, 3.3rem); }
+
+    .ph-journey[data-scroll="enhanced"] .ph-mobile-track {
+      height: 400%;
+      animation: ph-app-scroll linear both;
+      animation-timeline: --ph-purchase-journey;
+      animation-range: entry 50% exit 50%;
+    }
+
+    .ph-journey[data-scroll="enhanced"] .ph-mobile-content { display: block; height: 25%; }
+
+    .ph-journey[data-scroll="enhanced"] .ph-journey-metric {
+      animation: ph-metric-arrive linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 30%;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ph-journey-balance-inner, .ph-journey-receipt-inner { animation: ph-story-change 400ms cubic-bezier(.16, 1, .3, 1) both; }
+  .ph-journey-navigation button { transition: background-color 150ms, color 150ms; }
+  .ph-journey-navigation button:active { transform: translateY(1px); }
+}
+
+@keyframes ph-story-change { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: translateY(0); } }
+/* Panel starts meet the viewport at each chapter center; intermediate scroll
+ * positions expose the actual adjoining app content, and reverse exactly. */
+@keyframes ph-app-scroll {
+  0%, 12.5% { transform: translateY(0); }
+  87.5%, 100% { transform: translateY(-75%); }
+}
+@keyframes ph-metric-arrive { from { transform: translateY(28px); } to { transform: none; } }
+
+@media (max-width: 1023px) {
+  .ph-journey-chapters { gap: 2.5rem; }
+}
+
+@media (min-width: 1024px) and (max-width: 1170px) {
+  .ph-journey-balance { left: 8px; width: 150px; }
+  .ph-journey-balance-inner { padding: 12px; }
+  .ph-journey-balance-inner > strong { font-size: 24px; }
+  .ph-journey-receipt { width: 170px; right: 8px; bottom: 24px; }
+}
+
+@media (min-width: 1024px) and (max-width: 1170px) and (min-height: 821px) {
+  .ph-journey[data-scroll="enhanced"] .ph-journey-visual { --story-phone-width: 248px; }
+}
+
+@media (min-width: 1024px) and (max-height: 820px) {
+  .ph-mobile-camera { margin-bottom: 12px; }
+  .ph-mobile-content { padding-top: 12px; }
+  .ph-mobile-requested { margin-block: 14px 12px; }
+  .ph-mobile-trail { gap: 8px; }
+}
+
+@media (max-width: 639px) {
+  .ph-journey { --story-phone-width: 248px; }
+  .ph-journey-stage { height: 520px; border-radius: 14px; }
+  .ph-journey-backdrop { inset: 5% 5%; }
+  .ph-journey-float { display: none; }
+  .ph-journey[data-ready="true"] .ph-journey-navigation { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .ph-journey-navigation button { font-size: 12px; }
+  .ph-journey-chapters { grid-template-columns: 1fr; margin-top: 2.5rem; }
+  .ph-journey-chapter h3 { max-width: 16ch; font-size: 2.1rem; }
+  .ph-journey-toolbar { margin-bottom: 1.5rem; }
+}
+
+@media (max-width: 359px) {
+  .ph-journey { --story-phone-width: 234px; }
+  .ph-journey-stage { height: 488px; }
+  .ph-mobile-screen { padding-inline: 13px; }
+  .ph-mobile-camera { margin-bottom: 12px; }
+  .ph-mobile-content { padding-top: 12px; }
+  .ph-mobile-screen h4 { font-size: 19px; }
+  .ph-mobile-requested { margin-block: 13px 12px; }
+  .ph-mobile-annotation { margin-top: 12px; padding: 8px; }
+  .ph-journey-metric > strong { font-size: 2.6rem; }
+}
+
+/* Static, compact, complete: never leave a pinned track when motion is reduced. */
+@media (prefers-reduced-motion: reduce) {
+  .ph-journey *, .ph-journey *::before, .ph-journey *::after { animation: none !important; transition: none !important; }
+}

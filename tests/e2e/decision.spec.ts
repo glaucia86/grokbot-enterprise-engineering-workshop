@@ -8,9 +8,19 @@ const identities = {
 
 async function switchIdentity(page: Page, role: keyof typeof identities) {
   const identity = identities[role];
+  // Review and dashboard share the identity control; wait for the destination shell.
+  await expect(page.getByRole("region", { name: "Inbox", exact: true })).toBeVisible();
   await page.getByLabel("Lab identity").selectOption(identity.key);
   await page.getByRole("button", { name: "Switch identity" }).click();
   await expect(page.locator(".session-state")).toContainText("Northstar Industries · " + identity.label);
+}
+
+async function openFullReview(page: Page, title: string) {
+  await page.getByRole("region", { name: "Inbox", exact: true }).getByRole("link", { name: title }).click();
+  const selected = page.getByRole("region", { name: "Selected request", exact: true });
+  await expect(selected.getByRole("heading", { name: title, exact: true })).toBeVisible();
+  await selected.getByRole("link", { name: "Open full review", exact: true }).click();
+  await expect(page.getByRole("heading", { level: 1, name: title, exact: true })).toBeVisible();
 }
 
 for (const scenario of [
@@ -20,17 +30,19 @@ for (const scenario of [
   test(`an approver can ${scenario.action.toLowerCase()} a request and an auditor can verify the decision`, async ({ page }) => {
     const title = "Warehouse shelving " + crypto.randomUUID();
     await page.goto("/");
-    await switchIdentity(page, "requester");
-    await page.getByLabel("Title").fill(title);
-    await page.getByLabel("Justification").fill("Replace damaged warehouse shelving");
-    await page.getByLabel("Amount (USD cents)").fill("19500");
-    await page.getByRole("button", { name: "Submit request" }).click();
+    await page.getByRole("button", { name: "Northstar Requester Northstar Industries", exact: true }).click();
+    await expect(page.locator(".session-state")).toContainText("Northstar Industries · " + identities.requester.label);
+    const form = page.getByRole("region", { name: "New purchase request", exact: true });
+    await form.getByLabel("Title").fill(title);
+    await form.getByLabel("Justification").fill("Replace damaged warehouse shelving");
+    await form.getByLabel("Amount (USD cents)").fill("19500");
+    await form.getByRole("button", { name: "Submit request" }).click();
     await expect(page.getByRole("heading", { name: title })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Record decision" })).toHaveCount(0);
 
     await page.getByRole("link", { name: "Back to purchase requests" }).click();
     await switchIdentity(page, "approver");
-    await page.getByRole("link", { name: title }).click();
+    await openFullReview(page, title);
     const decision = page.getByRole("region", { name: "Record decision" });
     const status = page.getByRole("article").getByRole("status");
     await decision.getByLabel("Decision").selectOption({ label: scenario.action });
@@ -43,7 +55,7 @@ for (const scenario of [
 
     await page.getByRole("link", { name: "Back to purchase requests" }).click();
     await switchIdentity(page, "auditor");
-    await page.getByRole("link", { name: title }).click();
+    await openFullReview(page, title);
     await expect(status).toHaveText(scenario.status);
     await expect(decision).toHaveCount(0);
     const events = page.getByRole("region", { name: "Audit trail" }).getByRole("listitem");
@@ -57,7 +69,7 @@ for (const scenario of [
 
     await page.getByRole("link", { name: "Back to purchase requests" }).click();
     await switchIdentity(page, "requester");
-    await page.getByRole("link", { name: title }).click();
+    await openFullReview(page, title);
     await expect(status).toHaveText(scenario.status);
     await expect(page.getByRole("heading", { name: "Audit trail" })).toHaveCount(0);
   });

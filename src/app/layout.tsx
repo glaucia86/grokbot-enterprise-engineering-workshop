@@ -1,19 +1,20 @@
 import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import type { ReactNode } from "react";
+import { PointerEffects } from "./_components/pointer-effects";
 import "./styles.css";
 
 const plexSans = IBM_Plex_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-  variable: "--font-sans",
+  variable: "--font-plex-sans",
   display: "swap",
 });
 
 const plexMono = IBM_Plex_Mono({
   subsets: ["latin"],
   weight: ["400", "500", "600"],
-  variable: "--font-mono",
+  variable: "--font-plex-mono",
   display: "swap",
 });
 
@@ -23,15 +24,25 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f4f7f9",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#1a1917" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0908" },
+  ],
+  colorScheme: "light dark",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${plexSans.variable} ${plexMono.variable}`}>
-      <body>
-        <a className="skip-link" href="#main-content">Skip to main content</a>
+    <html lang="en" className={`${plexSans.variable} ${plexMono.variable}`} data-scroll-behavior="smooth">
+      <body suppressHydrationWarning>
+        <a
+          className="sr-only z-[100] rounded-lg bg-accent-solid px-4 py-2.5 text-sm font-semibold text-white focus:not-sr-only focus:fixed focus:left-3 focus:top-3"
+          href="#main-content"
+        >
+          Skip to main content
+        </a>
         {children}
+        <PointerEffects />
       </body>
     </html>
   );
