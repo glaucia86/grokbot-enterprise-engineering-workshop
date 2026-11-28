@@ -12,6 +12,7 @@ const assets = {
   "reveal.css": reveal + "/dist/reveal.css",
   "reveal-license.txt": reveal + "/LICENSE",
   "assets/procurement-hub.webp": "docs/media/procurement-hub.webp",
+  "assets/procurement-hub-detail.webp": "docs/media/procurement-hub-detail.webp",
   "assets/glaucia-lemos.jpg": "docs/media/glaucia-lemos.jpg",
   "assets/architecture.svg": "slides/assets/architecture.svg",
   "assets/concurrency.svg": "slides/assets/concurrency.svg",

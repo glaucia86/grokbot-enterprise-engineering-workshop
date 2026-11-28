@@ -1,12 +1,12 @@
 :root {
-  --paper: #faf7ef;
-  --ink: #101831;
+  --paper: #f8f6ee;
+  --ink: #0e1323;
   --muted: #49536b;
   --rule: #abaebe;
   --blue: #234bd9;
   --bright-blue: #a3b9ff;
   --light-muted: #ccd6ec;
-  --spotlight: radial-gradient(ellipse at right center, #243c87 0, var(--ink) 69%);
+  --spotlight: radial-gradient(ellipse at 95% 12%, #293b6c, var(--ink) 65%);
 }
 body { background: var(--paper); }
 .reveal { color: var(--ink); font-family: Inter, Arial, sans-serif; font-size: 25px; line-height: 1.32; }
@@ -131,6 +131,61 @@ body { background: var(--paper); }
 .pyramid .tier-5 strong { clip-path: polygon(0 0,100% 0,50% 100%); align-items: start; min-height: 76px; padding-top: 4px; }
 .pyramid span { font-size: 22px; }
 
+.cover h1 em { color: #ffcb74; }
+.cover .byline span { color: var(--light-muted); }
+.cover .cast { border-color: #8b96b3; }
+.cover .cast .face { align-self: end; }
+.budget-strip, .model-pair { display: grid; gap: 24px; }
+.budget-strip { grid-template-columns: 1.4fr 1fr 1fr; }
+.budget-strip > div, .model-pair > div { border-top: 3px solid var(--blue); padding: 18px 0; }
+.budget-strip small, .model-pair small, .source-panel small { display: block; font: 650 20px/1.4 ui-monospace, Consolas, monospace; }
+.budget-strip strong { display: block; font-size: 78px; letter-spacing: -.065em; font-variant-numeric: tabular-nums; }
+.question-line { padding: 16px 20px; background: #e2eafe; border-inline-start: 5px solid var(--blue); font-weight: 650; }
+.ledger { margin-top: 20px !important; }
+.ledger div, .packet div { display: flex; justify-content: space-between; align-items: baseline; gap: 20px; border-bottom: 1px solid var(--rule); padding: 12px 0; }
+.ledger dd, .packet dd { margin: 0; font-weight: 750; }
+.equation { padding: 20px 0; border-block: 1px solid #647296; font: 600 33px/1.4 ui-monospace, Consolas, monospace; }
+.equation span { display: block; margin-top: 8px; font-size: 20px; color: var(--bright-blue); }
+.race-title { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+.race-title .avatar { width: 85px; height: 85px; }
+.trace-grid { width: 100%; border-collapse: collapse; text-align: left; font-variant-numeric: tabular-nums; }
+.trace-grid caption { text-align: left; padding: 0 0 12px; font-size: 20px; }
+.trace-grid th, .trace-grid td { padding: 13px 16px; border-bottom: 1px solid var(--rule); }
+.trace-grid thead { color: var(--blue); background: #e3ebfb; }
+.dark .trace-grid thead { background: #243252; color: #d9e5ff; }
+.trace-grid tbody th { border-inline-start: 4px solid transparent; }
+.trace-grid tr.current-fragment th { border-inline-start-color: #4276d5; }
+.dark .trace-grid tr.current-fragment th { border-inline-start-color: #ffcb74; }
+.dark .trace-grid tr.current-fragment { background: #1b2942; }
+.source-panel { padding: 22px 26px; background: var(--ink); color: #f0f3fb; border-radius: 6px; }
+.source-panel small { color: #b8c7e8; margin-bottom: 16px; }
+.source-panel pre { font: 23px/1.55 ui-monospace, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+.code-focus { color: #ffcb74; font-weight: 750; }
+.model-pair { grid-template-columns: 1fr 1fr; }
+.model-pair h3 { font-size: 40px; line-height: 1.12; margin: 12px 0; letter-spacing: -.035em; }
+.model-pair small { color: var(--muted); }
+.review-note > strong { color: var(--blue); }
+.overrun-chart figcaption { margin: 0 0 6px; padding-inline-start: 0.75em; border-left: 2px solid var(--ink); margin-left: 71.4286%; color: var(--ink); }
+.spend-track { position: relative; display: flex; isolation: isolate; background: #254987; color: white; }
+.spend-track::before { content: ""; position: absolute; inset: 0 0 0 71.4286%; z-index: -1; border-left: 2px solid var(--ink); background: repeating-linear-gradient(125deg,#9e4428 0 8px,#873920 8px 12px); }
+.spend-track span { flex: 1; padding: 9px 14px; font-weight: 650; }
+.spend-track span + span { border-left: 2px solid var(--paper); }
+.balance-meter { display: grid; grid-template-columns: max-content 1fr 5.5em; align-items: center; gap: 14px; color: #ffdc9f; font-variant-numeric: tabular-nums; }
+.balance-meter strong { text-align: right; }
+.balance-track { height: 14px; background: #2c354b; }
+.balance-track::before { content: ""; display: block; height: 100%; background: #ffcb74; transform-origin: left; }
+.after-commit, #runtime:has(.commit-row.visible) .before-commit { display: none; }
+#runtime:has(.commit-row.visible) .after-commit { display: block; }
+#runtime:has(.commit-row.visible) .balance-track::before { transform: scaleX(0.3); }
+@media (prefers-reduced-motion: no-preference) {
+  .balance-track::before { transition: transform 420ms ease-in-out; }
+  .present .spend-track { animation: draw-spend 500ms ease-out both; }
+  @keyframes draw-spend { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0); } }
+  .reveal .slides .trace-grid tr.fragment, .reveal .slides .model-pair .fragment { transition: opacity 180ms ease-out, background-color 200ms ease-out; }
+  .present .code-focus { background-image: linear-gradient(#ffcb74, #ffcb74); background-position: left bottom; background-repeat: no-repeat; animation: mark-lock 420ms ease-out both; }
+  @keyframes mark-lock { from { background-size: 0 2px; } to { background-size: 100% 2px; } }
+}
+
 @media (orientation: portrait) and (max-width: 760px) {
   .reveal { font-size: 32px; }
   .reveal .frame { padding: 34px 30px; }
@@ -164,6 +219,14 @@ body { background: var(--paper); }
   .expression { grid-template-columns: 115px auto; align-items: center; justify-items: start; justify-content: start; gap: 6px 14px; text-align: left; }
   .expression img { width: 115px; height: 115px; grid-row: span 2; }
   .expression button { min-height: 90px; padding-inline: 16px; font-size: 26px; }
+  .budget-strip { grid-template-columns: 1fr 1fr; }
+  .budget-strip > :first-child { grid-column: 1 / -1; }
+  .budget-strip small, .model-pair small, .source-panel small, .trace-grid caption { font-size: 26px; }
+  .model-pair { grid-template-columns: 1fr; }
+  .trace-grid { font-size: 27px; }
+  .trace-grid td, .trace-grid th { padding: 13px 9px; overflow-wrap: anywhere; }
+  .source-panel pre { font-size: 28px; }
+  .review-note { flex-wrap: wrap; }
 }
 
 @media print {

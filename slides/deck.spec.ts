@@ -4,9 +4,9 @@ import { join } from "node:path";
 import { root } from "../engineering/runtime";
 
 const ids = [
-  "start", "trust", "trust-pyramid", "procurement-hub", "invariant", "boundaries",
-  "boot-lab", "try-the-app", "runtime", "reproduce", "agent-loop", "verify-live",
-  "optional-extension", "run-harness", "review", "takeaways", "questions",
+  "start", "trust", "try-the-app", "trust-pyramid", "procurement-hub", "invariant", "boundaries",
+  "boot-lab", "reproduce", "runtime", "agent-loop", "verify-live", "run-harness", "review",
+  "optional-extension", "takeaways", "questions",
 ];
 
 test("the public output contains the deck and its reviewed static resources", async ({ request }) => {
@@ -18,16 +18,16 @@ test("the public output contains the deck and its reviewed static resources", as
   expect(files).toEqual([
     "assets/architecture.svg", "assets/bloub-default-cycle.gif", "assets/bloub-cycle-still.webp",
     "assets/bloub-license.txt", "assets/concurrency.svg", "assets/credits.txt",
-    "assets/glaucia-lemos.jpg", "assets/procurement-hub.webp", "assets/verification-loop.svg",
+    "assets/glaucia-lemos.jpg", "assets/procurement-hub-detail.webp", "assets/procurement-hub.webp", "assets/verification-loop.svg",
     "deck.css", "deck.js", "index.html", "reset.css", "reveal-license.txt", "reveal.css",
   ].sort());
   const html = await (await request.get("/workshop/")).text();
-  expect(html).not.toMatch(/data-presenter|class="notes"|lang="pt-BR"|speaker:|slide:|ADR-0001|presenter-guide/);
+  expect(html).not.toMatch(/data-presenter|class="notes"|lang="pt-BR"|speaker:|slide:|ADR-0001|presenter-guide|grokbot-profiles/);
   expect((await request.get("/workshop/presenter-guide.md")).status()).toBe(404);
   expect((await request.get("/workshop/grokbot-profiles.md")).status()).toBe(404);
 });
 
-const cast = ["Engineering Lead", "Harness Engineer", "TypeScript FDE", "QA Engineer", "DevOps Engineer"];
+const cast = ["PH Lead", "PH Engineer", "PH Quality", "PH Security", "PH Platform"];
 
 test("only the active cast follows the mouse and resets to its resting pose", async ({ page }) => {
   await page.goto("/workshop/#/start");
@@ -111,6 +111,8 @@ test("keyboard, controls and the pyramid reveal the five layers in order", async
   await page.keyboard.press("ArrowRight");
   await expect(page).toHaveURL(/#\/trust$/);
   await page.getByRole("button", { name: "next slide" }).click();
+  await expect(page).toHaveURL(/#\/try-the-app$/);
+  await page.getByRole("button", { name: "next slide" }).click();
   const pyramid = page.locator("#trust-pyramid.present");
   await expect(pyramid).toBeVisible();
   await expect(pyramid.locator(".fragment.visible")).toHaveCount(0);
@@ -143,8 +145,8 @@ test("presenter notes match all slides and open in Reveal speaker view", async (
     await expect(slide.locator('.notes [lang="pt-BR"] p')).toHaveCount(2);
   }
   for (const [id, role] of [
-    ["procurement-hub", cast[0]], ["boot-lab", cast[1]], ["runtime", cast[2]],
-    ["verify-live", cast[3]], ["run-harness", cast[4]],
+    ["procurement-hub", cast[0]], ["boot-lab", cast[3]], ["runtime", cast[1]],
+    ["verify-live", cast[2]], ["run-harness", cast[4]],
   ]) {
     await expect(page.locator(`#${id} .face figcaption`)).toHaveText(role);
   }
@@ -158,6 +160,30 @@ test("presenter notes match all slides and open in Reveal speaker view", async (
   await expect(text).toContainText("Now we exercise the corrected API");
   await expect(text).toContainText("Agora exercitamos a API");
   await expect(text).toContainText("36:00–40:00");
+});
+
+test("the room sees the lock, receipts and vote answer on cue", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  for (const [id, cues] of [
+    ["runtime", ["Waits for Engineering", "reads $3k", "stays PENDING"]],
+    ["verify-live", ["One $7k commitment", "no second commitment", "same key returns 403"]],
+    ["review", ["verify security on the candidate SHA"]],
+  ] as const) {
+    await page.goto("/workshop/#/" + id);
+    const slide = page.locator("#" + id + ".present");
+    for (const cue of cues) {
+      const step = slide.locator(".fragment").filter({ hasText: cue });
+      await expect(step).toBeHidden();
+      await page.keyboard.press("ArrowRight");
+      await expect(step).toBeVisible();
+      if (id === "runtime") {
+        const balance = cue === "Waits for Engineering" ? "$10,000" : "$3,000";
+        await expect(slide.locator(".balance-meter strong:visible")).toHaveText(balance);
+      }
+    }
+    await page.keyboard.press("ArrowLeft");
+    await expect(slide.locator(".fragment").last()).toBeHidden();
+  }
 });
 
 for (const [name, viewport] of [
