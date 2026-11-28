@@ -18,25 +18,34 @@
           <p class="kicker">Packt advanced workshop · December 11, 2026</p>
           <p class="series">GrokBot for Enterprise Engineering Workflows</p>
           <h1>From Issue to <em>Verified Pull Request</em></h1>
-          <p class="byline">Glaucia Lemos</p>
-        </div><div class="cast" aria-label="Workshop bot team"><figure class="face engineering-lead"><!-- avatar:engineering-lead --><figcaption>Engineering Lead</figcaption></figure><figure class="face harness-engineer"><!-- avatar:harness-engineer --><figcaption>Harness Engineer</figcaption></figure><figure class="face typescript-fde"><!-- avatar:typescript-fde --><figcaption>TypeScript FDE</figcaption></figure><figure class="face qa-engineer"><!-- avatar:qa-engineer --><figcaption>QA Engineer</figcaption></figure><figure class="face devops-engineer"><!-- avatar:devops-engineer --><figcaption>DevOps Engineer</figcaption></figure></div></div>
+          <p class="byline">Glaucia Lemos <span>· Procurement Hub / PH-42</span></p>
+        </div><div class="cast" aria-label="Workshop bot team"><figure class="face engineering-lead"><!-- avatar:engineering-lead --><figcaption>PH Lead</figcaption></figure><figure class="face typescript-fde"><!-- avatar:typescript-fde --><figcaption>PH Engineer</figcaption></figure><figure class="face qa-engineer"><!-- avatar:qa-engineer --><figcaption>PH Quality</figcaption></figure><figure class="face harness-engineer"><!-- avatar:harness-engineer --><figcaption>PH Security</figcaption></figure><figure class="face devops-engineer"><!-- avatar:devops-engineer --><figcaption>PH Platform</figcaption></figure></div></div>
       </div>
       <!-- speaker:start -->
     </section>
 
     <section id="trust" class="frame statement" >
       <div class="stage">
-        <p class="kicker">The reviewer’s question</p><h2>What would you need to see before approving a pull request written by an agent?</h2>
-        <p class="lead thesis">Enterprise agentic engineering is building environments where agents can reliably prove their changes preserve invariants.</p>
-        <p class="route">Incident <b>→</b> Invariants <b>→</b> Verification <b>→</b> Human decision</p>
+        <p class="kicker">Northstar Industries · Platform Engineering</p>
+        <h2>Can both buyers spend the same dollars?</h2>
+        <div class="budget-strip"><div><small>Available in one cost center</small><strong>$10,000</strong></div><div><small>Request A</small><strong>$7,000</strong></div><div><small>Request B</small><strong>$7,000</strong></div></div>
+        <p class="question-line">Chat vote · Both requests arrive together. How many should succeed?</p>
       </div>
       <!-- speaker:trust -->
+    </section>
+
+    <section id="try-the-app" class="frame " >
+      <div class="stage">
+        <p class="kicker">Procurement Hub · Read the record</p><h2>One purchase leaves $3,000 in Engineering</h2>
+        <div class="split"><div><p class="lead">Follow the approved Cloud Security Audit Tooling request to its commitment.</p><dl class="ledger"><div><dt>Engineering available</dt><dd>$3,000</dd></div><div><dt>Operations available</dt><dd>$25,000</dd></div><div><dt>Northstar total</dt><dd>$28,000</dd></div></dl></div><figure class="capture"><img src="./assets/procurement-hub-detail.webp" alt="Approved tooling request with its commitment and audit history"><figcaption>Reference UI · one $7,000 commitment</figcaption></figure></div>
+      </div>
+      <!-- speaker:try-the-app -->
     </section>
 
     <section id="trust-pyramid" class="frame pyramid-slide" >
       <div class="stage">
         <p class="kicker">Workshop Trust Pyramid · adapted from Lauren Tan</p><h2>How do we earn trust in an agent’s work?</h2>
-        <div class="pyramid-wrap"><span class="cost">Cost increases ↓</span>
+        <div class="pyramid-wrap"><span class="cost">Five layers</span>
           <ol class="pyramid" aria-label="Five layers of an agent’s environment">
           <li class="fragment tier-1" data-fragment-index="0"><strong>Codebase &amp; Architecture</strong><span>Modular monolith · MoneyMinor · policies</span></li>
           <li class="fragment tier-2" data-fragment-index="1"><strong>Deterministic Checks</strong><span>ESLint boundaries · DB CHECK · Vitest · fast-check</span></li>
@@ -52,16 +61,16 @@
 
     <section id="procurement-hub" class="frame chapter dark" >
       <div class="stage">
-        <div class="chapter-main"><div><p class="kicker">Pillar 01 / 04</p><h2>Enterprise Codebase Foundations &amp; Enforceable Architecture</h2><p class="lead">Encode financial and boundary invariants in code, not prose.</p></div><figure class="face engineering-lead"><!-- avatar:engineering-lead --><figcaption>Engineering Lead</figcaption></figure></div><p class="chapter-note">Procurement Hub · Multi-tenant Cost Centers, approval limits, financial commitments, and audit trails.</p>
+        <div class="chapter-main"><div><p class="kicker">PH Lead · Acceptance criteria</p><h2>Which record gets the last dollar?</h2><p class="lead">The cost center owns the budget. Its committed amount must equal the sum of its commitments.</p></div><figure class="face engineering-lead"><!-- avatar:engineering-lead --><figcaption>PH Lead</figcaption></figure></div>
+        <p class="equation">available = allocated − committed <span>INV-01 / INV-02</span></p>
       </div>
       <!-- speaker:procurement-hub -->
     </section>
 
     <section id="invariant" class="frame " >
       <div class="stage">
-        <p class="kicker">PH-42 · Concurrent financial incident</p><h2>Two $7,000 approvals overspend a $10,000 budget</h2>
-        <div class="split"><div><p class="lead">Northstar Cost Center <code>CC-ENG-01</code> has $10,000 allocated. Requests A and B need $7,000 each. Concurrent approval commits $14,000 (-$4,000 available).</p><p class="callout">INV-01–10: committed ≤ allocated · idempotent retries · tenant isolation · auth on replay.</p></div>
-        <figure class="capture"><img src="./assets/procurement-hub.webp" alt="Procurement Hub showing tenant purchase requests and audit history"><figcaption>Procurement Hub synthetic multi-tenant lab</figcaption></figure></div>
+        <p class="kicker">The write boundary · CC-ENG-01</p><h2>Put the rule on the cost center</h2>
+        <div class="split"><div><p class="lead">Two request IDs refer to the same Engineering budget. Locking each request alone still allows both buyers to read the old balance.</p><p class="callout"><code>committed ≤ allocated</code><br>Evaluate the amount in integer cents.</p></div><figure class="capture"><img src="./assets/procurement-hub.webp" alt="Northstar dashboard showing the tenant total and the selected request’s cost center"><figcaption>The selected request draws on Engineering</figcaption></figure></div>
       </div>
       <!-- speaker:invariant -->
     </section>
@@ -79,109 +88,100 @@
 
     <section id="boot-lab" class="frame chapter dark" >
       <div class="stage">
-        <div class="chapter-main"><div><p class="kicker">Pillar 02 / 04</p><h2>Harness Engineering &amp; Reusable Verification Skills</h2><p class="lead">Give agents an executable way to drive the real system.</p></div><figure class="face harness-engineer"><!-- avatar:harness-engineer --><figcaption>Harness Engineer</figcaption></figure></div><ol class="handoff"><li>8 Feature Maps</li><li>verify-procurement skill</li><li>Launch + doctor</li><li>Drive + evidence + cleanup</li></ol>
+        <div class="chapter-main"><div><p class="kicker">Grok Bot · Team setup</p><h2>Give PH Engineer one writing role</h2><p class="lead">Give the engineer the issue, the recorded failure and one question: where do these requests share state?</p></div><figure class="face harness-engineer"><!-- avatar:harness-engineer --><figcaption>PH Security</figcaption></figure></div>
+        <ol class="handoff"><li>Lead scopes</li><li>Engineer owns the patch</li><li>Quality and Security review</li><li>Platform assembles evidence</li></ol>
       </div>
       <!-- speaker:boot-lab -->
     </section>
 
-    <section id="try-the-app" class="frame " >
-      <div class="stage">
-        <p class="kicker">Live demo · 12–20 min</p><h2>Exercise budgets, limits, audit, and isolation</h2>
-        <ol class="steps"><li><strong>Cost Centers</strong><span>Inspect $10,000 CC-ENG-01 budget and submit a request as Northstar Requester.</span></li><li><strong>Approver Policy</strong><span>Junior ($5k limit) blocked with 403; Senior ($25k) commits funds atomically.</span></li><li><strong>Audit &amp; Isolation</strong><span>Northstar Auditor traces 1:1 events; Meridian gets 404 on foreign IDs.</span></li></ol>
-        <p class="footnote"><a href="http://127.0.0.1:3000" target="_blank" rel="noopener noreferrer">Open Procurement Hub locally</a> · run <code>bun run lab:doctor</code> first</p>
-      </div>
-      <!-- speaker:try-the-app -->
-    </section>
-
-    <section id="runtime" class="frame chapter dark" >
-      <div class="stage">
-        <div class="chapter-main"><div><p class="kicker">Pillar 03 / 04</p><h2>Runtime Verification &amp; Self-Correcting Agent Loops</h2><p class="lead">Reproduce live, diagnose root cause, fix, and falsify claims.</p></div><figure class="face typescript-fde"><!-- avatar:typescript-fde --><figcaption>TypeScript FDE</figcaption></figure></div><p class="chapter-note">PH-42 · Bounded loop with anti-spin hypothesis guard &amp; real PostgreSQL feedback</p>
-      </div>
-      <!-- speaker:runtime -->
-    </section>
-
     <section id="reproduce" class="frame evidence snapshot" >
       <div class="stage">
-        <p class="kicker source">Live Starter Reproduction · 20 min</p><h2>Observe the real PostgreSQL budget overrun</h2>
-        <pre class="command"><code>bun run ph42:reproduce</code></pre>
-        <dl class="metrics">
-          <div><dt>200 + 200</dt><dd>Concurrent approvals</dd></div>
-          <div><dt>$14,000</dt><dd>Committed vs $10,000</dd></div>
-          <div><dt>-$4,000</dt><dd>INV-01 &amp; INV-02 violated</dd></div>
-        </dl>
-        <p class="evidence-note">Real Next.js + PostgreSQL 18 on workshop/starter · expected exit 1</p>
+        <p class="kicker source">Historical starter run · 5377971</p><h2>Both buyers received an approval</h2>
+        <dl class="metrics"><div><dt>200 + 200</dt><dd>Two API responses</dd></div><div><dt>$14,000</dt><dd>Two commitments posted</dd></div><div><dt>−$4,000</dt><dd>Available in Engineering</dd></div></dl>
+        <figure class="overrun-chart">
+          <figcaption>Allocated budget · $10,000</figcaption>
+          <div class="spend-track"><span>Purchase A · $7,000</span><span>Purchase B · $7,000</span></div>
+        </figure>
+        <p class="evidence-note"><code>phase04-starter-proof</code> · The harness expected to observe the budget overrun.</p>
       </div>
       <!-- speaker:reproduce -->
     </section>
 
+    <section id="runtime" class="frame chapter dark" >
+      <div class="stage">
+        <p class="kicker">PH Engineer · Transaction trace</p>
+        <div class="race-title"><h2>Two requests, one shared row</h2><figure class="face typescript-fde"><!-- avatar:typescript-fde --><figcaption>PH Engineer</figcaption></figure></div>
+        <div class="balance-meter">
+          <span>Engineering available</span>
+          <div class="balance-track" aria-hidden="true"></div>
+          <strong class="before-commit">$10,000</strong><strong class="after-commit">$3,000</strong>
+        </div>
+        <table class="trace-grid"><caption>Illustrated execution of the corrected approval path</caption><thead><tr><th>Turn</th><th>Transaction A</th><th>Transaction B</th></tr></thead><tbody>
+        <tr><th>Start</th><td>Approve request A · $7k</td><td>Approve request B · $7k</td></tr>
+        <tr class="fragment"><th>Lock</th><td>Locks Engineering · reads $10k</td><td>Waits for Engineering</td></tr>
+        <tr class="fragment commit-row"><th>Commit</th><td>Posts $7k · releases lock</td><td>Acquires lock · reads $3k</td></tr>
+        <tr class="fragment"><th>Decide</th><td>200 · APPROVED</td><td>409 · stays PENDING</td></tr></tbody></table>
+      </div>
+      <!-- speaker:runtime -->
+    </section>
+
     <section id="agent-loop" class="frame loop" >
       <div class="stage">
-        <p class="kicker">Live GrokBot Loop · 24–36 min</p><h2>Bounded self-correction driven by real feedback</h2>
-        <div class="loop-layout">
-          <figure class="diagram wide-diagram"><img src="./assets/verification-loop.svg" alt="Reproduce, root cause and hypothesis, minimal fix, deterministic and runtime checks, self-correct within budget or escalate.">
-            <ol class="diagram-mobile"><li>Reproduce live against PostgreSQL</li><li>Formulate hypothesis and scope change</li><li>Run deterministic and runtime gates</li><li>Revise hypothesis or escalate on budget</li></ol>
-            <figcaption><code>loop-runner.ts</code> persists state/handoff, enforces 2-retry cap, anti-spin, and scope guard.</figcaption></figure>
-          <figure class="expression">
-            <img src="./assets/bloub-cycle-still.webp" data-animation="./assets/bloub-default-cycle.gif" alt="" width="140" height="140">
-            <figcaption>Illustrative avatar expressions</figcaption>
-            <button type="button" hidden>Play avatar animation</button>
-          </figure>
-        </div>
-        <p class="callout fragment">Root fix: <code>SELECT ... FOR UPDATE</code> + DB <code>CHECK</code> + <code>decision_idempotency_keys</code> + auth-before-replay.</p>
+        <p class="kicker">Drizzle adapter · inside the approval transaction</p><h2>Read the budget under the lock</h2>
+        <div class="loop-layout"><div class="source-panel"><small>postgres-requests.ts · selected lines</small><pre><code>.from(costCenters)
+.where(and(eq(costCenters.tenantId, actor.tenantId),
+           eq(costCenters.id, precheck.costCenterId)))
+<span class="code-focus">.for("update")</span></code></pre></div>
+        <figure class="expression"><img src="./assets/bloub-cycle-still.webp" data-animation="./assets/bloub-default-cycle.gif" alt="" width="140" height="140"><figcaption>PH-42 investigation</figcaption><button type="button" hidden>Play avatar animation</button></figure></div>
+        <p class="callout fragment">Check the locked balance. Write the decision, commitment and audit event in one transaction.</p>
       </div>
       <!-- speaker:agent-loop -->
     </section>
 
     <section id="verify-live" class="frame evidence runtime" >
       <div class="stage">
-        <p class="kicker source">Live Solution Proof · 36 min</p><h2>One approval commits. The second rejects cleanly.</h2>
-        <pre class="command"><code>bun run ph42:reproduce</code></pre>
-        <dl class="metrics">
-          <div><dt>200 + 409</dt><dd>INSUFFICIENT_BUDGET</dd></div>
-          <div><dt>$7,000</dt><dd>Committed ($3,000 left)</dd></div>
-          <div><dt>1 + 1</dt><dd>Commitment &amp; APPROVED audit</dd></div>
-        </dl>
-        <div class="verification-role"><figure class="face qa-engineer"><!-- avatar:qa-engineer --><figcaption>QA Engineer</figcaption></figure> <span>Expected exit 0 · + concurrency &amp; security suites</span>
-          <div class="mini-pyramid" role="img" aria-label="Pyramid layer three: Runtime Verification"><i></i><i></i><i class="active"></i><i></i><i></i></div>
-        </div>
+        <p class="kicker source">Candidate check · expected observations</p><h2>Read the response and its receipt</h2>
+        <pre class="command"><code>bun run ph42:reproduce --isolated</code></pre>
+        <table class="trace-grid"><thead><tr><th>API response</th><th>Request</th><th>Persisted effect</th></tr></thead><tbody>
+        <tr class="fragment"><th>200 · APPROVED</th><td>Winner approved</td><td>One $7k commitment + one approval event</td></tr>
+        <tr class="fragment"><th>409 · INSUFFICIENT_BUDGET</th><td>Other request pending</td><td>$3k left · no second commitment</td></tr></tbody></table>
+        <div class="verification-role"><figure class="face qa-engineer"><!-- avatar:qa-engineer --><figcaption>PH Quality</figcaption></figure><span class="fragment">PH Security · After role revocation, the same key returns 403.</span></div>
       </div>
       <!-- speaker:verify-live -->
     </section>
 
-    <section id="optional-extension" class="frame " >
-      <div class="stage">
-        <p class="kicker">Layer 04 · Prepared Formal Verification (48–53 min)</p><h2>Check the contract. Run the app. Model-check the race.</h2>
-        <dl class="checks"><div><dt>Property-based (fast-check)</dt><dd>400 randomized multi-tenant budget &amp; retry cases (pinned seed 4207). Not formal proof.</dd></div>
-        <div><dt>TLA+ counterexample (exit 12)</dt><dd><code>defective-read-commit.cfg</code>: 7-step trace violates <code>BudgetNotExceeded</code> ($14k &gt; $10k).</dd></div>
-        <div><dt>TLA+ exhaustive check (exit 0)</dt><dd><code>locked-atomic.cfg</code>: 473 generated / 225 distinct states, 0 queued, all 6 invariants hold.</dd></div></dl>
-      </div>
-      <!-- speaker:optional-extension -->
-    </section>
-
     <section id="run-harness" class="frame chapter dark" >
       <div class="stage">
-        <div class="chapter-main"><div><p class="kicker">Pillar 04 / 04</p><h2>Evidence-Based Software Delivery &amp; Enterprise Governance</h2><p class="lead">Bind every claim to an exact revision and independent gate.</p></div><figure class="face devops-engineer"><!-- avatar:devops-engineer --><figcaption>DevOps Engineer</figcaption></figure></div><ol class="handoff"><li>6 split CI jobs</li><li>governance-guard</li><li>summary.md + manifest</li><li>Human approval</li></ol>
+        <div class="chapter-main"><div><p class="kicker">PH Platform · Verification harness</p><h2>Make the budget check repeatable</h2><p class="lead">A Feature Map tells the next reviewer what action to take and which record to inspect afterward.</p></div><figure class="face devops-engineer"><!-- avatar:devops-engineer --><figcaption>PH Platform</figcaption></figure></div>
+        <ol class="handoff"><li>Seed $10k</li><li>Submit two decisions</li><li>Read the ledger</li><li>Keep the manifest after cleanup</li></ol>
       </div>
       <!-- speaker:run-harness -->
     </section>
 
     <section id="review" class="frame " >
       <div class="stage">
-        <p class="kicker">Live demo · 40–48 min · Layer 05 Governance</p><h2>Would you approve this exact revision?</h2>
-        <ol class="steps"><li><strong>Match the SHA</strong><span>Compare PR head against <code>summary.md</code>, <code>manifest.json</code>, and 6 CI jobs.</span></li><li><strong>Audit governance-guard</strong><span>Confirm acceptance criteria, ESLint rules, and tests were not weakened.</span></li><li><strong>Own the merge</strong><span>Agents investigate and verify; authorized humans approve and merge.</span></li></ol>
-        <div class="review-note"><div class="presenter"><img src="./assets/glaucia-lemos.jpg" alt="" width="64" height="64"><div><strong>Glaucia Lemos</strong><span>Human Reviewer · Owns the merge decision</span></div></div>
-          <div class="mini-pyramid" role="img" aria-label="Pyramid layer five: Prose, Skills and Human Review"><i></i><i></i><i></i><i></i><i class="active"></i></div>
-        </div>
+        <p class="kicker">Chat vote · Mixed-revision exercise</p><h2>Would you approve this commit?</h2>
+        <dl class="packet"><div><dt>Candidate for this exercise</dt><dd><code>6ba0bed</code></dd></div><div><dt>Budget and audit run</dt><dd><code>6ba0bed</code> · pass</dd></div><div><dt>Attached security run</dt><dd><code>67d5f4e</code> · pass</dd></div></dl>
+        <p class="question-line">Approve or hold? Name the evidence you would request.</p>
+        <div class="review-note"><div class="presenter"><img src="./assets/glaucia-lemos.jpg" alt="" width="64" height="64"><div><strong>Glaucia Lemos</strong><span>Human Reviewer</span></div></div><strong class="fragment">Hold · verify security on the candidate SHA.</strong></div>
       </div>
       <!-- speaker:review -->
     </section>
 
+    <section id="optional-extension" class="frame " >
+      <div class="stage">
+        <p class="kicker">TLA+ / TLC · Prepared model run · 6ba0bed</p><h2>Which ordering breaks the rule?</h2>
+        <div class="model-pair"><div><small>Defective model · exit 12</small><h3>Read, read, commit, commit</h3><p>Both workers observe 10 units. Two commitments of 7 violate <code>BudgetNotExceeded</code>.</p></div><div class="fragment"><small>Locked model · exit 0</small><h3>225 distinct states</h3><p>Two workers, two requests and two keys. TLC exhausts the reachable states within these bounds.</p></div></div>
+        <p class="evidence-note">The PostgreSQL run checks the implementation of this protocol.</p>
+      </div>
+      <!-- speaker:optional-extension -->
+    </section>
+
     <section id="takeaways" class="frame " >
       <div class="stage">
-        <p class="kicker">Reusable Enterprise Starter Kit · 53 min</p><h2>Leave with an engineering system you can adopt incrementally</h2>
-        <div class="split"><figure class="diagram"><img src="./assets/concurrency.svg" alt="Concurrent $7,000 approvals against a $10,000 cost center produce one 200 APPROVED ($7,000 committed, $3,000 left) and one 409 INSUFFICIENT_BUDGET."><figcaption>Start with one high-risk invariant in your brownfield repo.</figcaption></figure>
-        <dl class="checks compact"><div><dt>12 Starter Kit templates</dt><dd>Architecture checklist, AGENTS.md, Feature Maps, Verification Skill, TLA+ starter</dd></div><div><dt>Harness &amp; Loop</dt><dd>Isolated lifecycle, DB snapshots, anti-spin loop, persisted handoffs</dd></div><div><dt>Governance</dt><dd>6-job least-privilege CI, governance-guard, 11-section PR template</dd></div></dl></div>
-        <p class="footnote"><a href="https://github.com/cursor/plugins/tree/main/pstack">Lauren Tan’s pstack</a> · portable adaptation in <code>starter-kit/</code></p>
+        <p class="kicker">Take home · Enterprise starter kit</p><h2>Write one Feature Map for your team</h2>
+        <dl class="packet"><div><dt>User action</dt><dd>Approve a purchase.</dd></div><div><dt>Observable rule</dt><dd>One approval posts exactly one commitment.</dd></div><div><dt>Evidence to keep</dt><dd>Response, ledger count and the tested revision.</dd></div></dl>
+        <p class="footnote"><code>starter-kit/03-feature-map.template.md</code></p>
       </div>
       <!-- speaker:takeaways -->
     </section>
@@ -189,9 +189,9 @@
     <section id="questions" class="frame cover dark" >
       <div class="stage">
         <div class="cover-layout"><div>
-        <p class="kicker">Q&amp;A · 53–60 min</p><h2>Don't just build better agents. <em>Engineer better environments for agents.</em></h2>
+        <p class="kicker">Questions · Handoff to Debbie O’Brien at 12:00 BRT</p><h2>What would you ask for <em>before you merge?</em></h2>
         <div class="presenter"><img src="./assets/glaucia-lemos.jpg" alt="Glaucia Lemos" width="64" height="64"><div><strong>Glaucia Lemos</strong><span>Human Reviewer <b>·</b> <a href="https://github.com/glaucia86">GitHub</a> <b>·</b> <a href="https://www.linkedin.com/in/glaucialemos/">LinkedIn</a></span></div></div>
-        <p class="footnote"><a href="#/start">Back to the first slide</a></p></div><div class="cast" aria-label="Workshop bot team"><figure class="face engineering-lead"><!-- avatar:engineering-lead --><figcaption>Engineering Lead</figcaption></figure><figure class="face harness-engineer"><!-- avatar:harness-engineer --><figcaption>Harness Engineer</figcaption></figure><figure class="face typescript-fde"><!-- avatar:typescript-fde --><figcaption>TypeScript FDE</figcaption></figure><figure class="face qa-engineer"><!-- avatar:qa-engineer --><figcaption>QA Engineer</figcaption></figure><figure class="face devops-engineer"><!-- avatar:devops-engineer --><figcaption>DevOps Engineer</figcaption></figure></div></div>
+        <p class="footnote"><a href="#/start">Back to the first slide</a></p></div><div class="cast" aria-label="Workshop bot team"><figure class="face engineering-lead"><!-- avatar:engineering-lead --><figcaption>PH Lead</figcaption></figure><figure class="face typescript-fde"><!-- avatar:typescript-fde --><figcaption>PH Engineer</figcaption></figure><figure class="face qa-engineer"><!-- avatar:qa-engineer --><figcaption>PH Quality</figcaption></figure><figure class="face harness-engineer"><!-- avatar:harness-engineer --><figcaption>PH Security</figcaption></figure><figure class="face devops-engineer"><!-- avatar:devops-engineer --><figcaption>PH Platform</figcaption></figure></div></div>
       </div>
       <!-- speaker:questions -->
     </section>
