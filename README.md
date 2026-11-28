@@ -1,24 +1,37 @@
 <div align="center">
 
+<a href="#the-five-grok-bots"><picture>
+  <source media="(prefers-reduced-motion: reduce)" srcset="slides/assets/bloub-cycle-still.webp">
+  <img src="slides/assets/bloub-cercle-attentif-encre-anime.svg" width="120" height="120" alt="PH Security, the black workshop avatar. Meet the five Grok Bots.">
+</picture></a>
+
 # GrokBot for Enterprise Engineering Workflows
 
 ### From Issue to Verified Pull Request
 
 **Packt Advanced Workshop · December 11, 2026 · 60 minutes**
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Bun](https://img.shields.io/badge/Bun-1.4.5-252529?logo=bun&logoColor=white)](https://bun.sh/)
-[![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=nextdotjs&logoColor=white)](https://nextjs.org/)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18.7-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![Vitest](https://img.shields.io/badge/Vitest-5.1-6E9F18?logo=vitest&logoColor=white)](https://vitest.dev/)
-[![Playwright](https://img.shields.io/badge/Playwright-Chromium-2EAD33?logo=playwright&logoColor=white)](https://playwright.dev/)
-[![TLA+](https://img.shields.io/badge/TLA%2B-TLC_1.7.4-1F4E79)](formal/README.md)
+[![Bun 1.4.5](https://img.shields.io/badge/Bun-1.4.5-65483D?style=for-the-badge&labelColor=242933&logo=bun&logoColor=F4D9BE)](package.json)
+[![TypeScript 5.9.3](https://img.shields.io/badge/TypeScript-5.9.3-255F99?style=for-the-badge&labelColor=242933&logo=typescript&logoColor=82BCFA)](tsconfig.json)
+[![Next.js 16.4.6](https://img.shields.io/badge/Next.js-16.4.6-435064?style=for-the-badge&labelColor=242933&logo=nextdotjs&logoColor=white)](package.json)
+[![PostgreSQL 18.7](https://img.shields.io/badge/PostgreSQL-18.7-315C7F?style=for-the-badge&labelColor=242933&logo=postgresql&logoColor=9ECCED)](compose.yaml)
 
-Build an enterprise engineering environment where AI coding agents autonomously investigate, fix, and verify a real financial concurrency incident under enforceable architectural constraints and human-approved delivery governance.
+[![Vitest 5.1.1](https://img.shields.io/badge/Vitest-5.1.1-456522?style=for-the-badge&labelColor=242933)](vitest.config.ts)
+[![Playwright 1.62.1 with Chromium](https://img.shields.io/badge/Playwright-1.62.1_%C2%B7_Chromium-20624E?style=for-the-badge&labelColor=242933)](playwright.config.ts)
+[![TLA+ tools 1.7.4 for TLC model checking](https://img.shields.io/badge/TLA%2B_tools-1.7.4-594579?style=for-the-badge&labelColor=242933)](formal/README.md)
+
+Two approvers each see enough budget for a $7,000 purchase. What happens when they approve both requests at the same time against a shared $10,000 budget? In this workshop, you investigate that race in Procurement Hub, a synthetic purchasing app, and follow five Grok Bots from the first failing check to a pull request ready for human review.
 
 **[Participant Guide](docs/workshop/PARTICIPANT-GUIDE.md) · [Facilitator Guide](docs/workshop/FACILITATOR-GUIDE.md) · [PH-42 Incident](doc-specs/03-demo-issue-42.md) · [Reusable Starter Kit](starter-kit/README.md) · [Slides](slides/README.md)**
 
 </div>
+
+## Table of Contents
+
+- [Workshop pillars](#the-four-workshop-pillars) · [The PH-42 incident](#the-enterprise-incident-ph-42)
+- [Application preview](#application-preview) · [Application architecture](#application-architecture) · [The five Grok Bots](#the-five-grok-bots)
+- [Quick start](#quick-start) · [Engineering commands](#core-engineering-commands) · [Workshop editions and recovery](#workshop-editions-and-recovery)
+- [Documentation and reusable assets](#workshop-resources) · [Attribution](#attribution) · [About the presenter](#about-the-presenter)
 
 ---
 
@@ -43,15 +56,37 @@ In **PH-42 (*Concurrent Procurement Approval Violates Financial and Tenant Isola
 - On `workshop/starter`, approving both concurrently commits **`$14,000.00`** against **`$10,000.00`** (**`-$4,000.00` available**), violating `INV-01` and `INV-02`.
 - The reference solution (`workshop/solution`) enforces all ten business invariants (`INV-01`–`INV-10`) through PostgreSQL row-level locking (`SELECT ... FOR UPDATE`), database `CHECK` and `UNIQUE` constraints, tenant-scoped `decision_idempotency_keys` with canonical payload conflict detection, authorization re-checked before idempotent replay, and atomic ACID audit trails.
 
-### Application Preview
+## Application Preview
 
-![Procurement Hub enterprise dashboard showing Northstar cost center budgets, KPI summary strip, utilization meters, and status-filtered tenant requests](docs/media/procurement-hub.webp)
+![Procurement Hub home with product navigation and an illustrative Platform Engineering approval](docs/media/procurement-hub-home.webp)
 
-*Enterprise dashboard: Cost Center ledger (`CC-ENG-01` at 70% utilization after approving `$7,000.00`), KPI summary strip, approval limit badge, and URL-synced status filters.*
+*The public home introduces the decision workflow with an example $7,000 commitment.*
 
-![Procurement Hub request detail showing two-column executive layout, Cost Center ledger, durable financial commitment, and vertical audit timeline](docs/media/procurement-hub-detail.webp)
+![Northstar approval inbox with one pending request, one approved request and $28,000 available](docs/media/procurement-hub.webp)
 
-*Request detail view: 2-column executive layout with Cost Center ledger, durable 1:1 financial commitment record, and chronological vertical audit trail.*
+*Northstar has $28,000 available across two cost centers. The selected CI Runner Capacity Expansion request would exceed the $3,000 available in Platform Engineering.*
+
+![Approved Cloud Security Audit Tooling request with its audit trail and $7,000 financial commitment](docs/media/procurement-hub-detail.webp)
+
+*The request records who submitted and approved it. The commitment panel identifies the approver and the amount posted.*
+
+## Application Architecture
+
+Procurement Hub is a **modular monolith**. When an approver submits a decision, a Next.js route validates the input with Zod. The server uses the session and membership record to identify the approver, their tenant and their approval limit. The application layer calls a repository interface, and the domain defines approval rules and represents money in integer cents. For a successful approval, the PostgreSQL adapter updates the request and its cost center, records the financial commitment, and appends the audit event in one transaction. [Architecture and API contracts](SPEC.md)
+
+![Approval flow from the browser through Next.js validation and procurement rules to the PostgreSQL budget and audit transaction](slides/assets/architecture.svg)
+
+## The Five Grok Bots
+
+| Bot | What it contributes to PH-42 |
+| --- | --- |
+| **PH Lead** | Sets the acceptance criteria with Glau and assigns the investigation to PH Engineer. |
+| **PH Engineer** | Uses the failing run to identify the cause and prepares the TypeScript patch. |
+| **PH Quality** | Checks the candidate independently. For the two $7,000 requests, it compares the API responses with the database and looks for one commitment and $3,000 left. |
+| **PH Security** | Reviews the same commit for tenant isolation and approval limits, including whether a retry still requires authorization. |
+| **PH Platform** | Prepares the lab and assembles the verification results for review, identifying the exact Git commit tested. |
+
+Glau runs the checks in the local lab and shares sanitized results with the bots. Quality and Security return findings to Engineer. Glau reviews the evidence and decides whether to merge. [Team roles and review protocol](docs/agents/AGENT-ROLES.md)
 
 ---
 
@@ -96,16 +131,20 @@ come from the lab database.
 
 ---
 
-## Workshop Branches & Recovery Checkpoints
+## Workshop editions and recovery
+
+Branch names below identify refs inside individual bundles. Availability depends on the bundle supplied for the session. Check its manifest and clone HEAD before use.
 
 | Ref | Purpose |
 | --- | --- |
 | `workshop/starter` | Spoiler-free runnable brownfield app with the real reproducible PH-42 overspending defect (`ph42:reproduce` exits `1`) |
 | `workshop/guided` | Starter + progressive `GUIDED-WORKSHEET.md` hints and milestones without revealing the full fix |
 | `workshop/solution` | Complete verified reference implementation, tests, formal verification, and governance artifacts |
-| `checkpoint-00-starter` .. `checkpoint-05-pr-ready` | Immutable local recovery checkpoints for live 60-minute facilitation |
+| `checkpoint-00-starter` .. `checkpoint-05-pr-ready` | Historical local refs. Use a verified bundle and its manifest to recover the current UI |
 
 ---
+
+<a name="workshop-resources"></a>
 
 ## Documentation & Reusable Enterprise Assets
 
@@ -118,6 +157,8 @@ come from the lab database.
 ---
 
 ## Attribution
+
+The black PH Security avatar uses Bloub by Jérémy Perret. [Artwork credits](slides/assets/credits.txt) · [Bloub license](slides/assets/bloub-license.txt)
 
 Inspired by Lauren Tan's [*All Code Is Slop (Except Mine)*](https://www.youtube.com/watch?v=O_zcc6Xl12g) and [`cursor/plugins/pstack`](https://github.com/cursor/plugins/tree/main/pstack) (MIT). All skills, harnesses, loop runners, and formal workflows in this repository are independent, portable TypeScript adaptations for this workshop.
 
